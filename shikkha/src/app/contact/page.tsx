@@ -15,7 +15,7 @@ import { TiltCard } from "@/components/marketing/tilt-card";
 import { Magnetic } from "@/components/marketing/magnetic";
 
 export const metadata = {
-  title: "Contact — Shikkha Platform",
+  title: "Contact — Muhius Sunnah",
   description: "Get in touch for demos, support, or partnerships. Available in 4 languages.",
 };
 
@@ -107,24 +107,29 @@ export default function ContactPage() {
             {/* Contact info */}
             <div className="space-y-4">
               {[
-                { icon: Phone, accent: "from-primary to-accent", title: "ফোন করুন", lines: ["+৮৮০ ১৭XX-XXXXXX", "সকাল ৯টা - রাত ৯টা"] },
-                { icon: Mail, accent: "from-accent to-secondary", title: "ইমেইল করুন", lines: ["hello@shikkha.app", "২৪ ঘণ্টায় reply"] },
-                { icon: MessageCircle, accent: "from-success to-accent", title: "WhatsApp", lines: ["+৮৮০ ১৭XX-XXXXXX", "দ্রুত response পেতে"] },
-                { icon: MapPin, accent: "from-secondary to-primary", title: "অফিস", lines: ["ঢাকা, বাংলাদেশ", "appointment-এ visit"] },
+                { icon: Phone, accent: "from-primary to-accent", title: "ফোন করুন", href: "tel:+8801767682381", lines: ["+৮৮০ ১৭৬৭-৬৮২৩৮১", "সকাল ৯টা - রাত ৯টা"] },
+                { icon: Mail, accent: "from-accent to-secondary", title: "ইমেইল করুন", href: "mailto:itsinjamul@gmail.com", lines: ["itsinjamul@gmail.com", "২৪ ঘণ্টায় reply"] },
+                { icon: MessageCircle, accent: "from-success to-accent", title: "WhatsApp", href: "https://wa.me/8801767682381", lines: ["+৮৮০ ১৭৬৭-৬৮২৩৮১", "দ্রুত response পেতে"] },
+                { icon: MapPin, accent: "from-secondary to-primary", title: "অফিস", href: "#", lines: ["ঢাকা, বাংলাদেশ", "appointment-এ visit"] },
               ].map((item, i) => (
                 <Reveal key={item.title} variant="slide-left" delay={i * 100}>
                   <TiltCard>
-                    <div className="shine-border h-full rounded-2xl border border-border/60 bg-card/50 p-5 flex items-start gap-4 backdrop-blur-sm hover-lift">
-                      <div className={`flex size-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${item.accent} text-white shadow-lg`}>
+                    <a
+                      href={item.href}
+                      target={item.href.startsWith("http") ? "_blank" : undefined}
+                      rel="noreferrer"
+                      className="shine-border group h-full rounded-2xl border border-border/60 bg-card/50 p-5 flex items-start gap-4 backdrop-blur-sm hover-lift"
+                    >
+                      <div className={`flex size-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${item.accent} text-white shadow-lg transition-transform group-hover:scale-110`}>
                         <item.icon className="size-5" />
                       </div>
                       <div>
                         <h3 className="font-semibold">{item.title}</h3>
                         {item.lines.map((l, j) => (
-                          <p key={j} className={j === 0 ? "text-sm font-medium" : "text-xs text-muted-foreground mt-0.5"}>{l}</p>
+                          <p key={j} className={j === 0 ? "text-sm font-medium group-hover:text-primary transition-colors" : "text-xs text-muted-foreground mt-0.5"}>{l}</p>
                         ))}
                       </div>
-                    </div>
+                    </a>
                   </TiltCard>
                 </Reveal>
               ))}

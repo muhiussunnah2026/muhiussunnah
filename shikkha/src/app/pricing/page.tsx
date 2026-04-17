@@ -15,8 +15,8 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getMarketingCopy } from "@/lib/i18n/marketing";
 
 export const metadata = {
-  title: "Pricing — Shikkha Platform",
-  description: "Transparent pricing for schools and madrasas. Lifetime deal from ৳5,000 one-time. No hidden costs.",
+  title: "Pricing — Muhius Sunnah",
+  description: "Transparent pricing for schools and madrasas. Lifetime deal ৳20,000 one-time. No hidden costs.",
 };
 
 export default async function PricingPage() {
@@ -119,6 +119,12 @@ export default async function PricingPage() {
                         {plan.cta}
                       </Link>
                     </Magnetic>
+                    <Link
+                      href={`/pricing/${plan.priceUnit === "once" ? "lifetime" : plan.name.toLowerCase()}`}
+                      className="mt-2 text-center text-xs text-primary hover:underline underline-offset-4 font-medium"
+                    >
+                      {t.extras.viewDetails} →
+                    </Link>
                   </div>
                 </TiltCard>
               </Reveal>

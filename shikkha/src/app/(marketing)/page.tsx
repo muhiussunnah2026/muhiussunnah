@@ -162,7 +162,7 @@ export default async function LandingPage() {
 
         {/* Scroll hint */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/60 flex flex-col items-center gap-2">
-          <span>Scroll</span>
+          <span>{t.extras.scroll}</span>
           <div className="h-8 w-[1px] bg-gradient-to-b from-muted-foreground/50 to-transparent animate-float" />
         </div>
       </section>
@@ -173,15 +173,11 @@ export default async function LandingPage() {
       <section className="border-y border-border/40 bg-muted/10 py-10">
         <Reveal variant="fade-in" className="mx-auto w-full max-w-7xl px-4 md:px-8">
           <p className="text-center text-xs uppercase tracking-[0.3em] text-muted-foreground mb-6">
-            ১২০+ প্রতিষ্ঠানের বিশ্বস্ত
+            {t.extras.trustedBy}
           </p>
           <Marquee speed="45s">
-            {[
-              "ঢাকা ইসলামিয়া", "গ্রীন হাইস্কুল", "জামিয়া ইসলামিয়া", "সাউদিয়া মডেল",
-              "রাজউক কলেজ", "মিরপুর মাদ্রাসা", "বাকলিয়া একাডেমি", "ময়মনসিংহ স্কুল",
-              "চট্টগ্রাম পাবলিক", "সিলেট ক্যাডেট", "নর্থ সাউথ প্রি-স্কুল", "আল-আমিন মাদ্রাসা",
-            ].map((n) => (
-              <span key={n} className="text-xl md:text-2xl font-semibold text-muted-foreground/50 hover:text-foreground transition-colors cursor-none">
+            {t.extras.schools.map((n) => (
+              <span key={n} className="text-xl md:text-2xl font-semibold text-muted-foreground/50 hover:text-foreground transition-colors">
                 {n}
               </span>
             ))}
@@ -195,9 +191,9 @@ export default async function LandingPage() {
       <section className="relative overflow-hidden py-24 mesh-bg-2">
         <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
           <Reveal variant="fade-up" className="text-center mb-14">
-            <Badge variant="outline" className="px-3 mb-4">পরিসংখ্যান</Badge>
+            <Badge variant="outline" className="px-3 mb-4">{t.extras.statsBadge}</Badge>
             <h2 className="text-3xl md:text-5xl font-bold">
-              সংখ্যায় যা বলে — <span className="text-gradient-primary">আমরা এগিয়ে</span>
+              {t.extras.statsHeadingLead} <span className="text-gradient-primary">{t.extras.statsHeadingAccent}</span>
             </h2>
           </Reveal>
 
@@ -255,7 +251,7 @@ export default async function LandingPage() {
                         <h3 className="font-semibold text-lg mb-1.5">{f.title}</h3>
                         <p className="text-sm text-muted-foreground leading-relaxed">{f.body}</p>
                         <div className="mt-4 flex items-center text-xs text-primary opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                          আরও জানুন <ArrowRight className="ms-1 size-3 rtl:rotate-180" />
+                          {t.extras.learnMore} <ArrowRight className="ms-1 size-3 rtl:rotate-180" />
                         </div>
                       </div>
                     </div>
@@ -335,7 +331,7 @@ export default async function LandingPage() {
 
                     <Magnetic strength={0.15}>
                       <Link
-                        href="/pricing"
+                        href={`/pricing/${plan.priceUnit === "once" ? "lifetime" : plan.name.toLowerCase()}`}
                         className={
                           buttonVariants({ variant: plan.highlighted ? "default" : "outline", size: "sm" }) +
                           " w-full" +

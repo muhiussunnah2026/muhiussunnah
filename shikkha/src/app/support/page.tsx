@@ -166,7 +166,7 @@ export default function SupportPage() {
             </Reveal>
             <div className="grid gap-4 md:grid-cols-3">
               {[
-                { icon: Mail, label: "Email সাপোর্ট", value: "support@muhiussunnah.com", href: "mailto:support@muhiussunnah.com" },
+                { icon: Mail, label: "Email সাপোর্ট", value: "itsinjamul@gmail.com", href: "mailto:itsinjamul@gmail.com" },
                 { icon: Phone, label: "Hotline", value: "+৮৮০ ১৭৬৭-৬৮২৩৮১", href: "tel:+8801767682381" },
                 { icon: Clock, label: "সাপোর্ট সময়", value: "সকাল ৯টা - রাত ৯টা", href: "#" },
               ].map((c, i) => (

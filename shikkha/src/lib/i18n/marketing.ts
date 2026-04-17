@@ -76,6 +76,23 @@ type Copy = {
 
   // Footer
   footer: { tagline: string; product: string; company: string; legal: string; privacy: string; terms: string; copyright: string };
+
+  // Extras (common hardcoded strings previously scattered across landing page)
+  extras: {
+    scroll: string;
+    trustedBy: string;
+    statsHeadingLead: string;      // "By the numbers"
+    statsHeadingAccent: string;    // "we are ahead"
+    statsBadge: string;
+    viewDetails: string;
+    learnMore: string;
+    schools: string[];              // marquee school names
+    supportLabel: string;
+    refundLabel: string;
+    followUs: string;
+    weAccept: string;
+    allSystemsOperational: string;
+  };
 };
 
 // ─── বাংলা ─────────────────────────────────────────────────────────────────
@@ -229,6 +246,22 @@ const bn: Copy = {
     product: "প্রোডাক্ট", company: "কোম্পানি", legal: "আইনি",
     privacy: "গোপনীয়তা নীতি", terms: "শর্তাবলী",
     copyright: "© ২০২৬ Muhius Sunnah · সর্বস্বত্ব সংরক্ষিত।",
+  },
+
+  extras: {
+    scroll: "স্ক্রল",
+    trustedBy: "১২০+ প্রতিষ্ঠানের বিশ্বস্ত",
+    statsHeadingLead: "সংখ্যায় যা বলে —",
+    statsHeadingAccent: "আমরা এগিয়ে",
+    statsBadge: "পরিসংখ্যান",
+    viewDetails: "বিস্তারিত দেখুন",
+    learnMore: "আরও জানুন",
+    schools: ["ঢাকা ইসলামিয়া", "গ্রীন হাইস্কুল", "জামিয়া ইসলামিয়া", "সাউদিয়া মডেল", "রাজউক কলেজ", "মিরপুর মাদ্রাসা", "বাকলিয়া একাডেমি", "ময়মনসিংহ স্কুল", "চট্টগ্রাম পাবলিক", "সিলেট ক্যাডেট", "নর্থ সাউথ প্রি-স্কুল", "আল-আমিন মাদ্রাসা"],
+    supportLabel: "সাপোর্ট",
+    refundLabel: "Refund Policy",
+    followUs: "আমাদের ফলো করুন",
+    weAccept: "আমরা গ্রহণ করি",
+    allSystemsOperational: "সব সিস্টেম চালু আছে",
   },
 };
 
@@ -384,6 +417,22 @@ const en: Copy = {
     privacy: "Privacy Policy", terms: "Terms of Service",
     copyright: "© 2026 Muhius Sunnah · All rights reserved.",
   },
+
+  extras: {
+    scroll: "Scroll",
+    trustedBy: "Trusted by 120+ institutions",
+    statsHeadingLead: "The numbers speak —",
+    statsHeadingAccent: "we're ahead",
+    statsBadge: "By the Numbers",
+    viewDetails: "View Details",
+    learnMore: "Learn More",
+    schools: ["Dhaka Islamia", "Green Highschool", "Jamia Islamia", "Saudia Model", "Rajuk College", "Mirpur Madrasa", "Baklia Academy", "Mymensingh School", "Chittagong Public", "Sylhet Cadet", "North South Pre-School", "Al-Amin Madrasa"],
+    supportLabel: "Support",
+    refundLabel: "Refund Policy",
+    followUs: "Follow Us",
+    weAccept: "We Accept",
+    allSystemsOperational: "All systems operational",
+  },
 };
 
 // ─── اردو (Urdu, RTL) ──────────────────────────────────────────────────────
@@ -514,6 +563,22 @@ const ur: Copy = {
     privacy: "رازداری", terms: "شرائط",
     copyright: "© ۲۰۲۶ Muhius Sunnah · جملہ حقوق محفوظ۔",
   },
+
+  extras: {
+    scroll: "سکرول",
+    trustedBy: "۱۲۰+ اداروں کا اعتماد",
+    statsHeadingLead: "اعداد کہتے ہیں —",
+    statsHeadingAccent: "ہم آگے ہیں",
+    statsBadge: "اعداد و شمار",
+    viewDetails: "تفصیلات دیکھیں",
+    learnMore: "مزید جانیں",
+    schools: ["ڈھاکہ اسلامیہ", "گرین ہائی اسکول", "جامعہ اسلامیہ", "سعودیہ ماڈل", "راجوک کالج", "میرپور مدرسہ", "باقلیہ اکیڈمی", "میمن سنگھ اسکول", "چٹاگانگ پبلک", "سلہٹ کیڈٹ", "نارتھ ساؤتھ پری اسکول", "الامین مدرسہ"],
+    supportLabel: "سپورٹ",
+    refundLabel: "رقم کی واپسی",
+    followUs: "فالو کریں",
+    weAccept: "ہم قبول کرتے ہیں",
+    allSystemsOperational: "تمام سسٹم چل رہے ہیں",
+  },
 };
 
 // ─── العربية (Arabic, RTL) ─────────────────────────────────────────────────
@@ -643,6 +708,22 @@ const ar: Copy = {
     product: "المنتج", company: "الشركة", legal: "قانوني",
     privacy: "سياسة الخصوصية", terms: "الشروط",
     copyright: "© 2026 Muhius Sunnah · جميع الحقوق محفوظة.",
+  },
+
+  extras: {
+    scroll: "مرّر",
+    trustedBy: "موثوق به من 120+ مؤسسة",
+    statsHeadingLead: "الأرقام تتحدث —",
+    statsHeadingAccent: "نحن في المقدمة",
+    statsBadge: "إحصائيات",
+    viewDetails: "عرض التفاصيل",
+    learnMore: "اعرف المزيد",
+    schools: ["دكا الإسلامية", "المدرسة الخضراء", "جامعة إسلامية", "نموذج سعودية", "كلية راجوك", "مدرسة ميربور", "أكاديمية باقليا", "مدرسة ميمنسنغ", "شيتاغونغ العامة", "سيلهيت كاديت", "روضة شمال جنوب", "مدرسة الأمين"],
+    supportLabel: "الدعم",
+    refundLabel: "سياسة الاسترداد",
+    followUs: "تابعنا",
+    weAccept: "نقبل",
+    allSystemsOperational: "جميع الأنظمة تعمل",
   },
 };
 

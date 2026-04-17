@@ -13,7 +13,7 @@ import { Magnetic } from "@/components/marketing/magnetic";
 import { AnimatedCounter } from "@/components/marketing/animated-counter";
 
 export const metadata = {
-  title: "About — Shikkha Platform",
+  title: "About — Muhius Sunnah",
   description: "Our mission: modernize Bangladesh's schools and madrasas with local-first technology.",
 };
 
@@ -38,7 +38,7 @@ export default function AboutPage() {
             </Reveal>
             <Reveal variant="fade-up" delay={400}>
               <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-                Shikkha Platform-এর যাত্রা শুরু একটি সহজ প্রশ্ন দিয়ে — কেন আমাদের স্কুলগুলোর জন্য বিদেশি software-ই একমাত্র বিকল্প?
+                Muhius Sunnah-এর যাত্রা শুরু একটি সহজ প্রশ্ন দিয়ে — কেন আমাদের স্কুলগুলোর জন্য বিদেশি software-ই একমাত্র বিকল্প?
               </p>
             </Reveal>
           </div>
@@ -88,7 +88,7 @@ export default function AboutPage() {
 
           {/* Story */}
           <Reveal variant="fade-up">
-            <h2 className="text-2xl md:text-4xl font-bold text-center mb-10">কেন Shikkha?</h2>
+            <h2 className="text-2xl md:text-4xl font-bold text-center mb-10">কেন Muhius Sunnah?</h2>
             <div className="grid gap-8 md:grid-cols-2">
               <TiltCard>
                 <div className="h-full rounded-2xl border border-destructive/30 bg-destructive/5 p-6 hover-lift">

@@ -7,14 +7,16 @@ import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * Sticky shrinking navbar.
+ * Fixed-position shrinking navbar that truly merges with the hero.
  *
- * • Top of page: transparent, taller, merges with hero.
- * • After scrolling ~40px: solid blurred background, shrinks vertically,
- *   adds shadow + border. All transitions spring-animated.
+ * Positioned `fixed` at top so it floats over whatever section is below —
+ * the first hero section renders from y=0, letting its mesh background
+ * extend all the way to the top with the nav visually floating on top.
  *
- * Handles all RSC inputs as props so the server component wrapper can
- * stay async/locale-aware.
+ * • Top of page: fully transparent, no border/shadow/blur.
+ * • After scrolling ~40px: solid blurred bg, border, shadow, smaller padding.
+ *
+ * Transitions: 500ms cubic-bezier(0.16,1,0.3,1) — spring feel.
  */
 export function NavShell({
   logo,
@@ -47,10 +49,10 @@ export function NavShell({
   return (
     <header
       className={cn(
-        "sticky top-0 z-30 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+        "fixed inset-x-0 top-0 z-30 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
         scrolled
-          ? "border-b border-border/50 bg-background/80 backdrop-blur-xl shadow-[0_10px_30px_-20px_rgba(124,92,255,0.15)]"
-          : "border-b border-transparent bg-transparent backdrop-blur-0",
+          ? "border-b border-border/50 bg-background/75 backdrop-blur-xl shadow-[0_10px_30px_-20px_rgba(124,92,255,0.2)]"
+          : "border-b border-transparent bg-transparent",
       )}
     >
       <div

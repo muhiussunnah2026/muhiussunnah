@@ -19,7 +19,7 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getMarketingCopy } from "@/lib/i18n/marketing";
 
 export const metadata = {
-  title: "Features — Shikkha Platform",
+  title: "Features — Muhius Sunnah",
   description: "Complete feature set — student management to AI insights to madrasa modules.",
 };
 

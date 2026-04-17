@@ -53,13 +53,16 @@ function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.has(pathname)) return true;
   if (AUTH_PATHS.has(pathname)) return true;
   if (pathname.startsWith("/s/")) return true;                // public school pages
+  if (pathname.startsWith("/pricing/")) return true;          // pricing detail pages
   if (pathname.startsWith("/api/public")) return true;
   if (pathname.startsWith("/api/auth/callback")) return true;
   if (pathname.startsWith("/api/payment/")) return true;      // gateway webhooks
   if (pathname.startsWith("/_next/")) return true;
   if (pathname.startsWith("/static/")) return true;
   if (pathname.startsWith("/icons/")) return true;
-  if (pathname === "/favicon.ico" || pathname === "/manifest.webmanifest") return true;
+  if (pathname.startsWith("/payments/")) return true;         // payment logo SVGs
+  if (pathname === "/favicon.ico" || pathname === "/favicon.svg") return true;
+  if (pathname === "/manifest.webmanifest") return true;
   return false;
 }
 

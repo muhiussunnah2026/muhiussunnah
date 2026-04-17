@@ -156,7 +156,7 @@ export default async function PublicSchoolPage({ params }: PageProps) {
       </div>
 
       <footer className="border-t mt-10 py-6 text-center text-xs text-muted-foreground">
-        <p>এই ওয়েবসাইট <Link href="/" className={buttonVariants({ variant: "link", size: "sm" }) + " !p-0 !h-auto"}>Shikkha Platform</Link>-এ তৈরি — বাংলাদেশের স্কুল ও মাদ্রাসার জন্য।</p>
+        <p>এই ওয়েবসাইট <Link href="/" className={buttonVariants({ variant: "link", size: "sm" }) + " !p-0 !h-auto"}>Muhius Sunnah</Link>-এ তৈরি — বাংলাদেশের স্কুল ও মাদ্রাসার জন্য।</p>
       </footer>
     </div>
   );

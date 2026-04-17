@@ -79,22 +79,31 @@ export async function MarketingFooter() {
               {t.footer.tagline}
             </p>
 
-            {/* Contact */}
-            <div className="mt-6 space-y-2 text-sm">
-              <a href="mailto:hello@muhiussunnah.com" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition">
-                <Mail className="size-4 text-primary" /> hello@muhiussunnah.com
+            {/* Contact — clickable */}
+            <div className="mt-6 space-y-2.5 text-sm">
+              <a
+                href="mailto:itsinjamul@gmail.com"
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition group"
+              >
+                <Mail className="size-4 text-primary group-hover:scale-110 transition-transform" />
+                <span className="group-hover:underline underline-offset-4">itsinjamul@gmail.com</span>
               </a>
-              <a href="tel:+8801XXXXXXXXX" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition">
-                <Phone className="size-4 text-primary" /> +৮৮০ ১৭XX-XXXXXX
+              <a
+                href="tel:+8801767682381"
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition group"
+              >
+                <Phone className="size-4 text-primary group-hover:scale-110 transition-transform" />
+                <span className="group-hover:underline underline-offset-4">+৮৮০ ১৭৬৭-৬৮২৩৮১</span>
               </a>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="size-4 text-primary" /> ঢাকা, বাংলাদেশ
+                <MapPin className="size-4 text-primary" />
+                <span>ঢাকা, বাংলাদেশ</span>
               </div>
             </div>
 
             {/* Socials — always colorful */}
             <div className="mt-6">
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">Follow us</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">{t.extras.followUs}</p>
               <div className="flex gap-2">
                 {socials.map((s) => (
                   <a
@@ -118,8 +127,8 @@ export async function MarketingFooter() {
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               <li><Link href="/features" className="hover:text-primary transition">{t.nav.features}</Link></li>
               <li><Link href="/pricing" className="hover:text-primary transition">{t.nav.pricing}</Link></li>
-              <li><Link href="/support" className="hover:text-primary transition">সাপোর্ট</Link></li>
-              <li><Link href="/refund-policy" className="hover:text-primary transition">Refund Policy</Link></li>
+              <li><Link href="/support" className="hover:text-primary transition">{t.extras.supportLabel}</Link></li>
+              <li><Link href="/refund-policy" className="hover:text-primary transition">{t.extras.refundLabel}</Link></li>
               <li><Link href="/register-school" className="hover:text-primary transition">{t.nav.signup}</Link></li>
             </ul>
           </div>
@@ -150,7 +159,7 @@ export async function MarketingFooter() {
                 </div>
               </div>
             </div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">We accept</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">{t.extras.weAccept}</p>
             <PaymentIcons />
           </div>
         </div>
@@ -182,7 +191,7 @@ export async function MarketingFooter() {
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-75" />
                 <span className="relative inline-flex size-1.5 rounded-full bg-success" />
               </span>
-              All systems operational
+              {t.extras.allSystemsOperational}
             </span>
           </div>
         </div>

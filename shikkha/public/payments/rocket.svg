@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="200" height="80">
+  <rect width="200" height="80" rx="12" fill="#8A1D88"/>
+  <g fill="white">
+    <!-- Rocket diamond logo -->
+    <path d="M 30 40 L 45 25 L 60 40 L 45 55 Z" fill="#EE2E24"/>
+    <path d="M 45 25 L 45 55" stroke="white" stroke-width="2"/>
+    <text x="120" y="48" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="24" letter-spacing="0.5">ROCKET</text>
+  </g>
+</svg>
