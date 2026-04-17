@@ -105,16 +105,10 @@ export default async function PricingPage() {
                       ))}
                     </ul>
 
-                    {/* Lifetime: tiny '*শর্ত প্রযোজ্য' note — full savings table lives on detail page */}
+                    {/* Lifetime: tiny '* শর্ত প্রযোজ্য' note — no duplicate link, user clicks the single 'বিস্তারিত দেখুন' below the CTA */}
                     {plan.priceUnit === "once" && (
-                      <p className="mb-3 text-[11px] text-muted-foreground/80 italic">
-                        * শর্ত প্রযোজ্য —{" "}
-                        <Link
-                          href="/pricing/lifetime"
-                          className="text-primary hover:underline underline-offset-4 font-medium not-italic"
-                        >
-                          বিস্তারিত দেখুন
-                        </Link>
+                      <p className="mb-3 text-[11px] text-muted-foreground/70 italic">
+                        * শর্ত প্রযোজ্য
                       </p>
                     )}
 
