@@ -16,6 +16,7 @@
   --font-sans: var(--font-hind-siliguri), var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
   --font-arabic: var(--font-noto-naskh-arabic), serif;
+  --font-urdu: var(--font-noto-nastaliq-urdu), var(--font-noto-naskh-arabic), serif;
   --font-bangla-print: var(--font-noto-sans-bengali), var(--font-hind-siliguri), sans-serif;
   --font-heading: var(--font-hind-siliguri), var(--font-inter), system-ui, sans-serif;
 
@@ -175,15 +176,43 @@
     @apply bg-background text-foreground;
   }
 
-  /* Right-to-left support for Arabic (madrasa mode) */
-  html[dir="rtl"] {
-    font-family: var(--font-arabic);
+  /* Right-to-left support */
+  html[lang="ar"] body {
+    font-family: var(--font-arabic), var(--font-sans);
+  }
+  html[lang="ur"] body {
+    font-family: var(--font-urdu), var(--font-arabic), var(--font-sans);
+    line-height: 1.85;
   }
 
   /* Bangla-specific typography tuning */
   html[lang="bn"] body {
     font-feature-settings: "kern";
   }
+}
+
+/* ---------- Marketing animations ---------- */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+.animate-fade-up {
+  animation: fade-up 0.6s ease-out backwards;
 }
 
 /* Print styles for marksheet / admit card / certificate pages */

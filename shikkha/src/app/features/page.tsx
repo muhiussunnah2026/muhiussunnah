@@ -1,119 +1,141 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import {
-  Users2, CalendarCheck, Wallet, ScrollText, Megaphone, BookOpen,
-  Sparkles, Shield, Globe, Smartphone, Video, BarChart3,
+  ArrowRight, Users, Calendar, Wallet, Award, Megaphone, BookOpen,
+  Sparkles, Smartphone, Shield, Video, ClipboardCheck, BarChart3,
+  Globe, TrendingUp, FileText, ScrollText, MessageCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { MarketingNav } from "@/components/marketing/marketing-nav";
+import { MarketingFooter } from "@/components/marketing/marketing-footer";
+import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i18n/config";
+import { getMarketingCopy } from "@/lib/i18n/marketing";
 
-export const metadata = {
-  title: "ফিচার — Shikkha Platform",
-  description: "বাংলাদেশের স্কুল ও মাদ্রাসার জন্য সম্পূর্ণ ম্যানেজমেন্ট সিস্টেম — একাডেমিক, ফি, যোগাযোগ, AI — সব এক জায়গায়।",
+const iconMap: Record<string, typeof Users> = {
+  users: Users, calendar: Calendar, wallet: Wallet, award: Award,
+  megaphone: Megaphone, book: BookOpen, sparkles: Sparkles,
+  smartphone: Smartphone, shield: Shield,
 };
 
-const features = [
+const categoryGroups = [
   {
-    icon: <Users2 />,
-    title: "ছাত্র-ছাত্রী ব্যবস্থাপনা",
-    desc: "বাল্ক import, profile, guardian linking, transfer/promotion — ৩০ সেকেন্ডে ভর্তি।",
+    title: "📚 একাডেমিক",
+    items: [
+      { icon: Users, title: "শিক্ষার্থী ব্যবস্থাপনা", desc: "Excel import, guardian linking, transfer, promotion, profile photo।" },
+      { icon: Calendar, title: "QR উপস্থিতি", desc: "২ মিনিটে ক্লাসের হাজিরা। অভিভাবক instant SMS পান।" },
+      { icon: ScrollText, title: "পরীক্ষা ও রেজাল্ট", desc: "GPA 5.0, position ranking, keyboard-friendly marks entry grid।" },
+      { icon: FileText, title: "সার্টিফিকেট", desc: "টেমপ্লেট-based certificate তৈরি, Bangla Unicode print-ready।" },
+      { icon: ClipboardCheck, title: "অ্যাসাইনমেন্ট", desc: "শিক্ষক তৈরি করেন, ছাত্র জমা দেয়, শিক্ষক গ্রেড দেন।" },
+      { icon: Video, title: "অনলাইন ক্লাস", desc: "Zoom, Google Meet, Teams — সরাসরি পোর্টাল থেকে যোগ।" },
+    ],
   },
   {
-    icon: <CalendarCheck />,
-    title: "QR উপস্থিতি",
-    desc: "শিক্ষক ২ মিনিটে পুরো ক্লাসের হাজিরা নিতে পারেন। অভিভাবক তৎক্ষণাত SMS পান।",
+    title: "💰 ফিন্যান্স",
+    items: [
+      { icon: Wallet, title: "অনলাইন পেমেন্ট", desc: "bKash, Nagad, Rocket, SSLCommerz — directly ফি collection।" },
+      { icon: TrendingUp, title: "খরচ ও আয় ট্র্যাকিং", desc: "২৪টি pre-configured expense heads + donation campaigns।" },
+      { icon: Award, title: "বৃত্তি ব্যবস্থাপনা", desc: "Need-based + merit-based scholarship assignment।" },
+      { icon: BarChart3, title: "১০+ রিপোর্ট", desc: "ফি কালেকশন, বকেয়া aging, আয়-ব্যয়, বেতন — PDF/Excel।" },
+    ],
   },
   {
-    icon: <Wallet />,
-    title: "অনলাইন পেমেন্ট",
-    desc: "bKash, Nagad, Rocket, SSLCommerz — সরাসরি ফি কালেকশন। ৩০টি ফি হেড pre-configured।",
+    title: "📱 যোগাযোগ",
+    items: [
+      { icon: Megaphone, title: "SMS + WhatsApp + Push", desc: "একটি নোটিশ ৪ চ্যানেলে — SSL Wireless + Meta Cloud + FCM।" },
+      { icon: MessageCircle, title: "সাপোর্ট টিকেট", desc: "অভিভাবক প্রশ্ন করেন, admin reply করেন — threaded inbox।" },
+      { icon: Sparkles, title: "AI SMS টেমপ্লেট", desc: "ফি রিমাইন্ডার, অনুপস্থিতি — AI দিয়ে তৈরি বাংলা কপি।" },
+    ],
   },
   {
-    icon: <ScrollText />,
-    title: "পরীক্ষা ও রেজাল্ট",
-    desc: "GPA 5.0 scale, position ranking, Bangla Unicode মার্কশীট, ডিজিটাল সার্টিফিকেট।",
+    title: "🕌 মাদ্রাসা",
+    items: [
+      { icon: BookOpen, title: "হিফজ heatmap", desc: "৩০ পারা × শিক্ষার্থী — সম্পূর্ণ hifz progress এক নজরে।" },
+      { icon: BookOpen, title: "কিতাব curriculum", desc: "৬ স্তর — প্রাথমিক থেকে তাকমিল পর্যন্ত।" },
+      { icon: Calendar, title: "দৈনিক সবক-সবকী-মানজিল", desc: "প্রতিদিনের সবক track — ১০ কলামের গ্রিড।" },
+      { icon: Globe, title: "Hijri তারিখ + Arabic RTL", desc: "Islamic calendar integration + পুরো সিস্টেম Arabic RTL সাপোর্ট।" },
+    ],
   },
   {
-    icon: <Megaphone />,
-    title: "যোগাযোগ",
-    desc: "SMS + WhatsApp + Push + Email — একটি নোটিশ চার চ্যানেলে। SMS ক্রেডিট system।",
+    title: "🏢 অপারেশনাল",
+    items: [
+      { icon: BookOpen, title: "লাইব্রেরি", desc: "বই ক্যাটালগ, issue/return, overdue tracking।" },
+      { icon: Users, title: "পরিবহন", desc: "রুট, গাড়ি, ছাত্র assignment, GPS-ready।" },
+      { icon: Users, title: "হোস্টেল", desc: "ভবন, রুম, বেড allocation, warden ব্যবস্থাপনা।" },
+      { icon: ClipboardCheck, title: "ইনভেন্টরি", desc: "স্টেশনারি ও সম্পদ stock movement, reorder alert।" },
+    ],
   },
   {
-    icon: <BookOpen />,
-    title: "মাদ্রাসা মডিউল",
-    desc: "হিফজ heatmap (৩০ পারা), কিতাব curriculum, দৈনিক সবক-সবকি-মানযিল গ্রিড। Hijri তারিখ।",
-  },
-  {
-    icon: <Sparkles />,
-    title: "AI দ্রোপআউট ঝুঁকি",
-    desc: "উপস্থিতি + মার্কস + বকেয়া ফি দেখে risk score — গুরুতর কেস আগেই শনাক্ত।",
-  },
-  {
-    icon: <Video />,
-    title: "অনলাইন ক্লাস",
-    desc: "Zoom / Google Meet / Teams integration। ছাত্ররা পোর্টাল থেকে যোগ দেয়।",
-  },
-  {
-    icon: <BarChart3 />,
-    title: "রিপোর্ট ও এনালিটিক্স",
-    desc: "১০+ টাইপের রিপোর্ট — ফি কালেকশন, বকেয়া aging, উপস্থিতি, আয়-ব্যয়, বেতন।",
-  },
-  {
-    icon: <Shield />,
-    title: "২-স্তর সুরক্ষা",
-    desc: "TOTP-based 2FA, RLS per tenant, encrypted backups, audit log — enterprise-grade।",
-  },
-  {
-    icon: <Smartphone />,
-    title: "অফলাইন PWA",
-    desc: "নেট না থাকলেও হাজিরা ও মার্কস নিন — Auto-sync হবে যখন আবার অনলাইন হবে।",
-  },
-  {
-    icon: <Globe />,
-    title: "পাবলিক ওয়েবসাইট",
-    desc: "প্রত্যেক স্কুলের জন্য ফ্রি পাবলিক পেজ। নোটিশ, ভর্তি তথ্য — শেয়ার করুন।",
+    title: "🔒 নিরাপত্তা ও স্কেল",
+    items: [
+      { icon: Shield, title: "২-স্তর প্রমাণীকরণ (2FA)", desc: "TOTP-based 2FA — Google Authenticator + recovery codes।" },
+      { icon: Shield, title: "Row-Level Security", desc: "প্রত্যেক স্কুলের ডেটা RLS-দ্বারা আলাদা, cross-tenant leak অসম্ভব।" },
+      { icon: Smartphone, title: "অফলাইন PWA", desc: "নেট না থাকলেও হাজিরা ও মার্কস — auto-sync on reconnect।" },
+      { icon: TrendingUp, title: "Realtime Live Dashboard", desc: "Supabase Realtime — পেমেন্ট/ভর্তি হলেই dashboard auto-update।" },
+      { icon: Sparkles, title: "AI ড্রপআউট ঝুঁকি", desc: "উপস্থিতি + মার্কস + ফি → ঝুঁকি স্কোর + AI suggestion।" },
+      { icon: Globe, title: "৪ ভাষা সাপোর্ট", desc: "বাংলা, English, উর্দু, আরবি — RTL + hijri + Bangla digits।" },
+    ],
   },
 ];
 
-export default function FeaturesPage() {
+export default async function FeaturesPage() {
+  const jar = await cookies();
+  const cookieLocale = jar.get(localeCookieName)?.value;
+  const locale: Locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+  const t = getMarketingCopy(locale);
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container max-w-6xl mx-auto px-4 py-12 md:py-16">
-        <div className="text-center mb-12">
-          <Badge variant="outline" className="mb-3">ফিচার</Badge>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">সম্পূর্ণ সমাধান — এক জায়গায়</h1>
-          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            বাংলাদেশের স্কুল ও মাদ্রাসার প্রতিটি চাহিদা মাথায় রেখে তৈরি। অতিরিক্ত সফটওয়্যার লাগবে না।
-          </p>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((f) => (
-            <Card key={f.title}>
-              <CardContent className="p-5">
-                <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary mb-3">
-                  {f.icon}
-                </div>
-                <h3 className="font-semibold">{f.title}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{f.desc}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <div className="mt-12 rounded-lg bg-gradient-primary text-white p-8 md:p-12 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-2">সব ফিচার ১৫ দিন ফ্রি চেষ্টা করুন</h2>
-          <p className="mb-6 text-white/90">কোন ক্রেডিট কার্ড লাগবে না — আজই শুরু করুন।</p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <Link href="/signup" className="rounded-md bg-white text-primary px-6 py-3 font-medium hover:bg-white/90">
-              ফ্রি ট্রায়াল শুরু করুন
-            </Link>
-            <Link href="/pricing" className={buttonVariants({ variant: "outline" }) + " border-white/30 text-white hover:bg-white/10"}>
-              মূল্য দেখুন
-            </Link>
+    <>
+      <MarketingNav />
+      <main>
+        <section className="relative overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" aria-hidden />
+          <div className="relative mx-auto w-full max-w-6xl px-4 py-16 md:px-8 md:py-24 text-center">
+            <Badge variant="outline" className="px-3 mb-4">{t.features.eyebrow}</Badge>
+            <h1 className="text-4xl font-bold tracking-tight md:text-6xl">
+              {t.features.title} <span className="text-gradient-primary">{t.features.titleHighlight}</span>
+            </h1>
+            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">{t.features.subtitle}</p>
           </div>
-        </div>
-      </div>
-    </div>
+        </section>
+
+        <section className="mx-auto w-full max-w-7xl px-4 pb-20 md:px-8 space-y-14">
+          {categoryGroups.map((group) => (
+            <div key={group.title}>
+              <h2 className="text-2xl font-bold mb-6">{group.title}</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {group.items.map((f) => (
+                  <Card key={f.title} className="group border-border/60 bg-card/50 transition-all hover:shadow-hover hover:border-primary/40">
+                    <CardContent className="p-5">
+                      <div className="mb-3 inline-flex size-10 items-center justify-center rounded-lg bg-gradient-primary text-white shadow-sm">
+                        <f.icon className="size-5" />
+                      </div>
+                      <h3 className="font-semibold mb-1">{f.title}</h3>
+                      <p className="text-sm text-muted-foreground">{f.desc}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* CTA */}
+          <div className="rounded-3xl bg-gradient-primary animate-gradient p-10 md:p-16 text-center text-white shadow-xl">
+            <h2 className="text-3xl md:text-4xl font-bold mb-2">{t.finalCta.title}</h2>
+            <p className="text-white/90 mb-6 text-lg">{t.finalCta.subtitle}</p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/register-school" className={buttonVariants({ size: "lg" }) + " bg-white text-primary hover:bg-white/90"}>
+                {t.finalCta.primary} <ArrowRight className="ms-2 size-4 rtl:rotate-180" />
+              </Link>
+              <Link href="/pricing" className={buttonVariants({ size: "lg", variant: "outline" }) + " border-white/40 text-white hover:bg-white/10"}>
+                {t.nav.pricing}
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+      <MarketingFooter />
+    </>
   );
 }
