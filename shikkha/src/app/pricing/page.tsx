@@ -97,12 +97,17 @@ export default async function PricingPage() {
                     </div>
 
                     <ul className="space-y-2.5 flex-1 mb-4">
-                      {plan.features.map((f) => (
+                      {plan.features.slice(0, 5).map((f) => (
                         <li key={f} className="flex items-start gap-2 text-sm">
                           <Check className="size-4 text-success mt-0.5 shrink-0" />
                           <span>{f}</span>
                         </li>
                       ))}
+                      {plan.features.length > 5 && (
+                        <li className="text-xs text-primary font-medium">
+                          + {plan.features.length - 5} more
+                        </li>
+                      )}
                     </ul>
 
                     {/* Lifetime: tiny '* শর্ত প্রযোজ্য' note — no duplicate link, user clicks the single 'বিস্তারিত দেখুন' below the CTA */}

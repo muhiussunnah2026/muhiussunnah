@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
@@ -15,6 +16,8 @@ import { cn } from "@/lib/utils";
  *
  * • Top of page: fully transparent, no border/shadow/blur.
  * • After scrolling ~40px: solid blurred bg, border, shadow, smaller padding.
+ * • Active nav link: distinct pill background + solid underline so the
+ *   current page is always clear.
  *
  * Transitions: 500ms cubic-bezier(0.16,1,0.3,1) — spring feel.
  */
@@ -38,6 +41,7 @@ export function NavShell({
   signupLabel: string;
 }) {
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -45,6 +49,13 @@ export function NavShell({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // "/" matches only exact root. Other links match prefix (so /pricing also
+  // highlights for /pricing/lifetime, /pricing/growth etc).
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   return (
     <header
@@ -71,23 +82,36 @@ export function NavShell({
         </div>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="relative rounded-md px-3 py-1.5 text-sm text-muted-foreground transition hover:text-foreground group"
-            >
-              {l.label}
-              <span className="pointer-events-none absolute inset-x-3 bottom-0.5 h-[2px] origin-center scale-x-0 bg-gradient-primary transition-transform duration-300 group-hover:scale-x-100" />
-            </Link>
-          ))}
+          {links.map((l) => {
+            const active = isActive(l.href);
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "relative rounded-full px-3.5 py-1.5 text-sm transition-all duration-300 group",
+                  active
+                    ? "text-primary font-semibold bg-primary/10 border border-primary/30 shadow-sm"
+                    : "text-muted-foreground hover:text-foreground border border-transparent",
+                )}
+              >
+                {l.label}
+                <span
+                  className={cn(
+                    "pointer-events-none absolute inset-x-3 bottom-0.5 h-[2px] origin-center bg-gradient-primary transition-transform duration-300",
+                    active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100",
+                  )}
+                />
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-1.5">
           {leftControls}
           {themeToggle}
 
-          {/* Premium login pill — outlined with hover fill */}
           <Link
             href={loginHref}
             className={cn(
@@ -98,7 +122,6 @@ export function NavShell({
             {loginLabel}
           </Link>
 
-          {/* Premium CTA — gradient filled with shine */}
           <Link
             href={signupHref}
             className={cn(
