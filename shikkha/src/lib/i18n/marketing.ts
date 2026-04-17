@@ -129,7 +129,7 @@ const bn: Copy = {
   nav: { home: "হোম", features: "ফিচার", pricing: "প্রাইসিং", about: "আমাদের সম্পর্কে", contact: "যোগাযোগ", login: "লগইন", signup: "শুরু করুন" },
 
   hero: {
-    eyebrow: "🇧🇩 বাংলাদেশের মাদ্রাসা ও স্কুলের জন্য ১ নম্বর সফটওয়্যার",
+    eyebrow: "🕌 বাংলাদেশের মাদ্রাসা ও স্কুলের জন্য ১ নম্বর সফটওয়্যার",
     title: "সম্পূর্ণ মাদ্রাসা ও স্কুল ম্যানেজমেন্ট —",
     titleHighlight: "এক প্ল্যাটফর্মে",
     subtitle: "ভর্তি থেকে পরীক্ষা, ফি থেকে অভিভাবক যোগাযোগ, হিফজ থেকে সার্টিফিকেট — সব কিছু সুন্দর বাংলায়। আধুনিক, সাশ্রয়ী ও সম্পূর্ণ দেশীয় সমাধান।",
@@ -355,7 +355,7 @@ const en: Copy = {
   nav: { home: "Home", features: "Features", pricing: "Pricing", about: "About", contact: "Contact", login: "Log in", signup: "Get Started" },
 
   hero: {
-    eyebrow: "🇧🇩 #1 Madrasa & School Management Software for Bangladesh",
+    eyebrow: "🕌 #1 Madrasa & School Management Software for Bangladesh",
     title: "Complete madrasa & school management —",
     titleHighlight: "all in one platform",
     subtitle: "From admissions to exams, fees to parent communication, hifz to certificates — everything in beautiful Bangla. Modern, affordable, and built entirely for Bangladesh.",
@@ -581,7 +581,7 @@ const ur: Copy = {
   nav: { home: "ہوم", features: "خصوصیات", pricing: "قیمتیں", about: "ہمارے بارے میں", contact: "رابطہ", login: "لاگ ان", signup: "شروع کریں" },
 
   hero: {
-    eyebrow: "🇵🇰 مدارس اور اسکولوں کے لیے نمبر ۱ سافٹ ویئر",
+    eyebrow: "🕌 مدارس اور اسکولوں کے لیے نمبر ۱ سافٹ ویئر",
     title: "مکمل مدرسہ اور اسکول انتظام —",
     titleHighlight: "ایک پلیٹ فارم پر",
     subtitle: "داخلہ سے امتحان تک، فیس سے والدین کے رابطے تک، حفظ سے اسناد تک — سب کچھ خوبصورت اردو میں۔",
