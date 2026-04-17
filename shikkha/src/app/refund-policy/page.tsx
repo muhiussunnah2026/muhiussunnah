@@ -154,7 +154,10 @@ export default function RefundPolicyPage() {
                       ফ্রি ট্রায়াল শুরু <ArrowRight className="size-4 rtl:rotate-180" />
                     </Link>
                   </Magnetic>
-                  <Link href="/support" className={buttonVariants({ variant: "outline" }) + " border-white/40 text-white hover:bg-white/10"}>
+                  <Link
+                    href="/support"
+                    className="inline-flex items-center gap-2 rounded-md border-2 border-white/60 bg-white/10 backdrop-blur-sm px-8 py-3.5 font-semibold text-white transition hover:bg-white/20 hover:border-white"
+                  >
                     সাপোর্ট টিমের সাথে কথা
                   </Link>
                 </div>
