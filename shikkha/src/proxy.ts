@@ -21,11 +21,24 @@ import { env } from "@/lib/config/env";
 const PUBLIC_PATHS = new Set([
   "/",
   "/pricing",
+  "/features",
   "/about",
   "/contact",
   "/terms",
   "/privacy",
 ]);
+
+/**
+ * Primary platform hostname. Requests from other hostnames are treated as
+ * potential custom domains for a school (Scale plan), rewritten to /s/[slug].
+ * Configure via PLATFORM_HOST env; defaults cover local dev + shikkha.app.
+ */
+const PLATFORM_HOSTS = new Set(
+  (process.env.PLATFORM_HOSTS ?? "shikkha.app,www.shikkha.app,localhost:3000,localhost,shikkha.vercel.app")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean),
+);
 
 const AUTH_PATHS = new Set([
   "/login",
@@ -37,6 +50,7 @@ const AUTH_PATHS = new Set([
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.has(pathname)) return true;
   if (AUTH_PATHS.has(pathname)) return true;
+  if (pathname.startsWith("/s/")) return true;                // public school pages
   if (pathname.startsWith("/api/public")) return true;
   if (pathname.startsWith("/api/auth/callback")) return true;
   if (pathname.startsWith("/api/payment/")) return true;      // gateway webhooks
@@ -47,7 +61,40 @@ function isPublicPath(pathname: string): boolean {
   return false;
 }
 
+/**
+ * Custom-domain lookup stub.
+ *
+ * For Scale-plan schools with a configured custom domain (e.g.
+ * example-school.edu.bd) Vercel points the domain at this app, and we map the
+ * Host header to a school slug. The real mapping lives in the
+ * `school_custom_domains` table (future migration) or in env for static demos.
+ *
+ * For now we allow CUSTOM_DOMAIN_<HOST>=<slug> env pairs:
+ *   CUSTOM_DOMAIN_example.edu.bd=example-school
+ */
+function customDomainToSlug(host: string): string | null {
+  const env = process.env[`CUSTOM_DOMAIN_${host.toLowerCase()}`];
+  return env ?? null;
+}
+
 export async function proxy(request: NextRequest) {
+  // --- Custom domain rewrite --------------------------------------------
+  // If the request comes from a non-platform host, try to route it to the
+  // mapped school's public page at /s/[slug].
+  const host = (request.headers.get("host") ?? "").toLowerCase();
+  if (host && !PLATFORM_HOSTS.has(host)) {
+    const slug = customDomainToSlug(host);
+    if (slug) {
+      const url = request.nextUrl.clone();
+      // Only rewrite the root/public routes; /school/[slug]/* (authed) stays
+      // accessible via the platform host.
+      if (url.pathname === "/" || url.pathname === "/index.html") {
+        url.pathname = `/s/${slug}`;
+        return NextResponse.rewrite(url);
+      }
+    }
+  }
+
   let response = NextResponse.next({ request });
 
   // --- Supabase session refresh ------------------------------------------

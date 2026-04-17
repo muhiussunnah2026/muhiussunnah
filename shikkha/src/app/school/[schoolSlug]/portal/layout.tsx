@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BookOpenText, CalendarCheck, CreditCard, Home, LifeBuoy, Mail, Megaphone, ScrollText, UserCircle2 } from "lucide-react";
+import { BookOpenText, CalendarCheck, ClipboardCheck, CreditCard, Home, LifeBuoy, Mail, Megaphone, ScrollText, UserCircle2, Video } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { requireRole } from "@/lib/auth/session";
 import { PORTAL_ROLES } from "@/lib/auth/roles";
@@ -17,6 +17,8 @@ export default async function PortalLayout({ children, params }: Props) {
     { href: `/school/${schoolSlug}/portal`,              label: "হোম",            icon: <Home className="size-4" /> },
     { href: `/school/${schoolSlug}/portal/attendance`,   label: "উপস্থিতি",       icon: <CalendarCheck className="size-4" /> },
     { href: `/school/${schoolSlug}/portal/results`,      label: "ফলাফল",          icon: <ScrollText className="size-4" /> },
+    { href: `/school/${schoolSlug}/portal/assignments`,  label: "অ্যাসাইনমেন্ট",  icon: <ClipboardCheck className="size-4" /> },
+    { href: `/school/${schoolSlug}/portal/online-classes`, label: "অনলাইন ক্লাস", icon: <Video className="size-4" /> },
     { href: `/school/${schoolSlug}/portal/fees`,         label: "ফি পেমেন্ট",     icon: <CreditCard className="size-4" /> },
     { href: `/school/${schoolSlug}/portal/notices`,      label: "নোটিশ",          icon: <Megaphone className="size-4" /> },
     { href: `/school/${schoolSlug}/portal/messages`,     label: "বার্তা",          icon: <Mail className="size-4" /> },

@@ -7,6 +7,7 @@ import {
   Building2,
   Bus,
   CalendarDays,
+  ClipboardCheck,
   ClipboardList,
   CreditCard,
   FileCheck2,
@@ -25,6 +26,7 @@ import {
   Sparkles,
   TrendingUp,
   Users2,
+  Video,
   Wallet,
 } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
@@ -66,6 +68,8 @@ function adminNav(slug: string, membership: ActiveSchoolMembership) {
     { href: `/school/${slug}/admin/attendance`,     label: "উপস্থিতি",         icon: <FileCheck2 className="size-4" /> },
     { href: `/school/${slug}/admin/academic-years`, label: "শিক্ষাবর্ষ",       icon: <CalendarDays className="size-4" /> },
     { href: `/school/${slug}/admin/exams`,          label: "পরীক্ষা",          icon: <ScrollText className="size-4" /> },
+    { href: `/school/${slug}/admin/assignments`,    label: "অ্যাসাইনমেন্ট",    icon: <ClipboardCheck className="size-4" /> },
+    { href: `/school/${slug}/admin/online-classes`, label: "অনলাইন ক্লাস",     icon: <Video className="size-4" /> },
     { href: `/school/${slug}/admin/certificates`,   label: "সার্টিফিকেট",      icon: <FileText className="size-4" /> },
     { href: `/school/${slug}/admin/fees`,           label: "ফি",                icon: <Wallet className="size-4" /> },
     { href: `/school/${slug}/admin/fees/payments`,  label: "পেমেন্ট",           icon: <Receipt className="size-4" /> },
