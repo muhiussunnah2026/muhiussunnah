@@ -94,9 +94,14 @@ export default async function PricingPage() {
                           {plan.priceUnit === "once" ? t.pricing.oneTime : t.pricing.perMonth}
                         </span>
                       </div>
+                      {plan.priceUnit === "once" && (
+                        <p className="text-xs text-accent-foreground/80 dark:text-accent mt-1 font-medium">
+                          + বার্ষিক শুধু ৳৫,০০০ (domain + hosting)
+                        </p>
+                      )}
                     </div>
 
-                    <ul className="space-y-2.5 flex-1 mb-6">
+                    <ul className="space-y-2.5 flex-1 mb-4">
                       {plan.features.map((f) => (
                         <li key={f} className="flex items-start gap-2 text-sm">
                           <Check className="size-4 text-success mt-0.5 shrink-0" />
@@ -104,6 +109,24 @@ export default async function PricingPage() {
                         </li>
                       ))}
                     </ul>
+
+                    {/* Lifetime-specific savings callout */}
+                    {plan.priceUnit === "once" && (
+                      <div className="mb-5 rounded-lg border border-success/40 bg-success/10 p-3">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <span className="text-xs font-bold text-success uppercase tracking-wider">💰 HUGE SAVING</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          <strong className="text-foreground">বার্ষিক খরচ মাত্র ৳৫,০০০</strong> — অন্য প্যাকেজগুলোর তুলনায়:
+                        </p>
+                        <ul className="mt-2 space-y-0.5 text-[11px] text-muted-foreground">
+                          <li className="flex justify-between"><span>Starter-এর চেয়ে:</span><span className="text-success font-bold">৫৮% সাশ্রয়</span></li>
+                          <li className="flex justify-between"><span>Growth-এর চেয়ে:</span><span className="text-success font-bold">৭৯% সাশ্রয়</span></li>
+                          <li className="flex justify-between"><span>Scale-এর চেয়ে:</span><span className="text-success font-bold">৯০% সাশ্রয়</span></li>
+                        </ul>
+                        <p className="mt-2 text-[10px] text-muted-foreground/70">* শর্ত প্রযোজ্য · বিস্তারিত জানুন</p>
+                      </div>
+                    )}
 
                     <Magnetic strength={0.15}>
                       <Link

@@ -28,6 +28,14 @@ export type PackageDetail = {
   }>;
   notIncluded: string[];
   bestValue?: string;
+  /** Optional savings comparison table — compares this plan's yearly cost against other plans. */
+  savingsTable?: {
+    title: string;
+    subtitle: string;
+    yourYearly: { label: string; amount: number };
+    compareAgainst: Array<{ name: string; yearly: number; savingsPercent: number }>;
+    footer?: string;
+  };
 };
 
 const accentClasses: Record<PackageDetail["accent"], { border: string; bg: string; badge: string; icon: string }> = {
@@ -157,6 +165,64 @@ export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
             </div>
           </div>
         </section>
+
+        {/* Savings comparison (optional — only for Lifetime-style plans) */}
+        {pkg.savingsTable && (
+          <section className="mx-auto w-full max-w-5xl px-4 pt-16 md:px-8">
+            <Reveal variant="scale-in">
+              <div className="relative overflow-hidden rounded-3xl border border-success/40 bg-gradient-to-br from-success/10 via-card to-success/5 p-8 md:p-12 shadow-2xl shadow-success/10">
+                <div className="absolute -top-20 -end-20 size-56 rounded-full bg-success/20 blur-3xl" aria-hidden />
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-success/20 text-success px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                      💰 HUGE SAVING
+                    </span>
+                  </div>
+                  <h2 className="text-2xl md:text-4xl font-bold mb-2">{pkg.savingsTable.title}</h2>
+                  <p className="text-muted-foreground mb-6">{pkg.savingsTable.subtitle}</p>
+
+                  <div className="grid gap-4 md:grid-cols-[auto_1fr]">
+                    {/* Your yearly cost highlighted */}
+                    <div className="rounded-2xl border border-success/40 bg-success/10 p-5 md:w-56">
+                      <div className="text-xs uppercase tracking-wider text-success font-semibold mb-1">
+                        {pkg.savingsTable.yourYearly.label}
+                      </div>
+                      <div className="text-4xl font-bold text-foreground tabular-nums">
+                        ৳{pkg.savingsTable.yourYearly.amount.toLocaleString("en-IN")}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">per year</div>
+                    </div>
+
+                    {/* Comparison rows */}
+                    <div className="rounded-2xl border border-border/60 bg-card/60 overflow-hidden">
+                      <div className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3 border-b border-border/40">
+                        অন্য প্যাকেজের তুলনায় সাশ্রয়
+                      </div>
+                      {pkg.savingsTable.compareAgainst.map((c) => (
+                        <div key={c.name} className="flex items-center justify-between px-5 py-3 border-b border-border/40 last:border-0 hover:bg-muted/20 transition">
+                          <div>
+                            <div className="font-semibold text-sm">{c.name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              ৳{c.yearly.toLocaleString("en-IN")}/year
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 rounded-full bg-success/15 border border-success/30 px-3 py-1">
+                            <span className="text-sm font-bold text-success tabular-nums">{c.savingsPercent}%</span>
+                            <span className="text-xs text-success">সাশ্রয়</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {pkg.savingsTable.footer && (
+                    <p className="mt-5 text-xs text-muted-foreground leading-relaxed">* {pkg.savingsTable.footer}</p>
+                  )}
+                </div>
+              </div>
+            </Reveal>
+          </section>
+        )}
 
         {/* Feature sections */}
         <section className="mx-auto w-full max-w-5xl px-4 py-20 md:px-8 space-y-12">
