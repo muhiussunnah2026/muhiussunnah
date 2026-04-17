@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sparkles } from "lucide-react";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
@@ -16,33 +16,42 @@ export default async function LoginPage({ searchParams }: PageProps) {
   const { next = "/" } = await searchParams;
 
   return (
-    <Card className="border-border/60 shadow-hover">
-      <CardHeader className="gap-1 pb-2">
-        <CardTitle className="text-2xl">আবার স্বাগতম</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          আপনার স্কুল ড্যাশবোর্ডে প্রবেশ করুন।
-        </p>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-6">
-        <LoginForm next={next} />
-        <div className="flex flex-col gap-1.5 border-t border-border/60 pt-4 text-center text-sm text-muted-foreground">
-          <span>
-            নতুন স্কুল?{" "}
+    <div className="relative">
+      <div className="absolute -inset-px rounded-3xl bg-gradient-primary opacity-40 blur-xl" aria-hidden />
+      <div className="relative rounded-3xl border border-border/60 bg-card/85 backdrop-blur-xl shadow-2xl overflow-hidden">
+        <div className="h-1 bg-gradient-primary animate-gradient" />
+        <div className="p-8 md:p-10">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-primary text-white shadow-lg shadow-primary/30">
+              <Sparkles className="size-5" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">আবার স্বাগতম</h1>
+              <p className="text-sm text-muted-foreground">আপনার ড্যাশবোর্ডে প্রবেশ করুন</p>
+            </div>
+          </div>
+
+          <LoginForm next={next} />
+
+          <div className="mt-6 flex flex-col gap-2 border-t border-border/40 pt-5 text-center text-sm">
+            <span className="text-muted-foreground">
+              নতুন প্রতিষ্ঠান?{" "}
+              <Link
+                href="/register-school"
+                className="font-semibold text-primary underline-offset-4 hover:underline"
+              >
+                ফ্রি ট্রায়াল শুরু করুন →
+              </Link>
+            </span>
             <Link
-              href="/register-school"
-              className="font-medium text-primary underline-offset-4 hover:underline"
+              href="/forgot-password"
+              className="text-xs text-muted-foreground hover:text-foreground transition"
             >
-              রেজিস্টার করুন
+              পাসওয়ার্ড ভুলে গেছেন?
             </Link>
-          </span>
-          <Link
-            href="/forgot-password"
-            className="text-xs text-muted-foreground hover:text-foreground"
-          >
-            পাসওয়ার্ড ভুলে গেছেন?
-          </Link>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

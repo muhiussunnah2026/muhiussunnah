@@ -55,12 +55,12 @@ const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
 
 export const metadata: Metadata = {
   title: {
-    default: "Shikkha Platform — School & Madrasa Management",
-    template: "%s · Shikkha",
+    default: "Muhius Sunnah — School & Madrasa Management",
+    template: "%s · Muhius Sunnah",
   },
   description:
-    "Complete management platform for schools and madrasas in Bangladesh — admissions, attendance, exams, fees, parent portal & more. Available in বাংলা, English, اردو, العربية.",
-  applicationName: "Shikkha",
+    "Modern management platform for schools and madrasas in Bangladesh — admissions, attendance, exams, fees, parent portal, hifz/kitab/sabaq modules, online payments. Available in বাংলা, English, اردو, العربية.",
+  applicationName: "Muhius Sunnah",
   keywords: [
     "school management",
     "madrasa management",
@@ -68,14 +68,24 @@ export const metadata: Metadata = {
     "bornomala alternative",
     "hifz",
     "sabaq",
+    "kitab",
     "bangla",
-    "শিক্ষা",
+    "Muhius Sunnah",
+    "شিক্ষা",
     "مدرسہ",
     "مدرسة",
   ],
-  authors: [{ name: "Shikkha Platform" }],
+  authors: [{ name: "Muhius Sunnah" }],
   manifest: "/manifest.webmanifest",
-  icons: { icon: "/favicon.ico" },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
 };
 
 export const viewport: Viewport = {

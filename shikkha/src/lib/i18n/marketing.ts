@@ -198,7 +198,7 @@ const bn: Copy = {
     eyebrow: "প্রতিক্রিয়া",
     title: "শিক্ষকরা যা বলছেন",
     list: [
-      { quote: "Bornomala ছেড়ে Shikkha নিয়েছি — অভিভাবকরা এখন নিজেরাই পেমেন্ট করেন, আমার অফিসে ভিড় কমে গেছে।", author: "মাওলানা আব্দুর রহমান", role: "প্রিন্সিপাল", school: "ঢাকা ইসলামিয়া মাদ্রাসা" },
+      { quote: "Bornomala ছেড়ে Muhius Sunnah নিয়েছি — অভিভাবকরা এখন নিজেরাই পেমেন্ট করেন, আমার অফিসে ভিড় কমে গেছে।", author: "মাওলানা আব্দুর রহমান", role: "প্রিন্সিপাল", school: "ঢাকা ইসলামিয়া মাদ্রাসা" },
       { quote: "হিফজ মডিউলটা দারুণ! ৩০ পারা heatmap দেখে কে কতদূর এসেছে এক নজরে বোঝা যায়।", author: "হাফেজ মোহাম্মদ ইউসুফ", role: "হিফজ শিক্ষক", school: "জামিয়া ইসলামিয়া" },
       { quote: "QR attendance-এ ২ মিনিটে ৬০ জনের হাজিরা — আগে ১৫ মিনিট লাগতো।", author: "ফারজানা আক্তার", role: "ক্লাস টিচার", school: "গ্রীন হাইস্কুল" },
     ],
@@ -228,7 +228,7 @@ const bn: Copy = {
     tagline: "বাংলাদেশের স্কুল ও মাদ্রাসার জন্য আধুনিক ম্যানেজমেন্ট প্ল্যাটফর্ম।",
     product: "প্রোডাক্ট", company: "কোম্পানি", legal: "আইনি",
     privacy: "গোপনীয়তা নীতি", terms: "শর্তাবলী",
-    copyright: "© ২০২৬ Shikkha Platform · সর্বস্বত্ব সংরক্ষিত।",
+    copyright: "© ২০২৬ Muhius Sunnah · সর্বস্বত্ব সংরক্ষিত।",
   },
 };
 
@@ -352,7 +352,7 @@ const en: Copy = {
     eyebrow: "Testimonials",
     title: "What educators are saying",
     list: [
-      { quote: "Switched from Bornomala to Shikkha — parents now pay online themselves, my office is no longer crowded.", author: "Maulana Abdur Rahman", role: "Principal", school: "Dhaka Islamia Madrasa" },
+      { quote: "Switched from Bornomala to Muhius Sunnah — parents now pay online themselves, my office is no longer crowded.", author: "Maulana Abdur Rahman", role: "Principal", school: "Dhaka Islamia Madrasa" },
       { quote: "The hifz module is incredible! See the 30-para heatmap to know everyone's progress at a glance.", author: "Hafez Mohammad Yousuf", role: "Hifz Teacher", school: "Jamia Islamia" },
       { quote: "60 students' attendance in 2 minutes with QR — used to take 15 minutes before.", author: "Farzana Akter", role: "Class Teacher", school: "Green High School" },
     ],
@@ -382,7 +382,7 @@ const en: Copy = {
     tagline: "Modern management platform for schools and madrasas in Bangladesh.",
     product: "Product", company: "Company", legal: "Legal",
     privacy: "Privacy Policy", terms: "Terms of Service",
-    copyright: "© 2026 Shikkha Platform · All rights reserved.",
+    copyright: "© 2026 Muhius Sunnah · All rights reserved.",
   },
 };
 
@@ -482,7 +482,7 @@ const ur: Copy = {
     eyebrow: "آراء",
     title: "اساتذہ کیا کہتے ہیں",
     list: [
-      { quote: "Bornomala چھوڑ کر Shikkha لیا — والدین اب خود آن لائن ادائیگی کرتے ہیں۔", author: "مولانا عبدالرحمن", role: "پرنسپل", school: "ڈھاکہ اسلامیہ مدرسہ" },
+      { quote: "Bornomala چھوڑ کر Muhius Sunnah لیا — والدین اب خود آن لائن ادائیگی کرتے ہیں۔", author: "مولانا عبدالرحمن", role: "پرنسپل", school: "ڈھاکہ اسلامیہ مدرسہ" },
       { quote: "حفظ ماڈیول بہت اچھا ہے! ۳۰ پارہ ہیٹ میپ میں کون کہاں پہنچا فوراً نظر آتا ہے۔", author: "حافظ محمد یوسف", role: "حفظ استاد", school: "جامعہ اسلامیہ" },
       { quote: "QR حاضری میں ۶۰ طلباء کی حاضری ۲ منٹ میں — پہلے ۱۵ منٹ لگتے تھے۔", author: "فرزانہ اختر", role: "کلاس ٹیچر", school: "گرین ہائی اسکول" },
     ],
@@ -512,7 +512,7 @@ const ur: Copy = {
     tagline: "اسکولوں اور مدارس کے لیے جدید انتظامی پلیٹ فارم۔",
     product: "پروڈکٹ", company: "کمپنی", legal: "قانونی",
     privacy: "رازداری", terms: "شرائط",
-    copyright: "© ۲۰۲۶ Shikkha Platform · جملہ حقوق محفوظ۔",
+    copyright: "© ۲۰۲۶ Muhius Sunnah · جملہ حقوق محفوظ۔",
   },
 };
 
@@ -612,7 +612,7 @@ const ar: Copy = {
     eyebrow: "الآراء",
     title: "ماذا يقول المعلمون",
     list: [
-      { quote: "تركت Bornomala لصالح Shikkha — الوالدان يدفعون الآن بأنفسهم عبر الإنترنت.", author: "الشيخ عبد الرحمن", role: "مدير", school: "مدرسة دكا الإسلامية" },
+      { quote: "تركت Bornomala لصالح Muhius Sunnah — الوالدان يدفعون الآن بأنفسهم عبر الإنترنت.", author: "الشيخ عبد الرحمن", role: "مدير", school: "مدرسة دكا الإسلامية" },
       { quote: "وحدة الحفظ رائعة! الخريطة الحرارية لـ 30 جزءًا تُظهر تقدم الجميع.", author: "الحافظ محمد يوسف", role: "مدرس الحفظ", school: "جامعة إسلامية" },
       { quote: "حضور 60 طالبًا في دقيقتين بـ QR — كان يستغرق 15 دقيقة من قبل.", author: "فرزانة أختر", role: "معلمة فصل", school: "مدرسة الخضراء الثانوية" },
     ],
@@ -642,7 +642,7 @@ const ar: Copy = {
     tagline: "منصة إدارة حديثة للمدارس والمدارس الدينية.",
     product: "المنتج", company: "الشركة", legal: "قانوني",
     privacy: "سياسة الخصوصية", terms: "الشروط",
-    copyright: "© 2026 Shikkha Platform · جميع الحقوق محفوظة.",
+    copyright: "© 2026 Muhius Sunnah · جميع الحقوق محفوظة.",
   },
 };
 
