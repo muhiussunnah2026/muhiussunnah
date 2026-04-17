@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import {
-  ArrowRight, ArrowUpRight, Check, Star, Users, Calendar, Wallet, Award, Megaphone, BookOpen,
-  Sparkles, Smartphone, Shield, Quote, ShieldCheck, Zap, TrendingUp, Globe,
+  ArrowRight, ArrowUpRight, Check, Users, Calendar, Wallet, Award, Megaphone, BookOpen,
+  Sparkles, Smartphone, Shield, ShieldCheck, Zap, TrendingUp, Globe,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import { AnimatedCounter } from "@/components/marketing/animated-counter";
 import { TiltCard } from "@/components/marketing/tilt-card";
 import { Magnetic } from "@/components/marketing/magnetic";
 import { Marquee } from "@/components/marketing/marquee";
+import { TestimonialCard } from "@/components/marketing/testimonial-card";
 
 const iconMap: Record<string, typeof Users> = {
   users: Users, calendar: Calendar, wallet: Wallet, award: Award,
@@ -352,40 +353,44 @@ export default async function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════
-          TESTIMONIALS — elegant quote cards
+          TESTIMONIALS — two-row infinite marquee with BD-style avatars
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative py-28">
+      <section className="relative py-28 overflow-hidden">
         <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
           <Reveal variant="fade-up" className="mb-14 flex flex-col items-center gap-3 text-center">
             <Badge variant="outline" className="px-3">{t.testimonials.eyebrow}</Badge>
             <h2 className="text-3xl font-bold tracking-tight md:text-5xl">{t.testimonials.title}</h2>
           </Reveal>
-
-          <div className="grid gap-5 md:grid-cols-3">
-            {t.testimonials.list.map((tt, i) => (
-              <Reveal key={i} variant="fade-up" delay={i * 120}>
-                <TiltCard>
-                  <div className="relative h-full overflow-hidden rounded-2xl border border-border/60 bg-card/50 p-6 backdrop-blur-sm hover-lift shine-border">
-                    <Quote className="absolute top-4 end-4 size-10 text-primary/20" />
-                    <div className="flex gap-0.5 mb-4 text-warning">
-                      {[0, 1, 2, 3, 4].map((s) => <Star key={s} className="size-4 fill-current" />)}
-                    </div>
-                    <p className="text-sm leading-relaxed mb-6">&ldquo;{tt.quote}&rdquo;</p>
-                    <div className="flex items-center gap-3 pt-4 border-t border-border/40">
-                      <div className="size-10 shrink-0 rounded-full bg-gradient-primary flex items-center justify-center text-white font-bold text-sm">
-                        {tt.author.charAt(0)}
-                      </div>
-                      <div>
-                        <div className="font-semibold text-sm">{tt.author}</div>
-                        <div className="text-xs text-muted-foreground">{tt.role} · {tt.school}</div>
-                      </div>
-                    </div>
-                  </div>
-                </TiltCard>
-              </Reveal>
-            ))}
-          </div>
         </div>
+
+        {/* Row 1 — scrolls right → left, first half of items */}
+        <Reveal variant="fade-up" className="mb-5">
+          <Marquee speed="55s">
+            {t.testimonials.list.slice(0, 3).map((tt, i) => (
+              <TestimonialCard key={`r1-${i}`} {...tt} />
+            ))}
+            {/* repeat so the row is dense enough */}
+            {t.testimonials.list.slice(0, 3).map((tt, i) => (
+              <TestimonialCard key={`r1-dup-${i}`} {...tt} />
+            ))}
+          </Marquee>
+        </Reveal>
+
+        {/* Row 2 — scrolls left → right, second half + offset for variety */}
+        <Reveal variant="fade-up" delay={200}>
+          <Marquee reverse speed="65s">
+            {t.testimonials.list.slice(3).map((tt, i) => (
+              <TestimonialCard key={`r2-${i}`} {...tt} />
+            ))}
+            {t.testimonials.list.slice(3).map((tt, i) => (
+              <TestimonialCard key={`r2-dup-${i}`} {...tt} />
+            ))}
+            {/* Also interleave first row items for fullness */}
+            {t.testimonials.list.slice(0, 2).map((tt, i) => (
+              <TestimonialCard key={`r2-extra-${i}`} {...tt} />
+            ))}
+          </Marquee>
+        </Reveal>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════

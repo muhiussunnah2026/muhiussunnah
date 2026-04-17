@@ -9,7 +9,7 @@ import type { Locale } from "./config";
 
 type Copy = {
   // Navigation
-  nav: { features: string; pricing: string; about: string; contact: string; login: string; signup: string };
+  nav: { home: string; features: string; pricing: string; about: string; contact: string; login: string; signup: string };
 
   // Hero section
   hero: {
@@ -61,7 +61,8 @@ type Copy = {
   testimonials: {
     eyebrow: string;
     title: string;
-    list: Array<{ quote: string; author: string; role: string; school: string }>;
+    /** avatarSeed = seed passed to DiceBear Notionists API for the profile image */
+    list: Array<{ quote: string; author: string; role: string; school: string; avatarSeed: string }>;
   };
 
   // FAQ
@@ -123,7 +124,7 @@ type Copy = {
 
 // ─── বাংলা ─────────────────────────────────────────────────────────────────
 const bn: Copy = {
-  nav: { features: "ফিচার", pricing: "প্রাইসিং", about: "আমাদের সম্পর্কে", contact: "যোগাযোগ", login: "লগইন", signup: "শুরু করুন" },
+  nav: { home: "হোম", features: "ফিচার", pricing: "প্রাইসিং", about: "আমাদের সম্পর্কে", contact: "যোগাযোগ", login: "লগইন", signup: "শুরু করুন" },
 
   hero: {
     eyebrow: "🇧🇩 বাংলাদেশের স্কুল ও মাদ্রাসার জন্য ১ নম্বর সফটওয়্যার",
@@ -241,9 +242,12 @@ const bn: Copy = {
     eyebrow: "প্রতিক্রিয়া",
     title: "শিক্ষকরা যা বলছেন",
     list: [
-      { quote: "Bornomala ছেড়ে Muhius Sunnah নিয়েছি — অভিভাবকরা এখন নিজেরাই পেমেন্ট করেন, আমার অফিসে ভিড় কমে গেছে।", author: "মাওলানা আব্দুর রহমান", role: "প্রিন্সিপাল", school: "ঢাকা ইসলামিয়া মাদ্রাসা" },
-      { quote: "হিফজ মডিউলটা দারুণ! ৩০ পারা heatmap দেখে কে কতদূর এসেছে এক নজরে বোঝা যায়।", author: "হাফেজ মোহাম্মদ ইউসুফ", role: "হিফজ শিক্ষক", school: "জামিয়া ইসলামিয়া" },
-      { quote: "QR attendance-এ ২ মিনিটে ৬০ জনের হাজিরা — আগে ১৫ মিনিট লাগতো।", author: "ফারজানা আক্তার", role: "ক্লাস টিচার", school: "গ্রীন হাইস্কুল" },
+      { quote: "Bornomala ছেড়ে Muhius Sunnah নিয়েছি — অভিভাবকরা এখন নিজেরাই পেমেন্ট করেন, আমার অফিসে ভিড় কমে গেছে।", author: "মাওলানা আব্দুর রহমান", role: "প্রিন্সিপাল", school: "ঢাকা ইসলামিয়া মাদ্রাসা", avatarSeed: "Abdur-Rahman" },
+      { quote: "হিফজ মডিউলটা দারুণ! ৩০ পারা heatmap দেখে কে কতদূর এসেছে এক নজরে বোঝা যায়।", author: "হাফেজ মোহাম্মদ ইউসুফ", role: "হিফজ শিক্ষক", school: "জামিয়া ইসলামিয়া", avatarSeed: "Md-Yousuf" },
+      { quote: "QR attendance-এ ২ মিনিটে ৬০ জনের হাজিরা — আগে ১৫ মিনিট লাগতো।", author: "ফারজানা আক্তার", role: "ক্লাস টিচার", school: "গ্রীন হাইস্কুল", avatarSeed: "Farzana-Akter" },
+      { quote: "AI dropout risk দেখে আগেই বুঝি কোন ছাত্রকে বেশি নজর দিতে হবে — এ বছর কেউ বাদ পড়েনি।", author: "মোহাম্মদ রফিকুল ইসলাম", role: "ভাইস প্রিন্সিপাল", school: "সাউদিয়া মডেল স্কুল", avatarSeed: "Rafiqul-Islam" },
+      { quote: "WhatsApp-এ অভিভাবক instant ফি রিমাইন্ডার পান — collection ৪০% বেড়েছে।", author: "রাশিদা সুলতানা", role: "হিসাবরক্ষক", school: "মিরপুর মাদ্রাসা", avatarSeed: "Rashida-Sultana" },
+      { quote: "দৈনিক সবক-সবকী-মানজিল grid ছাত্রদের অনুপ্রেরণা দেয়। আলহামদুলিল্লাহ, হিফজ সম্পূর্ণ হার ২৫% বেড়েছে।", author: "মাওলানা আনোয়ার হোসেন", role: "মুহতামিম", school: "আল-আমিন মাদ্রাসা", avatarSeed: "Anwar-Hossain" },
     ],
   },
 
@@ -318,7 +322,7 @@ const bn: Copy = {
 
 // ─── English ───────────────────────────────────────────────────────────────
 const en: Copy = {
-  nav: { features: "Features", pricing: "Pricing", about: "About", contact: "Contact", login: "Log in", signup: "Get Started" },
+  nav: { home: "Home", features: "Features", pricing: "Pricing", about: "About", contact: "Contact", login: "Log in", signup: "Get Started" },
 
   hero: {
     eyebrow: "🇧🇩 #1 School Management Software for Bangladesh",
@@ -436,9 +440,12 @@ const en: Copy = {
     eyebrow: "Testimonials",
     title: "What educators are saying",
     list: [
-      { quote: "Switched from Bornomala to Muhius Sunnah — parents now pay online themselves, my office is no longer crowded.", author: "Maulana Abdur Rahman", role: "Principal", school: "Dhaka Islamia Madrasa" },
-      { quote: "The hifz module is incredible! See the 30-para heatmap to know everyone's progress at a glance.", author: "Hafez Mohammad Yousuf", role: "Hifz Teacher", school: "Jamia Islamia" },
-      { quote: "60 students' attendance in 2 minutes with QR — used to take 15 minutes before.", author: "Farzana Akter", role: "Class Teacher", school: "Green High School" },
+      { quote: "Switched from Bornomala to Muhius Sunnah — parents now pay online themselves, my office is no longer crowded.", author: "Maulana Abdur Rahman", role: "Principal", school: "Dhaka Islamia Madrasa", avatarSeed: "Abdur-Rahman" },
+      { quote: "The hifz module is incredible! See the 30-para heatmap to know everyone's progress at a glance.", author: "Hafez Mohammad Yousuf", role: "Hifz Teacher", school: "Jamia Islamia", avatarSeed: "Md-Yousuf" },
+      { quote: "60 students' attendance in 2 minutes with QR — used to take 15 minutes before.", author: "Farzana Akter", role: "Class Teacher", school: "Green High School", avatarSeed: "Farzana-Akter" },
+      { quote: "AI dropout risk lets us intervene early — this year not a single student dropped out. Game-changer.", author: "Mohammad Rafiqul Islam", role: "Vice Principal", school: "Saudia Model School", avatarSeed: "Rafiqul-Islam" },
+      { quote: "Parents get instant WhatsApp fee reminders. Our collection rate jumped 40% in the first month.", author: "Rashida Sultana", role: "Accountant", school: "Mirpur Madrasa", avatarSeed: "Rashida-Sultana" },
+      { quote: "Daily Sabaq-Sabqi-Manzil grid motivates students. Alhamdulillah, hifz completion rate up 25%.", author: "Maulana Anwar Hossain", role: "Principal", school: "Al-Amin Madrasa", avatarSeed: "Anwar-Hossain" },
     ],
   },
 
@@ -513,7 +520,7 @@ const en: Copy = {
 
 // ─── اردو (Urdu, RTL) ──────────────────────────────────────────────────────
 const ur: Copy = {
-  nav: { features: "خصوصیات", pricing: "قیمتیں", about: "ہمارے بارے میں", contact: "رابطہ", login: "لاگ ان", signup: "شروع کریں" },
+  nav: { home: "ہوم", features: "خصوصیات", pricing: "قیمتیں", about: "ہمارے بارے میں", contact: "رابطہ", login: "لاگ ان", signup: "شروع کریں" },
 
   hero: {
     eyebrow: "🇵🇰 اسکول اور مدرسے کے لیے نمبر ۱ سافٹ ویئر",
@@ -607,9 +614,12 @@ const ur: Copy = {
     eyebrow: "آراء",
     title: "اساتذہ کیا کہتے ہیں",
     list: [
-      { quote: "Bornomala چھوڑ کر Muhius Sunnah لیا — والدین اب خود آن لائن ادائیگی کرتے ہیں۔", author: "مولانا عبدالرحمن", role: "پرنسپل", school: "ڈھاکہ اسلامیہ مدرسہ" },
-      { quote: "حفظ ماڈیول بہت اچھا ہے! ۳۰ پارہ ہیٹ میپ میں کون کہاں پہنچا فوراً نظر آتا ہے۔", author: "حافظ محمد یوسف", role: "حفظ استاد", school: "جامعہ اسلامیہ" },
-      { quote: "QR حاضری میں ۶۰ طلباء کی حاضری ۲ منٹ میں — پہلے ۱۵ منٹ لگتے تھے۔", author: "فرزانہ اختر", role: "کلاس ٹیچر", school: "گرین ہائی اسکول" },
+      { quote: "Bornomala چھوڑ کر Muhius Sunnah لیا — والدین اب خود آن لائن ادائیگی کرتے ہیں۔", author: "مولانا عبدالرحمن", role: "پرنسپل", school: "ڈھاکہ اسلامیہ مدرسہ", avatarSeed: "Abdur-Rahman" },
+      { quote: "حفظ ماڈیول بہت اچھا ہے! ۳۰ پارہ ہیٹ میپ میں کون کہاں پہنچا فوراً نظر آتا ہے۔", author: "حافظ محمد یوسف", role: "حفظ استاد", school: "جامعہ اسلامیہ", avatarSeed: "Md-Yousuf" },
+      { quote: "QR حاضری میں ۶۰ طلباء کی حاضری ۲ منٹ میں — پہلے ۱۵ منٹ لگتے تھے۔", author: "فرزانہ اختر", role: "کلاس ٹیچر", school: "گرین ہائی اسکول", avatarSeed: "Farzana-Akter" },
+      { quote: "AI ڈراپ آؤٹ رسک سے پہلے ہی پتہ چل جاتا ہے — اس سال کوئی طالب علم نہیں چھوڑا۔", author: "محمد رفیق الاسلام", role: "وائس پرنسپل", school: "سعودیہ ماڈل اسکول", avatarSeed: "Rafiqul-Islam" },
+      { quote: "WhatsApp پر والدین کو فوری فیس یاد دہانی ملتی ہے — وصولی ۴۰٪ بڑھ گئی۔", author: "راشدہ سلطانہ", role: "اکاؤنٹنٹ", school: "میرپور مدرسہ", avatarSeed: "Rashida-Sultana" },
+      { quote: "روزانہ سبق گرڈ طلباء کو متحرک کرتا ہے۔ الحمدللہ، حفظ مکمل ہونے کی شرح ۲۵٪ بڑھی۔", author: "مولانا انور حسین", role: "مہتمم", school: "الامین مدرسہ", avatarSeed: "Anwar-Hossain" },
     ],
   },
 
@@ -684,7 +694,7 @@ const ur: Copy = {
 
 // ─── العربية (Arabic, RTL) ─────────────────────────────────────────────────
 const ar: Copy = {
-  nav: { features: "المميزات", pricing: "الأسعار", about: "من نحن", contact: "اتصل بنا", login: "تسجيل الدخول", signup: "ابدأ الآن" },
+  nav: { home: "الرئيسية", features: "المميزات", pricing: "الأسعار", about: "من نحن", contact: "اتصل بنا", login: "تسجيل الدخول", signup: "ابدأ الآن" },
 
   hero: {
     eyebrow: "🕌 برنامج إدارة المدارس والمدارس الدينية الأول",
@@ -778,9 +788,12 @@ const ar: Copy = {
     eyebrow: "الآراء",
     title: "ماذا يقول المعلمون",
     list: [
-      { quote: "تركت Bornomala لصالح Muhius Sunnah — الوالدان يدفعون الآن بأنفسهم عبر الإنترنت.", author: "الشيخ عبد الرحمن", role: "مدير", school: "مدرسة دكا الإسلامية" },
-      { quote: "وحدة الحفظ رائعة! الخريطة الحرارية لـ 30 جزءًا تُظهر تقدم الجميع.", author: "الحافظ محمد يوسف", role: "مدرس الحفظ", school: "جامعة إسلامية" },
-      { quote: "حضور 60 طالبًا في دقيقتين بـ QR — كان يستغرق 15 دقيقة من قبل.", author: "فرزانة أختر", role: "معلمة فصل", school: "مدرسة الخضراء الثانوية" },
+      { quote: "تركت Bornomala لصالح Muhius Sunnah — الوالدان يدفعون الآن بأنفسهم عبر الإنترنت.", author: "الشيخ عبد الرحمن", role: "مدير", school: "مدرسة دكا الإسلامية", avatarSeed: "Abdur-Rahman" },
+      { quote: "وحدة الحفظ رائعة! الخريطة الحرارية لـ 30 جزءًا تُظهر تقدم الجميع.", author: "الحافظ محمد يوسف", role: "مدرس الحفظ", school: "جامعة إسلامية", avatarSeed: "Md-Yousuf" },
+      { quote: "حضور 60 طالبًا في دقيقتين بـ QR — كان يستغرق 15 دقيقة من قبل.", author: "فرزانة أختر", role: "معلمة فصل", school: "مدرسة الخضراء الثانوية", avatarSeed: "Farzana-Akter" },
+      { quote: "تحليل مخاطر التسرب بالذكاء الاصطناعي يتيح التدخل المبكر — لم يتسرب أي طالب هذا العام.", author: "محمد رفيق الإسلام", role: "نائب المدير", school: "مدرسة سعودية النموذجية", avatarSeed: "Rafiqul-Islam" },
+      { quote: "يتلقى الوالدون تذكيرات الرسوم عبر WhatsApp فورًا — زاد معدل التحصيل 40٪.", author: "رشيدة سلطانة", role: "محاسبة", school: "مدرسة ميربور", avatarSeed: "Rashida-Sultana" },
+      { quote: "شبكة السبق اليومي تحفز الطلاب. الحمد لله، ارتفع معدل إكمال الحفظ بنسبة 25٪.", author: "مولانا أنور حسين", role: "مدير", school: "مدرسة الأمين", avatarSeed: "Anwar-Hossain" },
     ],
   },
 

@@ -21,6 +21,7 @@ export async function MarketingNav() {
         </Link>
       }
       links={[
+        { href: "/", label: t.nav.home },
         { href: "/features", label: t.nav.features },
         { href: "/pricing", label: t.nav.pricing },
         { href: "/about", label: t.nav.about },
