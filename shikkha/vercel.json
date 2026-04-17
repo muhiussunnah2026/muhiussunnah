@@ -1,20 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "crons": [
-    {
-      "comment": "Monthly fee invoice generation — runs once on the 1st of every month at 2 AM UTC (~8 AM BDT).",
-      "path": "/api/cron/monthly-fee-gen",
-      "schedule": "0 2 1 * *"
-    },
-    {
-      "comment": "Messaging queue flush — daily at 6 AM UTC (~noon BDT). Upgrade to Pro for every-15-min flush.",
-      "path": "/api/messaging/send-queued",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "comment": "Weekly dropout-risk recompute — every Sunday at 3 AM UTC (~9 AM BDT).",
-      "path": "/api/cron/compute-risk-scores",
-      "schedule": "0 3 * * 0"
-    }
+
+  "_comment_crons": "Cron jobs disabled on Hobby plan. Uncomment after upgrading to Pro, or trigger via external service like cron-job.org / Upstash QStash hitting /api/cron/* with Authorization: Bearer $CRON_SECRET.",
+
+  "_disabled_crons": [
+    { "path": "/api/cron/monthly-fee-gen",     "schedule": "0 2 1 * *" },
+    { "path": "/api/messaging/send-queued",    "schedule": "0 6 * * *" },
+    { "path": "/api/cron/compute-risk-scores", "schedule": "0 3 * * 0" }
   ]
 }
