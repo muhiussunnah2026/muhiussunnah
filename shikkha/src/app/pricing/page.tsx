@@ -96,16 +96,21 @@ export default async function PricingPage() {
                       </div>
                     </div>
 
+                    {/* Show first 6 features + '+ N more' counter for a compact, uniform card */}
                     <ul className="space-y-2.5 flex-1 mb-4">
-                      {plan.features.map((f) => (
+                      {plan.features.slice(0, 6).map((f) => (
                         <li key={f} className="flex items-start gap-2 text-sm">
                           <Check className="size-4 text-success mt-0.5 shrink-0" />
                           <span>{f}</span>
                         </li>
                       ))}
+                      {plan.features.length > 6 && (
+                        <li className="text-xs text-primary font-medium pl-6">
+                          + {plan.features.length - 6} more
+                        </li>
+                      )}
                     </ul>
 
-                    {/* Lifetime: tiny '* শর্ত প্রযোজ্য' note — no duplicate link, user clicks the single 'বিস্তারিত দেখুন' below the CTA */}
                     {plan.priceUnit === "once" && (
                       <p className="mb-3 text-[11px] text-muted-foreground/70 italic">
                         * শর্ত প্রযোজ্য
@@ -124,9 +129,10 @@ export default async function PricingPage() {
                         {plan.cta}
                       </Link>
                     </Magnetic>
+                    {/* View details — full-width clickable button-style link to /pricing/[slug] */}
                     <Link
-                      href={`/pricing/${plan.priceUnit === "once" ? "lifetime" : plan.name.toLowerCase()}`}
-                      className="mt-2 text-center text-xs text-primary hover:underline underline-offset-4 font-medium"
+                      href={`/pricing/${plan.slug}`}
+                      className="mt-2 block w-full rounded-md border border-primary/20 bg-primary/5 py-2 text-center text-xs font-semibold text-primary transition hover:bg-primary/15 hover:border-primary/40"
                     >
                       {t.extras.viewDetails} →
                     </Link>

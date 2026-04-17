@@ -46,6 +46,8 @@ type Copy = {
     oneTime: string;
     chooseCta: string;
     plans: Array<{
+      /** URL slug for the detail page: /pricing/[slug] */
+      slug: "lifetime" | "starter" | "growth" | "scale";
       name: string;
       tagline: string;
       price: number;
@@ -168,6 +170,7 @@ const bn: Copy = {
     chooseCta: "বেছে নিন",
     plans: [
       {
+        slug: "lifetime",
         name: "Lifetime Basic",
         tagline: "ছোট প্রতিষ্ঠান · একবার পেমেন্টে সারাজীবন",
         price: 20000,
@@ -187,6 +190,7 @@ const bn: Copy = {
         cta: "লাইফটাইম কিনুন",
       },
       {
+        slug: "starter",
         name: "Starter",
         tagline: "বৃদ্ধিমান প্রতিষ্ঠান",
         price: 1000,
@@ -207,6 +211,7 @@ const bn: Copy = {
         cta: "ট্রায়াল শুরু করুন",
       },
       {
+        slug: "growth",
         name: "Growth",
         tagline: "মাঝারি থেকে বড় প্রতিষ্ঠান",
         price: 2000,
@@ -231,6 +236,7 @@ const bn: Copy = {
         cta: "ট্রায়াল শুরু করুন",
       },
       {
+        slug: "scale",
         name: "Scale",
         tagline: "এন্টারপ্রাইজ · মাল্টি-ব্রাঞ্চ",
         price: 4000,
@@ -390,6 +396,7 @@ const en: Copy = {
     chooseCta: "Choose",
     plans: [
       {
+        slug: "lifetime",
         name: "Lifetime Basic",
         tagline: "Small institutions · pay once, use forever",
         price: 20000,
@@ -409,6 +416,7 @@ const en: Copy = {
         cta: "Buy Lifetime",
       },
       {
+        slug: "starter",
         name: "Starter",
         tagline: "Growing institutions",
         price: 1000,
@@ -429,6 +437,7 @@ const en: Copy = {
         cta: "Start Trial",
       },
       {
+        slug: "growth",
         name: "Growth",
         tagline: "Medium to large institutions",
         price: 2000,
@@ -453,6 +462,7 @@ const en: Copy = {
         cta: "Start Trial",
       },
       {
+        slug: "scale",
         name: "Scale",
         tagline: "Enterprise · Multi-branch",
         price: 4000,
@@ -612,6 +622,7 @@ const ur: Copy = {
     chooseCta: "منتخب کریں",
     plans: [
       {
+        slug: "lifetime",
         name: "Lifetime Basic",
         tagline: "چھوٹے ادارے · ایک بار ادائیگی، ہمیشہ کے لیے",
         price: 20000,
@@ -631,6 +642,7 @@ const ur: Copy = {
         cta: "لائف ٹائم خریدیں",
       },
       {
+        slug: "starter",
         name: "Starter",
         tagline: "بڑھتے ہوئے ادارے",
         price: 1000,
@@ -651,6 +663,7 @@ const ur: Copy = {
         cta: "آزمائش شروع کریں",
       },
       {
+        slug: "growth",
         name: "Growth",
         tagline: "درمیانے سے بڑے ادارے",
         price: 2000,
@@ -675,6 +688,7 @@ const ur: Copy = {
         cta: "آزمائش شروع کریں",
       },
       {
+        slug: "scale",
         name: "Scale",
         tagline: "انٹرپرائز · ملٹی برانچ",
         price: 4000,
@@ -834,6 +848,7 @@ const ar: Copy = {
     chooseCta: "اختر",
     plans: [
       {
+        slug: "lifetime",
         name: "Lifetime Basic",
         tagline: "المؤسسات الصغيرة · ادفع مرة، استخدم للأبد",
         price: 20000,
@@ -853,6 +868,7 @@ const ar: Copy = {
         cta: "اشتر مدى الحياة",
       },
       {
+        slug: "starter",
         name: "Starter",
         tagline: "المؤسسات النامية",
         price: 1000,
@@ -873,6 +889,7 @@ const ar: Copy = {
         cta: "ابدأ التجربة",
       },
       {
+        slug: "growth",
         name: "Growth",
         tagline: "المؤسسات المتوسطة إلى الكبيرة",
         price: 2000,
@@ -897,6 +914,7 @@ const ar: Copy = {
         cta: "ابدأ التجربة",
       },
       {
+        slug: "scale",
         name: "Scale",
         tagline: "المؤسسات · متعدد الفروع",
         price: 4000,

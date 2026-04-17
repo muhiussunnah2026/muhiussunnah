@@ -333,7 +333,7 @@ export default async function LandingPage() {
 
                     <Magnetic strength={0.15}>
                       <Link
-                        href={`/pricing/${plan.priceUnit === "once" ? "lifetime" : plan.name.toLowerCase()}`}
+                        href={`/pricing/${plan.slug}`}
                         className={
                           buttonVariants({ variant: plan.highlighted ? "default" : "outline", size: "sm" }) +
                           " w-full" +
