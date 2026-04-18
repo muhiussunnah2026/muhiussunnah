@@ -17,17 +17,26 @@ export function Reveal({
   delay = 0,
   className,
   as: Tag = "div",
+  eager = false,
 }: {
   children: ReactNode;
   variant?: Variant;
   delay?: number;
   className?: string;
   as?: "div" | "section" | "article" | "header" | "h1" | "h2" | "h3" | "p" | "span";
+  /** When true, animate on mount regardless of viewport intersection. Useful for
+   *  hero content that sits below the fold on short mobile viewports where the
+   *  IntersectionObserver would otherwise never fire until the user scrolls. */
+  eager?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
+    if (eager) {
+      setShown(true);
+      return;
+    }
     const el = ref.current;
     if (!el || shown) return;
     const io = new IntersectionObserver(
@@ -43,7 +52,7 @@ export function Reveal({
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [shown]);
+  }, [shown, eager]);
 
   const hiddenStyles: Record<Variant, string> = {
     "fade-up": "opacity-0 translate-y-10",

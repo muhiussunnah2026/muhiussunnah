@@ -8,7 +8,7 @@
  * carry tenant slugs, so adding a locale prefix would bloat URLs.
  */
 
-export const locales = ["bn", "en", "ur", "ar"] as const;
+export const locales = ["bn", "en", "ar", "ur"] as const;
 export type Locale = (typeof locales)[number];
 
 export const defaultLocale: Locale = "bn";

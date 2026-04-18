@@ -111,7 +111,7 @@ export default async function LandingPage() {
           </Reveal>
 
           {/* Dashboard mockup with 3D tilt and parallax */}
-          <Reveal variant="fade-up" delay={1400} className="relative w-full max-w-5xl mt-12">
+          <Reveal eager variant="fade-up" delay={400} className="relative w-full max-w-5xl mt-12">
             <div className="absolute -inset-8 rounded-[2rem] bg-gradient-primary opacity-30 blur-3xl animate-glow-pulse" aria-hidden />
             <TiltCard className="rounded-2xl">
               <div className="relative rounded-2xl border border-border/60 bg-card/80 p-2 shadow-2xl backdrop-blur-xl">
@@ -121,7 +121,7 @@ export default async function LandingPage() {
                     <span className="size-3 rounded-full bg-destructive/60" />
                     <span className="size-3 rounded-full bg-warning/60" />
                     <span className="size-3 rounded-full bg-success/60" />
-                    <span className="ms-auto text-xs text-muted-foreground">shikkha.app/dashboard</span>
+                    <span className="ms-auto text-xs text-muted-foreground">muhiussunnah.app/dashboard</span>
                   </div>
                   {/* Dashboard metrics */}
                   <div className="grid gap-3 md:grid-cols-4 text-start">

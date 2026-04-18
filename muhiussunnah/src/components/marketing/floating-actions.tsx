@@ -60,7 +60,7 @@ export function FloatingActions() {
         target="_blank"
         rel="noreferrer"
         aria-label="Chat with us on WhatsApp"
-        className="group fixed bottom-6 start-6 z-[60] flex size-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-2xl shadow-[#25D366]/40 transition-all duration-300 hover:scale-110 hover:shadow-[#25D366]/60"
+        className="group fixed bottom-24 start-6 z-[60] flex size-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-2xl shadow-[#25D366]/40 transition-all duration-300 hover:scale-110 hover:shadow-[#25D366]/60"
       >
         {/* Pulse ring */}
         <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-40" aria-hidden />
