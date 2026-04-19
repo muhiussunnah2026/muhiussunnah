@@ -9,7 +9,7 @@ import type { Locale } from "./config";
 
 type Copy = {
   // Navigation
-  nav: { home: string; features: string; pricing: string; about: string; contact: string; login: string; signup: string };
+  nav: { home: string; features: string; pricing: string; about: string; contact: string; login: string; signup: string; dashboard: string };
 
   // Hero section
   hero: {
@@ -126,7 +126,7 @@ type Copy = {
 
 // ─── বাংলা ─────────────────────────────────────────────────────────────────
 const bn: Copy = {
-  nav: { home: "হোম", features: "ফিচার", pricing: "প্রাইসিং", about: "আমাদের সম্পর্কে", contact: "যোগাযোগ", login: "লগইন", signup: "শুরু করুন" },
+  nav: { home: "হোম", features: "ফিচার", pricing: "প্রাইসিং", about: "আমাদের সম্পর্কে", contact: "যোগাযোগ", login: "লগইন", signup: "শুরু করুন", dashboard: "ড্যাশবোর্ড" },
 
   hero: {
     eyebrow: "🕌 বাংলাদেশের সেরা মাদ্রাসা ও স্কুল সফটওয়্যার",
@@ -352,7 +352,7 @@ const bn: Copy = {
 
 // ─── English ───────────────────────────────────────────────────────────────
 const en: Copy = {
-  nav: { home: "Home", features: "Features", pricing: "Pricing", about: "About", contact: "Contact", login: "Log in", signup: "Get Started" },
+  nav: { home: "Home", features: "Features", pricing: "Pricing", about: "About", contact: "Contact", login: "Log in", signup: "Get Started", dashboard: "Dashboard" },
 
   hero: {
     eyebrow: "🕌 #1 Madrasa & School Management Software for Bangladesh",
@@ -578,7 +578,7 @@ const en: Copy = {
 
 // ─── اردو (Urdu, RTL) ──────────────────────────────────────────────────────
 const ur: Copy = {
-  nav: { home: "ہوم", features: "خصوصیات", pricing: "قیمتیں", about: "ہمارے بارے میں", contact: "رابطہ", login: "لاگ ان", signup: "شروع کریں" },
+  nav: { home: "ہوم", features: "خصوصیات", pricing: "قیمتیں", about: "ہمارے بارے میں", contact: "رابطہ", login: "لاگ ان", signup: "شروع کریں", dashboard: "ڈیش بورڈ" },
 
   hero: {
     eyebrow: "🕌 مدارس اور اسکولوں کے لیے نمبر ۱ سافٹ ویئر",
@@ -804,7 +804,7 @@ const ur: Copy = {
 
 // ─── العربية (Arabic, RTL) ─────────────────────────────────────────────────
 const ar: Copy = {
-  nav: { home: "الرئيسية", features: "المميزات", pricing: "الأسعار", about: "من نحن", contact: "اتصل بنا", login: "تسجيل الدخول", signup: "ابدأ الآن" },
+  nav: { home: "الرئيسية", features: "المميزات", pricing: "الأسعار", about: "من نحن", contact: "اتصل بنا", login: "تسجيل الدخول", signup: "ابدأ الآن", dashboard: "لوحة التحكم" },
 
   hero: {
     eyebrow: "🕌 برنامج إدارة المدارس الدينية والعامة الأول",

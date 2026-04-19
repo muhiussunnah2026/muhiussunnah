@@ -30,6 +30,8 @@ export function NavShell({
   loginLabel,
   signupHref,
   signupLabel,
+  showSignupCta = true,
+  isSignedIn = false,
 }: {
   logo: ReactNode;
   links: Array<{ href: string; label: string }>;
@@ -39,6 +41,10 @@ export function NavShell({
   loginLabel: string;
   signupHref: string;
   signupLabel: string;
+  /** Hide the separate signup CTA (used when the signed-in user already has a dashboard link). */
+  showSignupCta?: boolean;
+  /** True when a user is signed in — used to style the primary CTA as a dashboard badge. */
+  isSignedIn?: boolean;
 }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -139,31 +145,35 @@ export function NavShell({
           <div className="hidden md:flex items-center gap-1.5">
             {leftControls}
             {themeToggle}
-            <Link
-              href={loginHref}
-              className={cn(
-                "group hidden sm:inline-flex items-center gap-1 rounded-full border border-border/60 bg-background/60 px-4 py-1.5 text-sm font-medium backdrop-blur-md transition-all duration-300",
-                "hover:border-primary/50 hover:bg-primary/10 hover:text-primary",
-              )}
-            >
-              {loginLabel}
-            </Link>
-            <Link
-              href={signupHref}
-              className={cn(
-                "group relative inline-flex items-center gap-1 overflow-hidden rounded-full bg-gradient-primary animate-gradient px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition-all duration-300",
-                "hover:shadow-xl hover:shadow-primary/50 hover:scale-[1.03]",
-              )}
-            >
-              <span className="relative z-10 flex items-center gap-1">
-                {signupLabel}
-                <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </span>
-              <span
-                aria-hidden
-                className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[120%]"
-              />
-            </Link>
+            {!isSignedIn && (
+              <Link
+                href={loginHref}
+                className={cn(
+                  "group hidden sm:inline-flex items-center gap-1 rounded-full border border-border/60 bg-background/60 px-4 py-1.5 text-sm font-medium backdrop-blur-md transition-all duration-300",
+                  "hover:border-primary/50 hover:bg-primary/10 hover:text-primary",
+                )}
+              >
+                {loginLabel}
+              </Link>
+            )}
+            {(showSignupCta || isSignedIn) && (
+              <Link
+                href={isSignedIn ? loginHref : signupHref}
+                className={cn(
+                  "group relative inline-flex items-center gap-1 overflow-hidden rounded-full bg-gradient-primary animate-gradient px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition-all duration-300",
+                  "hover:shadow-xl hover:shadow-primary/50 hover:scale-[1.03]",
+                )}
+              >
+                <span className="relative z-10 flex items-center gap-1">
+                  {isSignedIn ? loginLabel : signupLabel}
+                  <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </span>
+                <span
+                  aria-hidden
+                  className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[120%]"
+                />
+              </Link>
+            )}
           </div>
 
           {/* Mobile: hamburger only */}
@@ -240,25 +250,29 @@ export function NavShell({
 
           {/* CTAs */}
           <div className="flex flex-col gap-2 pt-1">
-            <Link
-              href={loginHref}
-              className="w-full text-center rounded-xl border border-border/60 bg-background px-4 py-3 text-sm font-medium transition hover:border-primary/50 hover:bg-primary/5"
-            >
-              {loginLabel}
-            </Link>
-            <Link
-              href={signupHref}
-              className="group relative w-full text-center overflow-hidden rounded-xl bg-gradient-primary animate-gradient px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/30"
-            >
-              <span className="relative z-10 inline-flex items-center justify-center gap-1">
-                {signupLabel}
-                <ArrowUpRight className="size-4" />
-              </span>
-              <span
-                aria-hidden
-                className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[120%]"
-              />
-            </Link>
+            {!isSignedIn && (
+              <Link
+                href={loginHref}
+                className="w-full text-center rounded-xl border border-border/60 bg-background px-4 py-3 text-sm font-medium transition hover:border-primary/50 hover:bg-primary/5"
+              >
+                {loginLabel}
+              </Link>
+            )}
+            {(showSignupCta || isSignedIn) && (
+              <Link
+                href={isSignedIn ? loginHref : signupHref}
+                className="group relative w-full text-center overflow-hidden rounded-xl bg-gradient-primary animate-gradient px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/30"
+              >
+                <span className="relative z-10 inline-flex items-center justify-center gap-1">
+                  {isSignedIn ? loginLabel : signupLabel}
+                  <ArrowUpRight className="size-4" />
+                </span>
+                <span
+                  aria-hidden
+                  className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[120%]"
+                />
+              </Link>
+            )}
           </div>
         </div>
       </aside>
