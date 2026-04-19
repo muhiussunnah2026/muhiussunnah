@@ -27,10 +27,18 @@ type Props = {
 
 const toneBorder: Record<NonNullable<Props["tone"]>, string> = {
   default: "",
-  success: "ring-1 ring-success/30",
-  warning: "ring-1 ring-warning/30",
-  danger: "ring-1 ring-destructive/30",
-  accent: "ring-1 ring-primary/30",
+  success: "border-success/30 bg-gradient-to-br from-card to-success/5",
+  warning: "border-warning/30 bg-gradient-to-br from-card to-warning/5",
+  danger: "border-destructive/30 bg-gradient-to-br from-card to-destructive/5",
+  accent: "border-primary/30 bg-gradient-to-br from-card to-primary/5",
+};
+
+const toneIconBg: Record<NonNullable<Props["tone"]>, string> = {
+  default: "bg-muted text-muted-foreground",
+  success: "bg-success/15 text-success",
+  warning: "bg-warning/15 text-warning",
+  danger: "bg-destructive/15 text-destructive",
+  accent: "bg-primary/15 text-primary",
 };
 
 export function MetricCard({
@@ -57,14 +65,18 @@ export function MetricCard({
 
   return (
     <Card className={cn("relative overflow-hidden", toneBorder[tone], className)}>
-      <CardContent className="flex flex-col gap-2 p-5">
+      <CardContent className="flex flex-col gap-3 p-5">
         <div className="flex items-start justify-between gap-2">
-          <p className="text-sm text-muted-foreground">{label}</p>
-          {icon ? <div className="text-muted-foreground">{icon}</div> : null}
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+          {icon ? (
+            <div className={cn("flex size-9 items-center justify-center rounded-xl", toneIconBg[tone])}>
+              {icon}
+            </div>
+          ) : null}
         </div>
         <div className="flex items-baseline gap-1">
           {valuePrefix}
-          <span className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+          <span className="text-3xl font-bold tracking-tight text-foreground md:text-4xl tabular-nums">
             {typeof value === "number" || typeof value === "string" ? (
               <BanglaDigit value={value} locale={locale} />
             ) : (
@@ -74,13 +86,13 @@ export function MetricCard({
           {valueSuffix}
         </div>
         {trendPct !== undefined && trendPct !== null ? (
-          <div className={cn("flex items-center gap-1 text-xs font-medium", trendColor)}>
+          <div className={cn("flex items-center gap-1 text-xs font-semibold", trendColor)}>
             <span>
               {trendPct > 0 ? "↗" : trendPct < 0 ? "↘" : "→"}
               {" "}
               {formatTrend(trendPct, locale)}
             </span>
-            {trendLabel ? <span className="text-muted-foreground">· {trendLabel}</span> : null}
+            {trendLabel ? <span className="font-normal text-muted-foreground">· {trendLabel}</span> : null}
           </div>
         ) : null}
         {target ? (

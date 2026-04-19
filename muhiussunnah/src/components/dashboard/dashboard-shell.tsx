@@ -21,61 +21,85 @@ type Props = {
 };
 
 /**
- * A minimal dashboard shell used by all four dashboards. Left sidebar
- * navigation on desktop, collapsed on mobile. Detailed shadcn sidebar
- * + command palette lands in Phase 1.
+ * Premium admin shell. Shared by all four dashboards (admin / teacher /
+ * portal / super-admin). Glassmorphic header, gradient brand mark,
+ * sidebar with rounded pill nav items, airy content area. Function
+ * unchanged — only the look.
  */
 export function DashboardShell({ title, subtitle, nav, userLabel, children }: Props) {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-border/60 bg-background/80 px-4 py-3 backdrop-blur md:px-6">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="inline-flex size-8 items-center justify-center rounded-lg bg-gradient-primary font-bold text-white">
-              م
-            </span>
-            <span className="hidden text-sm font-semibold md:inline">Muhius Sunnah</span>
-          </Link>
-          <div className="hidden border-l border-border/60 pl-3 md:block">
-            <p className="text-sm font-semibold leading-tight">{title}</p>
-            {subtitle ? (
-              <p className="text-xs text-muted-foreground">{subtitle}</p>
-            ) : null}
+    <div className="relative flex min-h-screen flex-col bg-background">
+      {/* Aurora background wash — identical treatment to the marketing site */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+        <div className="absolute -top-48 -start-48 size-[500px] rounded-full bg-primary/10 blur-[120px]" />
+        <div className="absolute -top-32 end-0 size-[400px] rounded-full bg-accent/10 blur-[120px]" />
+      </div>
+
+      {/* Header */}
+      <header className="sticky top-0 z-30 border-b border-border/50 bg-background/70 backdrop-blur-xl shadow-sm shadow-primary/5">
+        <div className="flex items-center justify-between gap-4 px-4 py-3.5 md:px-6">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="group/brand flex items-center gap-2.5">
+              <span className="relative inline-flex size-9 items-center justify-center rounded-xl bg-gradient-primary animate-gradient font-bold text-white shadow-lg shadow-primary/30 transition-transform group-hover/brand:scale-105">
+                م
+              </span>
+              <span className="hidden text-sm font-bold tracking-tight md:inline">
+                Muhius <span className="text-primary">Sunnah</span>
+              </span>
+            </Link>
+            <div className="hidden items-start gap-3 border-s border-border/60 ps-4 md:flex md:flex-col">
+              <div className="flex flex-col leading-tight">
+                <p className="text-sm font-semibold">{title}</p>
+                {subtitle ? (
+                  <p className="text-xs text-muted-foreground">{subtitle}</p>
+                ) : null}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <LiveIndicator />
-          {userLabel ? (
-            <span className="hidden text-sm text-muted-foreground md:inline">
-              {userLabel}
-            </span>
-          ) : null}
-          <form action={signOutAction}>
-            <Button type="submit" variant="ghost" size="sm" className="gap-2">
-              <LogOut className="size-4" />
-              <span className="hidden md:inline">লগআউট</span>
-            </Button>
-          </form>
+
+          <div className="flex items-center gap-3">
+            <LiveIndicator />
+            {userLabel ? (
+              <span className="hidden rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium text-foreground/80 backdrop-blur md:inline">
+                {userLabel}
+              </span>
+            ) : null}
+            <form action={signOutAction}>
+              <Button
+                type="submit"
+                variant="outline"
+                size="sm"
+                className="gap-2 hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive"
+              >
+                <LogOut className="size-4" />
+                <span className="hidden md:inline">লগআউট</span>
+              </Button>
+            </form>
+          </div>
         </div>
       </header>
 
-      <div className="flex flex-1">
-        <aside className="sticky top-[56px] hidden h-[calc(100vh-56px)] w-56 shrink-0 overflow-y-auto border-r border-border/60 bg-sidebar px-3 py-4 md:block">
-          <nav className="flex flex-col gap-0.5">
+      <div className="relative flex flex-1">
+        {/* Sidebar */}
+        <aside className="sticky top-[65px] hidden h-[calc(100vh-65px)] w-60 shrink-0 overflow-y-auto border-e border-border/50 bg-sidebar/60 backdrop-blur-sm px-3 py-5 md:block">
+          <nav className="flex flex-col gap-1">
             {nav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                className="group/nav relative flex items-center gap-2.5 rounded-xl border border-transparent px-3.5 py-2.5 text-sm font-medium text-sidebar-foreground/80 transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary hover:shadow-sm hover:shadow-primary/5"
               >
-                {item.icon}
-                {item.label}
+                <span className="flex size-5 items-center justify-center text-muted-foreground transition-colors group-hover/nav:text-primary [&_svg]:size-4">
+                  {item.icon}
+                </span>
+                <span className="truncate">{item.label}</span>
               </Link>
             ))}
           </nav>
         </aside>
 
-        <main className="flex-1 p-4 md:p-6">
+        {/* Content */}
+        <main className="relative flex-1 p-5 md:p-8">
           {children}
           <div className="mt-10">
             <TrustBadge variant="footer" />
