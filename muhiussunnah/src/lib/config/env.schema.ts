@@ -43,8 +43,8 @@ export const envSchema = z.object({
   // App ---------------------------------------------------------------------
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
-  NEXT_PUBLIC_APP_NAME: z.string().default("Shikkha Platform"),
-  NEXT_PUBLIC_APP_SHORT_NAME: z.string().default("Shikkha"),
+  NEXT_PUBLIC_APP_NAME: z.string().default("Muhius Sunnah"),
+  NEXT_PUBLIC_APP_SHORT_NAME: z.string().default("Muhius"),
 
   // Secrets (required in production; optional for local dev scaffolding)
   JWT_SECRET: optionalString(),

@@ -32,9 +32,9 @@ export function DashboardShell({ title, subtitle, nav, userLabel, children }: Pr
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2">
             <span className="inline-flex size-8 items-center justify-center rounded-lg bg-gradient-primary font-bold text-white">
-              শ
+              م
             </span>
-            <span className="hidden text-sm font-semibold md:inline">Shikkha</span>
+            <span className="hidden text-sm font-semibold md:inline">Muhius Sunnah</span>
           </Link>
           <div className="hidden border-l border-border/60 pl-3 md:block">
             <p className="text-sm font-semibold leading-tight">{title}</p>
