@@ -1,14 +1,15 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { Trash2, Plus, X } from "lucide-react";
+import { Trash2, Plus, X, Pencil, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
-import { deleteClassAction, addSectionAction } from "@/server/actions/academic";
+import { deleteClassAction, addSectionAction, updateClassAction } from "@/server/actions/academic";
 import type { ActionResult } from "@/server/actions/_helpers";
 
 type ClassRow = {
@@ -39,21 +40,42 @@ export function ClassSectionList({ schoolSlug, classes }: Props) {
 
 function ClassCard({ schoolSlug, data }: { schoolSlug: string; data: ClassRow }) {
   const [showAddSection, setShowAddSection] = useState(false);
+  const [editing, setEditing] = useState(false);
   return (
     <Card>
       <CardContent className="flex flex-col gap-3 p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="text-base font-semibold">
-              {data.name_bn}
-              {data.name_en ? <span className="ml-2 text-xs text-muted-foreground">({data.name_en})</span> : null}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              স্ট্রিম: {streamLabel[data.stream] ?? data.stream} · সেকশন: <BanglaDigit value={data.sections.length} />
-            </p>
+        {editing ? (
+          <EditClassInline
+            schoolSlug={schoolSlug}
+            cls={data}
+            onDone={() => setEditing(false)}
+          />
+        ) : (
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-base font-semibold">
+                {data.name_bn}
+                {data.name_en ? <span className="ml-2 text-xs text-muted-foreground">({data.name_en})</span> : null}
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                স্ট্রিম: {streamLabel[data.stream] ?? data.stream} · সেকশন: <BanglaDigit value={data.sections.length} />
+              </p>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                size="icon-sm"
+                variant="ghost"
+                onClick={() => setEditing(true)}
+                aria-label="Edit class"
+                className="hover:bg-primary/10 hover:text-primary"
+              >
+                <Pencil className="size-4" />
+              </Button>
+              <DeleteClassButton schoolSlug={schoolSlug} classId={data.id} />
+            </div>
           </div>
-          <DeleteClassButton schoolSlug={schoolSlug} classId={data.id} />
-        </div>
+        )}
 
         <div className="flex flex-wrap items-center gap-2">
           {data.sections.map((s) => (
@@ -75,6 +97,85 @@ function ClassCard({ schoolSlug, data }: { schoolSlug: string; data: ClassRow })
         {showAddSection ? <AddSectionInline schoolSlug={schoolSlug} classId={data.id} onDone={() => setShowAddSection(false)} /> : null}
       </CardContent>
     </Card>
+  );
+}
+
+function EditClassInline({
+  schoolSlug,
+  cls,
+  onDone,
+}: {
+  schoolSlug: string;
+  cls: ClassRow;
+  onDone: () => void;
+}) {
+  const [state, action, pending] = useActionState<ActionResult | null, FormData>(updateClassAction, null);
+
+  useEffect(() => {
+    if (!state) return;
+    if (state.ok) {
+      toast.success(state.message ?? "আপডেট হয়েছে");
+      onDone();
+    } else {
+      toast.error(state.error);
+    }
+  }, [state, onDone]);
+
+  return (
+    <form action={action} className="grid gap-3 rounded-lg border border-primary/40 bg-primary/5 p-3">
+      <input type="hidden" name="schoolSlug" value={schoolSlug} />
+      <input type="hidden" name="classId" value={cls.id} />
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="flex flex-col gap-1">
+          <Label htmlFor={`edit-bn-${cls.id}`} className="text-xs">নাম (বাংলা) *</Label>
+          <Input id={`edit-bn-${cls.id}`} name="name_bn" defaultValue={cls.name_bn} required className="h-9" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor={`edit-en-${cls.id}`} className="text-xs">Name (English)</Label>
+          <Input id={`edit-en-${cls.id}`} name="name_en" defaultValue={cls.name_en ?? ""} className="h-9" />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <Label htmlFor={`edit-stream-${cls.id}`} className="text-xs">স্ট্রিম</Label>
+          <Select name="stream" defaultValue={cls.stream}>
+            <SelectTrigger id={`edit-stream-${cls.id}`} className="h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="general">সাধারণ</SelectItem>
+              <SelectItem value="science">বিজ্ঞান</SelectItem>
+              <SelectItem value="commerce">ব্যবসায়</SelectItem>
+              <SelectItem value="arts">মানবিক</SelectItem>
+              <SelectItem value="hifz">হিফজ</SelectItem>
+              <SelectItem value="kitab">কিতাব</SelectItem>
+              <SelectItem value="nazera">নাজেরা</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor={`edit-order-${cls.id}`} className="text-xs">ক্রম</Label>
+          <Input
+            id={`edit-order-${cls.id}`}
+            name="display_order"
+            type="number"
+            min={0}
+            defaultValue={cls.display_order}
+            className="h-9"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Button type="submit" size="sm" disabled={pending} className="gap-1">
+          <Check className="size-3.5" />
+          {pending ? "সংরক্ষণ হচ্ছে..." : "সংরক্ষণ"}
+        </Button>
+        <Button type="button" size="sm" variant="outline" onClick={onDone}>
+          বাতিল
+        </Button>
+      </div>
+    </form>
   );
 }
 
@@ -123,7 +224,7 @@ function DeleteClassButton({ schoolSlug, classId }: { schoolSlug: string; classI
     <form action={action} onSubmit={(e) => { if (!confirm("আপনি কি নিশ্চিত? সেকশন ও ছাত্রও মুছে যেতে পারে।")) e.preventDefault(); }}>
       <input type="hidden" name="schoolSlug" value={schoolSlug} />
       <input type="hidden" name="classId" value={classId} />
-      <Button type="submit" size="icon-sm" variant="ghost" disabled={pending} aria-label="Delete class">
+      <Button type="submit" size="icon-sm" variant="ghost" disabled={pending} aria-label="Delete class" className="hover:bg-destructive/10">
         <Trash2 className="size-4 text-destructive" />
       </Button>
     </form>

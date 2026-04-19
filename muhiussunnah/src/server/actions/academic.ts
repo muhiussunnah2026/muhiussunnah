@@ -107,15 +107,26 @@ export async function addClassAction(
 
   const supabase = await supabaseServer();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any).from("classes").insert({
+  const { data: cls, error } = await (supabase as any).from("classes").insert({
     school_id: auth.active.school_id,
     branch_id: parsed.branch_id ?? null,
     name_bn: parsed.name_bn,
     name_en: parsed.name_en ?? null,
     stream: parsed.stream,
     display_order: parsed.display_order,
-  });
+  }).select("id").single();
   if (error) return fail(error.message);
+
+  // Auto-create a default section so the class is immediately usable for
+  // student enrollment. Admin can rename / add more sections later.
+  if (cls?.id) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from("sections").insert({
+      class_id: cls.id,
+      name: "ক",
+      capacity: null,
+    });
+  }
 
   await writeAuditLog({
     schoolId: auth.active.school_id,
@@ -125,7 +136,57 @@ export async function addClassAction(
     meta: { name_bn: parsed.name_bn, stream: parsed.stream },
   });
   revalidatePath(`/school/${parsed.schoolSlug}/admin/classes`);
-  return ok(undefined, "ক্লাস যোগ হয়েছে।");
+  return ok(undefined, "ক্লাস যোগ হয়েছে। একটি ডিফল্ট সেকশন (ক) তৈরি করা হয়েছে।");
+}
+
+// Update a class ----------------------------------------------------
+const updateClassSchema = z.object({
+  schoolSlug: z.string().min(1),
+  classId: z.string().uuid(),
+  name_bn: z.string().trim().min(1).max(100),
+  name_en: z.string().trim().max(100).optional().or(z.literal("").transform(() => undefined)),
+  stream: z.enum(["general", "hifz", "kitab", "nazera", "science", "commerce", "arts"]).default("general"),
+  display_order: z.coerce.number().int().min(0).max(999).default(0),
+});
+
+export async function updateClassAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = parseForm(updateClassSchema, formData);
+  if ("error" in parsed) return parsed.error;
+
+  const auth = await authorizeAction({
+    schoolSlug: parsed.schoolSlug,
+    action: "update",
+    resource: "class",
+  });
+  if ("error" in auth) return auth.error;
+
+  const supabase = await supabaseServer();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any)
+    .from("classes")
+    .update({
+      name_bn: parsed.name_bn,
+      name_en: parsed.name_en ?? null,
+      stream: parsed.stream,
+      display_order: parsed.display_order,
+    })
+    .eq("id", parsed.classId)
+    .eq("school_id", auth.active.school_id);
+  if (error) return fail(error.message);
+
+  await writeAuditLog({
+    schoolId: auth.active.school_id,
+    userId: auth.session.userId,
+    action: "update",
+    resourceType: "class",
+    resourceId: parsed.classId,
+    meta: { name_bn: parsed.name_bn },
+  });
+  revalidatePath(`/school/${parsed.schoolSlug}/admin/classes`);
+  return ok(undefined, "ক্লাস আপডেট হয়েছে।");
 }
 
 export async function deleteClassAction(

@@ -89,9 +89,13 @@ export async function signInAction(
     if (slug) {
       // Route by role: teachers and students get their portals, admins get admin.
       const role = membership?.role as string | undefined;
-      if (role === "TEACHER") destination = `/school/${slug}/teacher`;
-      else if (role === "STUDENT" || role === "GUARDIAN") destination = `/school/${slug}/portal`;
-      else destination = `/school/${slug}/admin`;
+      if (role === "CLASS_TEACHER" || role === "SUBJECT_TEACHER" || role === "MADRASA_USTADH") {
+        destination = `/school/${slug}/teacher`;
+      } else if (role === "STUDENT" || role === "PARENT") {
+        destination = `/school/${slug}/portal`;
+      } else {
+        destination = `/school/${slug}/admin`;
+      }
     }
   }
 

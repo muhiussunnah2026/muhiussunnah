@@ -1,0 +1,1036 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8" />
+<title>Muhius Sunnah — ইউজার অ্যাক্সেস গাইড</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --primary:      #7c5cff;
+    --primary-dark: #5b3fd6;
+    --accent:       #22d3ee;
+    --bg:           #f9fafb;
+    --surface:      #ffffff;
+    --ink:          #0f172a;
+    --ink-soft:     #475569;
+    --ink-muted:    #94a3b8;
+    --border:       #e2e8f0;
+    --border-soft:  #eef0f4;
+    --success:      #16a34a;
+    --danger:       #dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Hind Siliguri', 'Noto Sans Bengali', 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    font-size: 11.5pt;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  en, .en { font-family: 'Inter', sans-serif; }
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+  }
+  .page {
+    max-width: 190mm;
+    margin: 0 auto;
+  }
+  /* ============ HERO ============ */
+  .hero {
+    position: relative;
+    padding: 28px 30px 34px;
+    margin: 0 0 22px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #7c5cff 0%, #5b3fd6 40%, #22d3ee 100%);
+    color: #fff;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,255,255,0.25) 0, transparent 35%),
+      radial-gradient(circle at 85% 80%, rgba(255,255,255,0.15) 0, transparent 40%);
+    pointer-events: none;
+  }
+  .brand-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+    position: relative;
+  }
+  .brand-mark {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 800;
+    border: 1px solid rgba(255,255,255,0.35);
+  }
+  .brand-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 14pt; font-weight: 800; letter-spacing: -0.02em;
+  }
+  .brand-sub {
+    font-size: 9pt; opacity: 0.85; letter-spacing: 0.02em;
+  }
+  .hero h1 {
+    position: relative;
+    font-size: 24pt;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+  .hero p {
+    position: relative;
+    font-size: 11pt;
+    opacity: 0.92;
+    max-width: 520px;
+  }
+  .hero-chip {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 16px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.35);
+    backdrop-filter: blur(6px);
+    font-size: 9pt; font-weight: 600;
+  }
+  /* ============ INTRO BLOCK ============ */
+  .intro {
+    margin: 0 0 22px;
+    padding: 16px 18px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    align-items: center;
+  }
+  .intro-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .intro p { color: var(--ink-soft); line-height: 1.6; }
+  .intro strong { color: var(--ink); }
+
+  /* ============ SECTION HEADER ============ */
+  .section-title {
+    margin: 18px 0 12px;
+    padding: 0 4px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13pt; font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .section-title .num {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    background-clip: text; -webkit-background-clip: text;
+    color: transparent;
+    font-size: 18pt;
+  }
+
+  /* ============ ROLE CARD ============ */
+  .role {
+    --tint: var(--primary);
+    position: relative;
+    margin: 0 0 14px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+    overflow: hidden;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .role-stripe {
+    height: 5px;
+    background: linear-gradient(90deg, var(--tint), color-mix(in srgb, var(--tint) 50%, #fff));
+  }
+  .role-head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 14px 16px 10px;
+  }
+  .role-badge {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--tint) 12%, #fff);
+    color: var(--tint);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    border: 1px solid color-mix(in srgb, var(--tint) 30%, #fff);
+  }
+  .role-title {
+    font-size: 13pt;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .role-title .en {
+    font-family: 'Inter', sans-serif;
+    color: var(--tint);
+  }
+  .role-subtitle {
+    font-size: 9pt;
+    color: var(--ink-muted);
+    margin-top: 1px;
+  }
+  .sidebar-count {
+    font-family: 'Inter', sans-serif;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--tint) 12%, #fff);
+    color: var(--tint);
+    border: 1px solid color-mix(in srgb, var(--tint) 25%, #fff);
+    font-size: 9pt;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .role-meta {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 4px 16px 10px;
+  }
+  .role-meta .cell {
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--border-soft);
+    font-size: 9.5pt;
+    line-height: 1.5;
+  }
+  .role-meta .cell strong {
+    display: block;
+    font-size: 8pt;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tint);
+    margin-bottom: 3px;
+  }
+  /* Access table */
+  .access {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-top: 1px solid var(--border);
+  }
+  .access .col {
+    background: #fff;
+    padding: 12px 14px;
+  }
+  .access h4 {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 9pt; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .access h4.ok  { color: var(--success); }
+  .access h4.no  { color: var(--danger); }
+  .access ul { list-style: none; padding: 0; }
+  .access li {
+    position: relative;
+    padding: 3px 0 3px 18px;
+    font-size: 9.5pt;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    page-break-inside: avoid;
+  }
+  .access li::before {
+    position: absolute; left: 0; top: 3px;
+    font-size: 10pt;
+    font-weight: 700;
+  }
+  .access .col.ok li::before { content: "✓"; color: var(--success); }
+  .access .col.no li::before { content: "✕"; color: var(--danger); }
+
+  /* Single-column variant when only ✅ items */
+  .access.single { grid-template-columns: 1fr; }
+
+  /* Special: SCHOOL_ADMIN highlight callout */
+  .admin-highlight {
+    padding: 14px 16px;
+    margin: 0 16px 14px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 1px solid #fcd34d;
+    color: #78350f;
+    font-weight: 600;
+    font-size: 10pt;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  /* ============ SECURITY SECTION ============ */
+  .security {
+    margin: 22px 0;
+    padding: 22px 24px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .security::before {
+    content: "🛡️";
+    position: absolute;
+    top: -20px; right: -10px;
+    font-size: 120px;
+    opacity: 0.08;
+  }
+  .security h2 {
+    font-size: 16pt;
+    font-weight: 800;
+    margin-bottom: 14px;
+    letter-spacing: -0.01em;
+  }
+  .security-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-bottom: 14px;
+  }
+  .security-tier {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+  }
+  .security-tier .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(124,92,255,0.25);
+    color: #c4b5fd;
+    font-size: 8pt;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    margin-bottom: 6px;
+  }
+  .security-tier h3 {
+    font-size: 10.5pt; font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .security-tier p {
+    font-size: 9pt;
+    color: #cbd5e1;
+    line-height: 1.45;
+  }
+  .security-result {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(34,211,238,0.1);
+    border: 1px solid rgba(34,211,238,0.3);
+    color: #a5f3fc;
+    font-size: 10pt;
+    font-weight: 600;
+  }
+
+  /* ============ SUMMARY TABLE ============ */
+  .summary {
+    margin: 22px 0;
+  }
+  .summary h2 {
+    font-size: 15pt; font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .summary table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 10pt;
+  }
+  .summary th {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff;
+    text-align: start;
+    padding: 10px 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    font-size: 9.5pt;
+  }
+  .summary th.en, .summary td.en { font-family: 'Inter', sans-serif; }
+  .summary td {
+    padding: 9px 14px;
+    border-top: 1px solid var(--border-soft);
+    vertical-align: middle;
+  }
+  .summary tr:nth-child(even) td {
+    background: #fafbfc;
+  }
+  .summary .role-name {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .summary .pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 9pt;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+  }
+  .pill-full   { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+  .pill-high   { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+  .pill-med    { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; }
+  .pill-low    { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+
+  /* ============ FOOTER ============ */
+  .footer {
+    margin: 28px 0 0;
+    padding: 18px;
+    border-top: 2px solid var(--border);
+    text-align: center;
+    color: var(--ink-muted);
+    font-size: 9pt;
+  }
+  .footer strong { color: var(--ink); }
+  .footer .mark {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 9pt;
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ======================== HERO ======================== -->
+<section class="hero">
+  <div class="brand-row">
+    <div class="brand-mark">م</div>
+    <div>
+      <div class="brand-text">Muhius <span style="opacity:0.85">Sunnah</span></div>
+      <div class="brand-sub">Modern Madrasa &amp; School Management</div>
+    </div>
+  </div>
+  <h1>ইউজার অ্যাক্সেস গাইড</h1>
+  <p>Principals ও Administrators-এর জন্য সম্পূর্ণ রেফারেন্স — কোন রোল কী দেখতে পাবে, কী দেখতে পাবে না, তার বিস্তারিত বর্ণনা।</p>
+  <div class="hero-chip">📘 ১৪টি রোল · ৩২টি feature · ৩ স্তরের নিরাপত্তা</div>
+</section>
+
+<!-- ======================== INTRO ======================== -->
+<div class="intro">
+  <div class="intro-icon">ℹ️</div>
+  <p>
+    আমাদের সিস্টেমে মোট <strong>১৪ ধরনের ইউজার রোল</strong> আছে। প্রতিটি রোল শুধু নিজের কাজের জন্য প্রয়োজনীয় feature দেখতে পায় — শিক্ষকের গোপনীয়তা, ছাত্রের নিরাপত্তা ও আর্থিক সুরক্ষার জন্য এটি অপরিহার্য। সাইডবারে মোট <strong>৩২টি feature</strong> আছে।
+  </p>
+</div>
+
+<!-- ======================== ROLE 1: SCHOOL_ADMIN ======================== -->
+<div class="section-title"><span class="num">01</span> Administrative Leadership</div>
+
+<article class="role" style="--tint:#d97706;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🏫</div>
+    <div>
+      <div class="role-title"><span class="en">SCHOOL_ADMIN</span> — প্রধান / Principal</div>
+      <div class="role-subtitle">প্রতিষ্ঠান প্রধান, অধ্যক্ষ, মোহতামিম</div>
+    </div>
+    <div class="sidebar-count">32 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>প্রতিষ্ঠান প্রধান, অধ্যক্ষ, মোহতামিম</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>সম্পূর্ণ স্কুলের মালিকানা — কোনো সীমাবদ্ধতা নেই</div>
+  </div>
+  <div class="admin-highlight">
+    👑 <span>সম্পূর্ণ অ্যাক্সেস: ছাত্র, শিক্ষক, স্টাফ, ক্লাস, পরীক্ষা, ফি, খরচ, বেতন, বিনিয়োগ, রিপোর্ট, AI insights, সেটিংস, Audit Log, 2FA — সবকিছু।</span>
+  </div>
+</article>
+
+<article class="role" style="--tint:#2563eb;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🎓</div>
+    <div>
+      <div class="role-title"><span class="en">VICE_PRINCIPAL</span> — সহকারী অধ্যক্ষ</div>
+      <div class="role-subtitle">Vice Principal, Assistant Principal, নায়েব মোহতামিম</div>
+    </div>
+    <div class="sidebar-count">31 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>Vice Principal, Assistant Principal, নায়েব মোহতামিম</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>প্রায় প্রধানের সমান — কিছু সংবেদনশীল অপশন বন্ধ</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ দেখতে পাবে</h4>
+      <ul>
+        <li>একাডেমিক শাখা সম্পূর্ণ</li>
+        <li>আর্থিক দেখা ও অনুমোদন</li>
+        <li>সব রিপোর্ট + AI insights</li>
+        <li>শিক্ষক / স্টাফ ম্যানেজমেন্ট</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ দেখতে পাবে না</h4>
+      <ul>
+        <li>Super Admin সেটিংস পরিবর্তন</li>
+        <li>প্রতিষ্ঠান delete</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#16a34a;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🏢</div>
+    <div>
+      <div class="role-title"><span class="en">BRANCH_ADMIN</span> — ব্রাঞ্চ প্রধান <span style="color:#64748b;font-weight:500;font-size:9pt;">(Scale প্যাকেজ)</span></div>
+      <div class="role-subtitle">মাল্টি-ব্রাঞ্চ প্রতিষ্ঠানের একটি শাখার প্রধান</div>
+    </div>
+    <div class="sidebar-count">~30 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>মাল্টি-ব্রাঞ্চ প্রতিষ্ঠানের একটি শাখার প্রধান</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>শুধু নিজের ব্রাঞ্চের সম্পূর্ণ অ্যাক্সেস</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ দেখতে পাবে</h4>
+      <ul>
+        <li>নিজের ব্রাঞ্চের সব data</li>
+        <li>নিজের ব্রাঞ্চের রিপোর্ট</li>
+        <li>ছাত্র, শিক্ষক, ফি, খরচ — ব্রাঞ্চ-level</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ দেখতে পাবে না</h4>
+      <ul>
+        <li>অন্য ব্রাঞ্চের ডেটা</li>
+        <li>পুরো প্রতিষ্ঠানের consolidated report</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<!-- ======================== ROLE: ACCOUNTANT ======================== -->
+<div class="section-title"><span class="num">02</span> Finance Team</div>
+
+<article class="role" style="--tint:#9333ea;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">💰</div>
+    <div>
+      <div class="role-title"><span class="en">ACCOUNTANT</span> — হিসাবরক্ষক</div>
+      <div class="role-subtitle">Accountant, Cashier, হিসাবরক্ষক</div>
+    </div>
+    <div class="sidebar-count">~12 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>Accountant, Cashier, হিসাবরক্ষক</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>শুধু আর্থিক বিষয়ে কাজ — একাডেমিক ডেটা দেখতে পারবে না</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ দেখতে পাবে</h4>
+      <ul>
+        <li>ড্যাশবোর্ড (finance view)</li>
+        <li>ফি ম্যানেজমেন্ট</li>
+        <li>পেমেন্ট রেকর্ড</li>
+        <li>খরচ / চাঁদা / বিনিয়োগ</li>
+        <li>বেতন (Payroll)</li>
+        <li>বৃত্তি</li>
+        <li>Finance রিপোর্ট</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ দেখতে পাবে না</h4>
+      <ul>
+        <li>ছাত্র-ছাত্রী profile details</li>
+        <li>পরীক্ষার marks entry</li>
+        <li>অ্যাসাইনমেন্ট</li>
+        <li>অনলাইন ক্লাস</li>
+        <li>সার্টিফিকেট ইস্যু</li>
+        <li>মেসেজিং</li>
+        <li>Audit Log / Settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<!-- ======================== ROLES: TEACHING STAFF ======================== -->
+<div class="section-title"><span class="num">03</span> Teaching Staff</div>
+
+<article class="role" style="--tint:#0d9488;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">👨‍🏫</div>
+    <div>
+      <div class="role-title"><span class="en">CLASS_TEACHER</span> — শ্রেণি শিক্ষক</div>
+      <div class="role-subtitle">একটি ক্লাসের দায়িত্বপ্রাপ্ত শিক্ষক · Teacher Dashboard</div>
+    </div>
+    <div class="sidebar-count">~10 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>একটি ক্লাসের দায়িত্বপ্রাপ্ত শিক্ষক</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>শুধু নিজের ক্লাসের জন্য সবকিছু</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ দেখতে পাবে</h4>
+      <ul>
+        <li>নিজের ক্লাসের ছাত্র তালিকা</li>
+        <li>নিজের ক্লাসের হাজিরা নেওয়া</li>
+        <li>নিজের ক্লাসের marks entry</li>
+        <li>অ্যাসাইনমেন্ট দেওয়া</li>
+        <li>নোটিশ নিজের ক্লাসে</li>
+        <li>অভিভাবকের সাথে messaging</li>
+        <li>অনলাইন ক্লাস schedule</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ দেখতে পাবে না</h4>
+      <ul>
+        <li>অন্য ক্লাসের ছাত্র</li>
+        <li>পুরো স্কুলের report</li>
+        <li>ফি / পেমেন্ট / খরচ</li>
+        <li>বেতন / বিনিয়োগ</li>
+        <li>Staff management</li>
+        <li>Settings / Audit Log</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#6366f1;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">📖</div>
+    <div>
+      <div class="role-title"><span class="en">SUBJECT_TEACHER</span> — বিষয় শিক্ষক</div>
+      <div class="role-subtitle">একটি নির্দিষ্ট subject পড়ানো শিক্ষক</div>
+    </div>
+    <div class="sidebar-count">~7 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>নির্দিষ্ট subject পড়ানো শিক্ষক</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>শুধু অ্যাসাইন করা subject-এর জন্য</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ দেখতে পাবে</h4>
+      <ul>
+        <li>নিজের subject-এর ক্লাস তালিকা</li>
+        <li>সেই ক্লাসের ছাত্রদের marks</li>
+        <li>নিজের subject-এর attendance</li>
+        <li>নিজের subject-এর assignment</li>
+        <li>অনলাইন ক্লাস (নিজের subject)</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ দেখতে পাবে না</h4>
+      <ul>
+        <li>ছাত্রের ফি / payment</li>
+        <li>অন্য বিষয়ের marks</li>
+        <li>Staff list / salary</li>
+        <li>Admin settings</li>
+        <li>Reports section</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#059669;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🕌</div>
+    <div>
+      <div class="role-title"><span class="en">MADRASA_USTADH</span> — মাদ্রাসা উস্তাদ</div>
+      <div class="role-subtitle">মাদ্রাসার কুরআন ও দ্বীনিয়াত উস্তাদ</div>
+    </div>
+    <div class="sidebar-count">~12 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>মাদ্রাসার কুরআন ও দ্বীনিয়াত উস্তাদ</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>হিফজ, সবক, কিতাব + general teacher access</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ বিশেষ মডিউল</h4>
+      <ul>
+        <li>হিফজ (ছাত্রের পারা track)</li>
+        <li>দৈনিক সবক এন্ট্রি</li>
+        <li>কিতাব progress</li>
+        <li>মাদ্রাসা-specific attendance</li>
+        <li>Sanad / Ijaza tracking</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ দেখতে পাবে না</h4>
+      <ul>
+        <li>আর্থিক বিভাগ (ফি / খরচ / বেতন)</li>
+        <li>Staff management</li>
+        <li>Admin settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<!-- ======================== ROLES: OPERATIONAL STAFF ======================== -->
+<div class="section-title"><span class="num">04</span> Operational Staff</div>
+
+<article class="role" style="--tint:#d97706;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">📚</div>
+    <div>
+      <div class="role-title"><span class="en">LIBRARIAN</span> — গ্রন্থাগারিক</div>
+      <div class="role-subtitle">Library-এর দায়িত্বশীল</div>
+    </div>
+    <div class="sidebar-count">~3 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>Library-এর দায়িত্বশীল</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>শুধু Library মডিউল</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ দেখতে পাবে</h4>
+      <ul>
+        <li>বইয়ের catalog</li>
+        <li>Issue / Return</li>
+        <li>Fine calculation</li>
+        <li>Reading statistics</li>
+        <li>ছাত্রের reading history</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ দেখতে পাবে না</h4>
+      <ul>
+        <li>ছাত্রের academic record</li>
+        <li>Marks / Exam</li>
+        <li>Fee / Payment</li>
+        <li>Staff / Payroll</li>
+        <li>Settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#ea580c;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🚌</div>
+    <div>
+      <div class="role-title"><span class="en">TRANSPORT_MANAGER</span> — পরিবহন ম্যানেজার</div>
+      <div class="role-subtitle">Transport / Bus অপারেশন team</div>
+    </div>
+    <div class="sidebar-count">~4 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>Transport / Bus অপারেশন team</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>শুধু পরিবহন অপারেশন</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ দেখতে পাবে</h4>
+      <ul>
+        <li>Bus route management</li>
+        <li>Driver assignment</li>
+        <li>Pickup / Drop list</li>
+        <li>Transport fee tracking</li>
+        <li>Vehicle maintenance</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ দেখতে পাবে না</h4>
+      <ul>
+        <li>ছাত্রের marks</li>
+        <li>ফি / পেমেন্ট (general)</li>
+        <li>Academic records</li>
+        <li>Staff management</li>
+        <li>Settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#0891b2;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🏠</div>
+    <div>
+      <div class="role-title"><span class="en">HOSTEL_WARDEN</span> — হোস্টেল ওয়ার্ডেন</div>
+      <div class="role-subtitle">Hostel এ বসবাসরত ছাত্রদের দায়িত্বশীল</div>
+    </div>
+    <div class="sidebar-count">~5 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>Hostel এ বসবাসরত ছাত্রদের দায়িত্বশীল</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>শুধু Hostel অপারেশন</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ দেখতে পাবে</h4>
+      <ul>
+        <li>Room allocation</li>
+        <li>Resident list</li>
+        <li>Meal attendance</li>
+        <li>Leave forms</li>
+        <li>Hostel fee records</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ দেখতে পাবে না</h4>
+      <ul>
+        <li>Academic marks</li>
+        <li>Fee / Payroll (general)</li>
+        <li>Teacher data</li>
+        <li>Reports</li>
+        <li>Settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#db2777;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🍽️</div>
+    <div>
+      <div class="role-title"><span class="en">CANTEEN_MANAGER</span> — ক্যান্টিন ম্যানেজার</div>
+      <div class="role-subtitle">School canteen operator</div>
+    </div>
+    <div class="sidebar-count">~3 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>School canteen operator</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>শুধু Canteen &amp; Wallet</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ দেখতে পাবে</h4>
+      <ul>
+        <li>Menu management</li>
+        <li>Daily sales</li>
+        <li>Student wallet top-up</li>
+        <li>Stock tracking</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ দেখতে পাবে না</h4>
+      <ul>
+        <li>Academic data</li>
+        <li>Main school finance</li>
+        <li>Staff management</li>
+        <li>Settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#65a30d;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🧠</div>
+    <div>
+      <div class="role-title"><span class="en">COUNSELOR</span> — কাউন্সেলর</div>
+      <div class="role-subtitle">School counselor, mentor, ছাত্র কল্যাণ officer</div>
+    </div>
+    <div class="sidebar-count">~6 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>School counselor, mentor, ছাত্র কল্যাণ officer</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>ছাত্র welfare — সম্পূর্ণ গোপনীয় logs</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ দেখতে পাবে</h4>
+      <ul>
+        <li>ছাত্রের profile (basic)</li>
+        <li>Counseling session logs</li>
+        <li>AI Dropout Risk alerts</li>
+        <li>Private notes (encrypted)</li>
+        <li>ছাত্রের attendance pattern</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ দেখতে পাবে না</h4>
+      <ul>
+        <li>Financial records</li>
+        <li>Teacher payroll</li>
+        <li>Exam marks</li>
+        <li>Admin settings</li>
+        <li>Marks entry</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<!-- ======================== ROLES: PORTAL USERS ======================== -->
+<div class="section-title"><span class="num">05</span> Portal Users (ছাত্র ও অভিভাবক)</div>
+
+<article class="role" style="--tint:#0284c7;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">👨‍🎓</div>
+    <div>
+      <div class="role-title"><span class="en">STUDENT</span> — ছাত্র / ছাত্রী</div>
+      <div class="role-subtitle">Student Portal Dashboard · Admin sidebar দেখবে না</div>
+    </div>
+    <div class="sidebar-count">Portal</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>প্রতিটি enrolled ছাত্র</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>শুধু নিজের ডেটা — সম্পূর্ণ আলাদা Portal UI</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ Portal-এ দেখবে</h4>
+      <ul>
+        <li>নিজের Profile</li>
+        <li>নিজের Marks / Report Card</li>
+        <li>নিজের Attendance</li>
+        <li>নিজের Fee status + online pay</li>
+        <li>Assignment submit</li>
+        <li>Online class join</li>
+        <li>Notice board</li>
+        <li>Hifz progress (মাদ্রাসায়)</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ দেখবে না</h4>
+      <ul>
+        <li>অন্য ছাত্রের data</li>
+        <li>Staff / Teacher salary</li>
+        <li>অন্য ক্লাসের assignment</li>
+        <li>School finance</li>
+        <li>Admin panel (কোনো কিছুই না)</li>
+        <li>Settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#e11d48;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">👨‍👩‍👧</div>
+    <div>
+      <div class="role-title"><span class="en">PARENT</span> — অভিভাবক</div>
+      <div class="role-subtitle">Parent Portal · Admin sidebar দেখবে না</div>
+    </div>
+    <div class="sidebar-count">Portal</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>কে পাবে?</strong>Enrolled ছাত্রের বাবা / মা / guardian</div>
+    <div class="cell"><strong>মূল ক্ষমতা</strong>শুধু নিজের সন্তানের ডেটা</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ নিজের সন্তানের</h4>
+      <ul>
+        <li>সন্তানের Profile</li>
+        <li>Report Card download</li>
+        <li>Attendance history</li>
+        <li>Fee status + online pay</li>
+        <li>Teacher-এর সাথে direct chat</li>
+        <li>Notice board</li>
+        <li>Hifz / Sabaq progress</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ দেখবে না</h4>
+      <ul>
+        <li>অন্য ছাত্রের data</li>
+        <li>School finance</li>
+        <li>Staff salary</li>
+        <li>Admin tools</li>
+        <li>Exam question papers</li>
+        <li>Counseling logs</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<!-- ======================== SECURITY SECTION ======================== -->
+<section class="security">
+  <h2>🛡️ সিস্টেম নিরাপত্তার ৩ স্তর</h2>
+  <div class="security-grid">
+    <div class="security-tier">
+      <span class="tag">স্তর ০১</span>
+      <h3>Database Level</h3>
+      <p>PostgreSQL Row-Level Security — এমনকি API bypass করলেও ডেটা বের হবে না।</p>
+    </div>
+    <div class="security-tier">
+      <span class="tag">স্তর ০২</span>
+      <h3>Server Level</h3>
+      <p>প্রতিটি action-এ <span class="en">requirePermission()</span> check হয়।</p>
+    </div>
+    <div class="security-tier">
+      <span class="tag">স্তর ০৩</span>
+      <h3>UI Level</h3>
+      <p>Button / link-ই দেখা যাবে না যেগুলো ব্যবহারের অনুমতি নেই।</p>
+    </div>
+  </div>
+  <div class="security-result">
+    ✓ ফলাফল: একজন Accountant কখনও exam marks দেখতে বা change করতে পারবে না — এমনকি URL manipulate করলেও না।
+  </div>
+</section>
+
+<!-- ======================== SUMMARY TABLE ======================== -->
+<section class="summary">
+  <h2>📊 দ্রুত সারসংক্ষেপ</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th class="en">Role</th>
+        <th>ভূমিকা</th>
+        <th>সাইডবার</th>
+        <th class="en">Dashboard</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td class="en role-name">SCHOOL_ADMIN</td><td>প্রধান / অধ্যক্ষ</td><td><span class="pill pill-full">32 / 32</span></td><td class="en">Admin</td></tr>
+      <tr><td>2</td><td class="en role-name">VICE_PRINCIPAL</td><td>সহকারী অধ্যক্ষ</td><td><span class="pill pill-full">31 / 32</span></td><td class="en">Admin</td></tr>
+      <tr><td>3</td><td class="en role-name">BRANCH_ADMIN</td><td>ব্রাঞ্চ প্রধান</td><td><span class="pill pill-high">~30 / 32</span></td><td class="en">Admin</td></tr>
+      <tr><td>4</td><td class="en role-name">ACCOUNTANT</td><td>হিসাবরক্ষক</td><td><span class="pill pill-med">~12 / 32</span></td><td class="en">Admin (finance)</td></tr>
+      <tr><td>5</td><td class="en role-name">CLASS_TEACHER</td><td>শ্রেণি শিক্ষক</td><td><span class="pill pill-med">~10 / 32</span></td><td class="en">Teacher</td></tr>
+      <tr><td>6</td><td class="en role-name">SUBJECT_TEACHER</td><td>বিষয় শিক্ষক</td><td><span class="pill pill-low">~7 / 32</span></td><td class="en">Teacher</td></tr>
+      <tr><td>7</td><td class="en role-name">MADRASA_USTADH</td><td>মাদ্রাসা উস্তাদ</td><td><span class="pill pill-med">~12 / 32</span></td><td class="en">Teacher</td></tr>
+      <tr><td>8</td><td class="en role-name">LIBRARIAN</td><td>গ্রন্থাগারিক</td><td><span class="pill pill-low">~3 / 32</span></td><td class="en">Admin (library)</td></tr>
+      <tr><td>9</td><td class="en role-name">TRANSPORT_MANAGER</td><td>পরিবহন ম্যানেজার</td><td><span class="pill pill-low">~4 / 32</span></td><td class="en">Admin (transport)</td></tr>
+      <tr><td>10</td><td class="en role-name">HOSTEL_WARDEN</td><td>হোস্টেল ওয়ার্ডেন</td><td><span class="pill pill-low">~5 / 32</span></td><td class="en">Admin (hostel)</td></tr>
+      <tr><td>11</td><td class="en role-name">CANTEEN_MANAGER</td><td>ক্যান্টিন ম্যানেজার</td><td><span class="pill pill-low">~3 / 32</span></td><td class="en">Admin (canteen)</td></tr>
+      <tr><td>12</td><td class="en role-name">COUNSELOR</td><td>কাউন্সেলর</td><td><span class="pill pill-low">~6 / 32</span></td><td class="en">Admin (welfare)</td></tr>
+      <tr><td>13</td><td class="en role-name">STUDENT</td><td>ছাত্র / ছাত্রী</td><td><span class="pill pill-low">Portal</span></td><td class="en">Student Portal</td></tr>
+      <tr><td>14</td><td class="en role-name">PARENT</td><td>অভিভাবক</td><td><span class="pill pill-low">Portal</span></td><td class="en">Parent Portal</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ======================== FOOTER ======================== -->
+<footer class="footer">
+  <div class="mark">Muhius Sunnah</div>
+  <div>বাংলাদেশের সেরা মাদ্রাসা ও স্কুল ম্যানেজমেন্ট সফটওয়্যার</div>
+  <div style="margin-top:6px;">© ২০২৬ Muhius Sunnah · <strong>muhiussunnah.app</strong></div>
+</footer>
+
+</div>
+</body>
+</html>

@@ -33,6 +33,7 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { OnlineStatus } from "@/components/pwa/online-status";
 import { requireRole, type ActiveSchoolMembership } from "@/lib/auth/session";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
+import { supabaseServer } from "@/lib/supabase/server";
 
 type Props = {
   children: ReactNode;
@@ -45,10 +46,36 @@ export default async function SchoolAdminLayout({ children, params }: Props) {
 
   const nav = adminNav(schoolSlug, membership);
 
+  // Pull branding (logo + display_name_locale) for the shell. `select("*")`
+  // tolerates projects where migration 0018 hasn't run yet — optional columns
+  // just come back as undefined.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = await supabaseServer();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: schoolRow } = await (supabase as any)
+    .from("schools")
+    .select("*")
+    .eq("id", membership.school_id)
+    .maybeSingle();
+
+  const logoUrl = (schoolRow?.logo_url as string | null) ?? null;
+  const displayLocale = (schoolRow?.display_name_locale as "bn" | "en" | null) ?? "bn";
+
+  // Pick which name gets the hero treatment based on the admin's preference.
+  const heroName =
+    displayLocale === "en" && membership.school_name_en
+      ? membership.school_name_en
+      : membership.school_name_bn;
+  const subName =
+    displayLocale === "en"
+      ? membership.school_name_bn
+      : (membership.school_name_en ?? undefined);
+
   return (
     <DashboardShell
-      title={membership.school_name_bn}
-      subtitle={membership.school_name_en ?? undefined}
+      title={heroName}
+      subtitle={subName}
+      logoUrl={logoUrl}
       nav={nav}
       userLabel={membership.full_name_bn ?? membership.full_name_en ?? undefined}
     >

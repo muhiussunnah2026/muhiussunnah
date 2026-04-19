@@ -30,6 +30,8 @@ const updateSchoolSchema = z.object({
   phone: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
   email: z.string().trim().email().optional().or(z.literal("").transform(() => undefined)),
   website: z.string().trim().url().optional().or(z.literal("").transform(() => undefined)),
+  logo_data_url: z.string().optional(),
+  display_name_locale: z.enum(["bn", "en"]).optional(),
 });
 
 export async function updateSchoolAction(
@@ -47,20 +49,49 @@ export async function updateSchoolAction(
   if ("error" in auth) return auth.error;
 
   const supabase = await supabaseServer();
+
+  // Build the update payload. logo_url and display_name_locale live in the
+  // optional 0018 migration; if that migration hasn't been applied we retry
+  // without those columns so the rest of the form still saves.
+  const baseUpdate: Record<string, unknown> = {
+    name_bn: parsed.name_bn,
+    name_en: parsed.name_en ?? null,
+    eiin: parsed.eiin ?? null,
+    type: parsed.type,
+    address: parsed.address ?? null,
+    phone: parsed.phone ?? null,
+    email: parsed.email ?? null,
+    website: parsed.website ?? null,
+  };
+
+  const brandingUpdate: Record<string, unknown> = {};
+  // Logo: special sentinel "__REMOVE__" clears the column; a data URL stores
+  // it inline (fine for PNG/SVG icons up to ~1 MB — for larger we'd move to
+  // Supabase Storage later).
+  if (parsed.logo_data_url === "__REMOVE__") {
+    brandingUpdate.logo_url = null;
+  } else if (parsed.logo_data_url && parsed.logo_data_url.startsWith("data:")) {
+    brandingUpdate.logo_url = parsed.logo_data_url;
+  }
+  if (parsed.display_name_locale) {
+    brandingUpdate.display_name_locale = parsed.display_name_locale;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  let { error } = await (supabase as any)
     .from("schools")
-    .update({
-      name_bn: parsed.name_bn,
-      name_en: parsed.name_en ?? null,
-      eiin: parsed.eiin ?? null,
-      type: parsed.type,
-      address: parsed.address ?? null,
-      phone: parsed.phone ?? null,
-      email: parsed.email ?? null,
-      website: parsed.website ?? null,
-    })
+    .update({ ...baseUpdate, ...brandingUpdate })
     .eq("id", auth.active.school_id);
+
+  // Migration 0018 not yet applied → retry without the branding fields.
+  if (error && /column .*logo_url|display_name_locale/i.test(error.message ?? "")) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const retry = await (supabase as any)
+      .from("schools")
+      .update(baseUpdate)
+      .eq("id", auth.active.school_id);
+    error = retry.error;
+  }
 
   if (error) return fail(error.message);
 

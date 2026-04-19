@@ -38,10 +38,10 @@ export function StudentsFilters({ schoolSlug, classes, initial }: Props) {
 
       <Select defaultValue={initial.section_id ?? "all"} onValueChange={(v: string | null) => update("section_id", !v || v === "all" ? null : v)}>
         <SelectTrigger className="h-8 w-52">
-          <SelectValue placeholder="সকল সেকশন" />
+          <SelectValue placeholder="সকল ক্লাস ও সেকশন" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">সকল সেকশন</SelectItem>
+          <SelectItem value="all">সকল ক্লাস ও সেকশন</SelectItem>
           {classes.flatMap((c) =>
             c.sections.map((s) => (
               <SelectItem key={s.id} value={s.id}>

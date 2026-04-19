@@ -1,0 +1,1381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Muhius Sunnah — Usage Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --primary:#7c5cff;--primary-dark:#5b3fd6;--accent:#22d3ee;
+    --success:#16a34a;--warning:#d97706;--danger:#dc2626;
+    --ink:#0f172a;--ink-soft:#475569;--ink-muted:#94a3b8;
+    --bg:#f8fafc;--surface:#fff;--border:#e2e8f0;--border-soft:#eef0f4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--bg);font-size:11pt;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .mono{font-family:'JetBrains Mono',monospace}
+  @page{size:A4;margin:12mm 10mm}
+  .page{max-width:192mm;margin:0 auto}
+
+  /* COVER */
+  .cover{
+    position:relative;padding:60px 40px;margin:-6mm -4mm 24px;border-radius:24px;min-height:250mm;
+    background:
+      radial-gradient(circle at 15% 15%, rgba(124,92,255,0.35) 0, transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(34,211,238,0.25) 0, transparent 45%),
+      linear-gradient(135deg,#0f172a 0%,#1e1b4b 60%,#0c4a6e 100%);
+    color:#fff;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;page-break-after:always;
+  }
+  .cover::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px);background-size:40px 40px}
+  .cover-top{position:relative;display:flex;align-items:center;gap:14px}
+  .cover-mark{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;box-shadow:0 10px 30px rgba(124,92,255,0.5)}
+  .cover-brand .name{font-size:18pt;font-weight:800;letter-spacing:-0.02em}
+  .cover-brand .tag{font-size:9pt;opacity:0.75;letter-spacing:0.08em;text-transform:uppercase}
+  .cover-mid{position:relative;margin:80px 0}
+  .cover h1{font-size:56pt;font-weight:900;letter-spacing:-0.03em;line-height:1.0;background:linear-gradient(135deg,#fff 0%,#c4b5fd 60%,#67e8f9 100%);background-clip:text;-webkit-background-clip:text;color:transparent}
+  .cover-sub{font-size:16pt;opacity:0.9;margin-top:16px;max-width:540px;line-height:1.45}
+  .cover-tag{display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:7px 16px;border-radius:999px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);backdrop-filter:blur(8px);font-size:10pt;font-weight:600}
+  .cover-bot{position:relative;display:flex;justify-content:space-between;align-items:flex-end;font-size:10pt;opacity:0.7}
+  .cover-bot .ver{font-family:'JetBrains Mono',monospace;letter-spacing:0.05em}
+
+  /* TOC */
+  .toc{margin:0 0 30px;padding:0}
+  .toc-title{font-size:24pt;font-weight:800;margin-bottom:18px;letter-spacing:-0.02em;display:flex;align-items:center;gap:12px}
+  .toc-title::after{content:"";flex:1;height:3px;background:linear-gradient(90deg,var(--primary),transparent);border-radius:2px}
+  .toc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .toc-group{padding:14px 18px;border:1px solid var(--border);border-radius:14px;background:#fff}
+  .toc-group h3{font-size:11pt;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;letter-spacing:-0.01em}
+  .toc-group h3 .icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .toc-group ol{list-style:none;padding:0;counter-reset:toc}
+  .toc-group ol li{counter-increment:toc;padding:3px 0 3px 26px;position:relative;font-size:9.5pt;color:var(--ink-soft)}
+  .toc-group ol li::before{content:counter(toc,decimal-leading-zero);position:absolute;left:0;top:3px;font-family:'JetBrains Mono',monospace;font-size:8pt;font-weight:700;color:var(--primary);opacity:0.7}
+
+  /* SECTION COVER */
+  .section-cover{padding:40px 30px;margin:30px -4mm;border-radius:20px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;position:relative;overflow:hidden;page-break-before:always;page-break-after:always}
+  .section-cover::before{content:"";position:absolute;top:-40px;right:-30px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,0.1)}
+  .section-cover .part{font-family:'JetBrains Mono',monospace;font-size:10pt;letter-spacing:0.15em;opacity:0.7;margin-bottom:8px}
+  .section-cover h2{font-size:32pt;font-weight:800;letter-spacing:-0.02em;line-height:1.1}
+  .section-cover p{font-size:12pt;margin-top:12px;opacity:0.9;max-width:540px;line-height:1.55}
+  .section-cover .count{display:inline-block;margin-top:16px;padding:5px 14px;border-radius:999px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);font-size:10pt;font-weight:600}
+
+  /* FEATURE */
+  .feature{margin:0 0 22px;padding:0;border:1px solid var(--border);border-radius:16px;background:#fff;overflow:hidden;page-break-inside:avoid}
+  .feat-head{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px 18px;background:linear-gradient(135deg,color-mix(in srgb,var(--tint,var(--primary)) 8%,#fff),#fff);border-bottom:1px solid var(--border-soft)}
+  .feat-num{font-family:'JetBrains Mono',monospace;font-size:9pt;font-weight:700;letter-spacing:0.08em;color:var(--tint,var(--primary))}
+  .feat-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--tint,var(--primary)),color-mix(in srgb,var(--tint,var(--primary)) 60%,#fff));color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px color-mix(in srgb,var(--tint,var(--primary)) 30%,transparent)}
+  .feat-title{font-size:14pt;font-weight:800;letter-spacing:-0.01em}
+  .feat-title .en{color:var(--tint,var(--primary));font-weight:700}
+  .feat-sub{font-size:9pt;color:var(--ink-muted);margin-top:2px}
+
+  .feat-body{padding:16px 18px;display:grid;gap:14px}
+
+  /* PS */
+  .ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .ps{padding:12px 14px;border-radius:12px;font-size:10pt;line-height:1.55}
+  .ps.problem{background:linear-gradient(135deg,#fef2f2,#fff);border:1px solid #fecaca}
+  .ps.solution{background:linear-gradient(135deg,#f0fdf4,#fff);border:1px solid #bbf7d0}
+  .ps h4{font-size:9pt;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .ps.problem h4{color:#b91c1c}
+  .ps.solution h4{color:#15803d}
+  .ps p{color:var(--ink-soft)}
+  .ps strong{color:var(--ink)}
+
+  /* MOCK */
+  .mock{border:1px solid var(--border);border-radius:12px;background:#f8fafc;overflow:hidden}
+  .mock-bar{display:flex;align-items:center;gap:6px;padding:7px 12px;background:#e2e8f0;border-bottom:1px solid #cbd5e1}
+  .mock-bar .dot{width:9px;height:9px;border-radius:50%}
+  .mock-bar .dot.r{background:#fca5a5}
+  .mock-bar .dot.y{background:#fcd34d}
+  .mock-bar .dot.g{background:#86efac}
+  .mock-bar .url{margin-left:auto;font-size:8pt;color:#64748b;font-family:'JetBrains Mono',monospace}
+  .mock-body{padding:14px;font-size:9.5pt}
+  .mock-h{font-size:11pt;font-weight:700;color:var(--ink);margin-bottom:8px;letter-spacing:-0.01em}
+  .mock-sub{color:var(--ink-muted);font-size:9pt;margin-bottom:12px}
+  .mock-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;margin-bottom:6px}
+  .mock-row .l{font-weight:600;color:var(--ink)}
+  .mock-row .r{color:var(--ink-muted);font-size:8.5pt}
+  .mock-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+  .mock-card{padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff}
+  .mock-card .label{font-size:7.5pt;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);font-weight:600}
+  .mock-card .val{font-size:15pt;font-weight:800;color:var(--ink);margin-top:2px;font-variant-numeric:tabular-nums}
+  .mock-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;font-size:9pt;font-weight:600;box-shadow:0 2px 8px rgba(124,92,255,0.3)}
+  .mock-pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:8pt;font-weight:600}
+  .pill-success{background:#dcfce7;color:#166534;border:1px solid #86efac}
+  .pill-warning{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+  .pill-primary{background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd}
+
+  /* STEPS */
+  .steps{counter-reset:step;list-style:none;padding:0;margin:0}
+  .steps li{counter-increment:step;position:relative;padding:7px 10px 7px 38px;font-size:10pt;color:var(--ink-soft);border-radius:8px;margin-bottom:4px}
+  .steps li::before{content:counter(step);position:absolute;left:8px;top:8px;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--tint,var(--primary)),color-mix(in srgb,var(--tint,var(--primary)) 60%,#fff));color:#fff;font-size:9pt;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .steps li strong{color:var(--ink)}
+
+  .impact{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;padding:10px 12px;border-radius:10px;background:linear-gradient(135deg,#fef3c7,#fffbeb);border:1px solid #fcd34d}
+  .impact-item{display:flex;align-items:center;gap:7px;font-size:9.5pt;color:#78350f}
+  .impact-item strong{color:#9a3412}
+
+  .callout{padding:12px 14px;border-radius:10px;font-size:9.5pt;border-left:3px solid var(--tint,var(--primary));background:color-mix(in srgb,var(--tint,var(--primary)) 6%,#fff);color:var(--ink-soft)}
+  .callout strong{color:var(--ink)}
+
+  .foot{margin:28px 0 0;padding:18px 0 6px;border-top:2px solid var(--border);text-align:center;font-size:9pt;color:var(--ink-muted)}
+  .foot .mark{display:inline-block;padding:4px 14px;border-radius:999px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font-weight:700;font-size:9pt;margin-bottom:6px}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="cover-top">
+    <div class="cover-mark">م</div>
+    <div class="cover-brand">
+      <div class="name">Muhius Sunnah</div>
+      <div class="tag">School &amp; Madrasa Management Platform</div>
+    </div>
+  </div>
+
+  <div class="cover-mid">
+    <div style="font-size:11pt;opacity:0.7;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px">Principal&apos;s Handbook · 2026</div>
+    <h1>Usage<br/>Guide</h1>
+    <div class="cover-sub">32 features — each one solves a real problem your institution faces. This book shows how Muhius Sunnah addresses every single one of them.</div>
+    <div class="cover-tag">✨ Problem → Solution → How to use it</div>
+  </div>
+
+  <div class="cover-bot">
+    <div>
+      <div style="font-weight:700;color:#fff;margin-bottom:2px">A handbook for your desk</div>
+      <div>Share with administrators and department heads.</div>
+    </div>
+    <div class="ver">v1.0 · muhiussunnah.app</div>
+  </div>
+</section>
+
+<div class="page">
+
+<!-- TOC -->
+<section class="toc">
+  <div class="toc-title">📚 Table of Contents</div>
+  <div class="toc-grid">
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#ede9fe;color:#7c3aed">🎯</span>Getting Started</h3>
+      <ol>
+        <li>Dashboard — everything at a glance</li>
+        <li>Admission Inquiry — lead tracking</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#dbeafe;color:#2563eb">🎓</span>Academic Foundation</h3>
+      <ol>
+        <li>Students</li>
+        <li>Staff / Teachers</li>
+        <li>Classes, Sections, Subjects</li>
+        <li>Academic Years</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#fce7f3;color:#be185d">📝</span>Teaching &amp; Assessment</h3>
+      <ol>
+        <li>Attendance</li>
+        <li>Exams &amp; Results</li>
+        <li>Assignments</li>
+        <li>Online Classes</li>
+        <li>Certificates</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#d1fae5;color:#047857">💰</span>Financial Management</h3>
+      <ol>
+        <li>Fees</li>
+        <li>Payments</li>
+        <li>Expenses</li>
+        <li>Donations</li>
+        <li>Investments</li>
+        <li>Payroll</li>
+        <li>Scholarships</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#fef3c7;color:#b45309">🛠️</span>Daily Operations</h3>
+      <ol>
+        <li>Notices</li>
+        <li>Messaging Reports</li>
+        <li>Library</li>
+        <li>Transport</li>
+        <li>Hostel</li>
+        <li>Inventory</li>
+        <li>Support</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#cffafe;color:#0e7490">🕌</span>Madrasa-Specific</h3>
+      <ol>
+        <li>Hifz Tracking</li>
+        <li>Kitab Progress</li>
+        <li>Daily Sabaq</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#fef2f2;color:#dc2626">📊</span>Insight</h3>
+      <ol>
+        <li>Reports</li>
+        <li>AI Risk Analysis</li>
+        <li>Audit Log</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#f3f4f6;color:#4b5563">⚙️</span>Configuration</h3>
+      <ol>
+        <li>Settings</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- PART 1 -->
+<section class="section-cover">
+  <div class="part">Part 01 · 2 features</div>
+  <h2>Getting Started —<br/>Own your mornings</h2>
+  <p>Every morning begins with the same question: "What's happening today?" The Dashboard answers it in 30 seconds. Admission Inquiry turns every unanswered phone call into a tracked, warm lead.</p>
+  <div class="count">2 features</div>
+</section>
+
+<!-- FEATURE 01 -->
+<article class="feature" style="--tint:#7c5cff">
+  <div class="feat-head">
+    <span class="feat-num">01</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📊</div>
+      <div>
+        <div class="feat-title">Dashboard <span class="en">· Live Overview</span></div>
+        <div class="feat-sub">Walk in, see everything that matters in 30 seconds.</div>
+      </div>
+    </div>
+    <span></span>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Every morning you need to know — <strong>how many students are present?</strong> <strong>How much did we collect this month?</strong> <strong>Which classes are falling behind?</strong> Each answer lives in a different register, under a different clerk. A 10-minute decision takes 30 minutes of chasing.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>The moment you sign in, a live portrait of your institution appears — total students, today's attendance %, this month's income, pending fees — on one screen. <strong>AI alerts</strong> surface issues before they become crises: long absences, classes with falling collection.</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">muhiussunnah.app/admin</span></div>
+      <div class="mock-body">
+        <div class="mock-h">Welcome, Mustaqeem</div>
+        <div class="mock-sub">Sunday, 19 April 2026 · 2 Dhul Qi'dah 1447 AH</div>
+        <div class="mock-cards">
+          <div class="mock-card"><div class="label">Total Students</div><div class="val">1,247</div></div>
+          <div class="mock-card"><div class="label">Attendance</div><div class="val" style="color:#16a34a">94%</div></div>
+          <div class="mock-card"><div class="label">Income MTD</div><div class="val">৳8.5L</div></div>
+          <div class="mock-card"><div class="label">Pending Fee</div><div class="val" style="color:#d97706">৳1.2L</div></div>
+        </div>
+        <div class="mock-row"><span class="l">🤖 AI Alert</span><span class="r">3 students absent for 5+ days</span></div>
+        <div class="mock-row"><span class="l">💰 Today's collection</span><span class="r">84 receipts · ৳25,400</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>Sign in</strong> — the system routes you straight to the Dashboard.</li>
+      <li><strong>Four metric cards</strong> surface the KPIs you care about. Arrows indicate trend.</li>
+      <li><strong>AI alerts</strong> — click through to the flagged students or classes.</li>
+      <li><strong>Quick CTAs</strong> below — first-student and first-class setup shortcuts for day one.</li>
+    </ol>
+
+    <div class="impact">
+      <div class="impact-item">⏱️ <strong>30 sec</strong> — daily snapshot</div>
+      <div class="impact-item">🎯 <strong>4</strong> live KPIs</div>
+      <div class="impact-item">🧠 AI alerts, hands-free</div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 02 -->
+<article class="feature" style="--tint:#3b82f6">
+  <div class="feat-head">
+    <span class="feat-num">02</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📋</div>
+      <div>
+        <div class="feat-title">Admission Inquiry <span class="en">· Lead Tracking</span></div>
+        <div class="feat-sub">Turn lost leads into enrolled students.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>All year, parents call, walk in, ask about admission. Their phone number, child's class, when they visited — all scribbled in a notebook that inevitably gets lost. <strong>Follow-ups never happen.</strong> Hundreds of potential students go to competitors because nobody called them back.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Each inquiry flows through a 6-stage pipeline: <strong>New → Contacted → Visited → Form filled → Enrolled → Lost</strong>. Notes, reminders, automatic SMS. A single click surfaces the leads you haven't contacted yet.</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">admin/admission-inquiry</span></div>
+      <div class="mock-body">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <div class="mock-h">Active Inquiries · 24</div>
+          <span class="mock-btn">+ New Inquiry</span>
+        </div>
+        <div class="mock-row"><span class="l">Tahsin Ahmed · Class 6</span><span class="mock-pill pill-warning">Contacted</span></div>
+        <div class="mock-row"><span class="l">Maryam Khatun · Class 3</span><span class="mock-pill pill-primary">Visited</span></div>
+        <div class="mock-row"><span class="l">Sakib Hasan · Nursery</span><span class="mock-pill pill-success">Enrolled</span></div>
+        <div class="mock-row"><span class="l">Abdullah · Hifz</span><span class="mock-pill" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5">New</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li>Open <strong>Admission Inquiry</strong> from the sidebar.</li>
+      <li>Click <strong>+ New Inquiry</strong> — parent name, phone, expected class, source (Facebook / referral / walk-in).</li>
+      <li>Weekly, filter <strong>"New"</strong> and follow up via WhatsApp / call.</li>
+      <li>When a student enrolls, move the card to <strong>"Enrolled"</strong> — a student record is created automatically.</li>
+    </ol>
+
+    <div class="callout"><strong>💡 Pro tip:</strong> Spend 10 minutes each morning on the "New" tab. Within a month, most institutions see 20–30% higher admissions.</div>
+  </div>
+</article>
+
+</div>
+
+<!-- PART 2 -->
+<section class="section-cover" style="background:linear-gradient(135deg,#2563eb,#1e40af)">
+  <div class="part">Part 02 · 4 features</div>
+  <h2>Academic Foundation —<br/>The backbone of your institution</h2>
+  <p>Students, staff, classes, and academic years. Without these four, nothing else works. Get them right on day one and the other 28 features flow automatically.</p>
+  <div class="count">4 features</div>
+</section>
+
+<div class="page">
+
+<!-- FEATURE 03 -->
+<article class="feature" style="--tint:#3b82f6">
+  <div class="feat-head">
+    <span class="feat-num">03</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">👨‍🎓</div>
+      <div>
+        <div class="feat-title">Students <span class="en">· Master Database</span></div>
+        <div class="feat-sub">One search box, every student's full history.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>You need a student's father's phone — hunt through the admission register. You need their last year's result — a different notebook. You need their fee ledger — the accountant's book. Each student's data is scattered across 5–10 separate places.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>One master profile per student: photo, guardians, address, health info, admission date, transfer history, term-by-term result timeline, fee ledger, attendance pattern, Hifz progress, behavior notes — everything. Search by name, roll, or phone and the answer is 2 seconds away.</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">admin/students</span></div>
+      <div class="mock-body">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;gap:8px">
+          <input style="flex:1;padding:7px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:9pt" placeholder="🔍 Search by name, roll, or phone..." />
+          <span class="mock-btn">+ Admit</span>
+          <span class="mock-btn" style="background:#64748b">⬇ Excel Import</span>
+        </div>
+        <div class="mock-row"><span class="l">🎒 Sakib Hasan · Roll 12 · Class 7A</span><span class="r">Fee: ✅ · Attn: 98%</span></div>
+        <div class="mock-row"><span class="l">🎒 Tamim Iqbal · Roll 08 · Class 5B</span><span class="r">Fee: ⚠️ ৳2,000 · Attn: 85%</span></div>
+        <div class="mock-row"><span class="l">🎒 Maria Jahan · Roll 23 · Class 9A</span><span class="r">Fee: ✅ · Attn: 100%</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>First setup:</strong> Click "Excel Import", download the template, fill it, upload — 100+ students in under a minute.</li>
+      <li><strong>New admission:</strong> "+ Admit" → photo, guardians, EIIN, birth certificate — all in a single form.</li>
+      <li><strong>Click any student</strong> to open their full profile — attendance, result, fee, Hifz, notes.</li>
+      <li><strong>Transfer / TC:</strong> change status → the certificate generates automatically.</li>
+    </ol>
+
+    <div class="impact">
+      <div class="impact-item">⏱️ <strong>2 sec</strong> search</div>
+      <div class="impact-item">📂 <strong>12</strong> profile tabs</div>
+      <div class="impact-item">📤 Excel import supported</div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 04 -->
+<article class="feature" style="--tint:#6366f1">
+  <div class="feat-head">
+    <span class="feat-num">04</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">👨‍🏫</div>
+      <div>
+        <div class="feat-title">Staff <span class="en">· HR Management</span></div>
+        <div class="feat-sub">From day-one joining to annual bonus, in one record.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Who joined when? Where is the NID scan? Who teaches which class? What is the pay scale? Every answer sits in a different file. When one teacher takes leave you scramble to find a substitute.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>One staff profile holds joining date, pay scale, NID, academic certificates, assigned classes and subjects, contact, emergency person, leave balance. The system computes salary, tracks leaves, and measures performance automatically.</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">admin/staff</span></div>
+      <div class="mock-body">
+        <div class="mock-h" style="margin-bottom:10px">Staff &amp; Teachers · 47 active</div>
+        <div class="mock-row"><span class="l">👨‍🏫 Maulana Abdullah · Class Teacher</span><span class="r">Class 6A · ৳25,000/mo</span></div>
+        <div class="mock-row"><span class="l">👩‍🏫 Umm-e Habiba · Subject Teacher</span><span class="r">English · ৳22,000/mo</span></div>
+        <div class="mock-row"><span class="l">👨‍💼 Rahim Uddin · Accountant</span><span class="r">Finance · ৳18,000/mo</span></div>
+        <div class="mock-row"><span class="l">👷 Akbar Ali · Peon</span><span class="r">Support · ৳8,000/mo</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>Add staff:</strong> full name, phone, NID, designation, pay scale, joining date — one form.</li>
+      <li><strong>Assign role:</strong> CLASS_TEACHER / SUBJECT_TEACHER / ACCOUNTANT / LIBRARIAN — the role decides which dashboard they land on.</li>
+      <li><strong>Link classes and subjects:</strong> "English — Class 7A, 7B" — this teacher can now enter marks for those classes only.</li>
+      <li><strong>Leave management:</strong> application, approval, balance — automatic.</li>
+    </ol>
+  </div>
+</article>
+
+<!-- FEATURE 05 -->
+<article class="feature" style="--tint:#8b5cf6">
+  <div class="feat-head">
+    <span class="feat-num">05</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🏫</div>
+      <div>
+        <div class="feat-title">Classes, Sections, Subjects <span class="en">· Structure</span></div>
+        <div class="feat-sub">Define once, the rest of the system configures itself.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Class 6 has 4 sections. Each section has 12 subjects. Each subject has its own pass mark. Each section has its own class teacher. Rebuilding this map every year by memory is error-prone and exhausting.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Declare it once: classes (Nursery → Class 10 / Hifz / Kitab), sections (A, B, C…), subjects (Bangla, English, Math, Islamiyāt…), subject-teacher assignments. Every downstream feature — exams, attendance, marks — obeys this structure automatically.</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">admin/classes</span></div>
+      <div class="mock-body">
+        <div class="mock-h" style="margin-bottom:10px">Class Structure</div>
+        <div class="mock-row"><span class="l">📚 Class 6 (3 sections)</span><span class="r">A: 35 · B: 32 · C: 30 · 12 subjects</span></div>
+        <div class="mock-row"><span class="l">📚 Class 7 (3 sections)</span><span class="r">A: 38 · B: 34 · C: 29 · 12 subjects</span></div>
+        <div class="mock-row"><span class="l">📖 Hifz Level 1</span><span class="r">15 students · 30 juz target</span></div>
+        <div class="mock-row"><span class="l">📖 Kitab Year 1</span><span class="r">20 students · 8 kitab</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>Class:</strong> "+ New Class" → name, GPA scale.</li>
+      <li><strong>Section:</strong> Class 6 → "+ Section" → A / B / C.</li>
+      <li><strong>Subject:</strong> Class 6 → "+ Subject" → each with full mark + pass mark.</li>
+      <li><strong>Teacher-subject link:</strong> "Class 6A — Bangla" → pick the teacher.</li>
+    </ol>
+
+    <div class="callout"><strong>🕌 Madrasa-ready:</strong> Hifz levels and Kitab stages come pre-configured — Juz 1-30 and Kitab Stages 1-8 work out of the box.</div>
+  </div>
+</article>
+
+<!-- FEATURE 06 -->
+<article class="feature" style="--tint:#0891b2">
+  <div class="feat-head">
+    <span class="feat-num">06</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📅</div>
+      <div>
+        <div class="feat-title">Academic Years <span class="en">· Annual Containers</span></div>
+        <div class="feat-sub">Year-end rollover without losing a single record.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>2025 ends. The new session begins in 2026. Where do 2025's attendance records, results, and fee history go? Erasing registers to reuse them is how history disappears.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Each year is a self-contained container. Switching the active year starts the new session. The old year moves to archive mode — fully browsable, permanently read-only. Pull any old transcript on demand.</p>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>Create a new year:</strong> "2026" · start 1 Jan · end 31 Dec.</li>
+      <li><strong>Set Active:</strong> all new attendance, marks, and fees belong to this year.</li>
+      <li><strong>Student promotion:</strong> one click moves all of Class 6 into Class 7. Old records stay intact.</li>
+      <li><strong>Archive:</strong> prior years remain viewable but cannot be edited.</li>
+    </ol>
+  </div>
+</article>
+
+</div>
+
+<!-- PART 3 -->
+<section class="section-cover" style="background:linear-gradient(135deg,#be185d,#9f1239)">
+  <div class="part">Part 03 · 5 features</div>
+  <h2>Teaching &amp; Assessment</h2>
+  <p>From daily attendance to the certificate on graduation day — the academic heartbeat of your institution.</p>
+  <div class="count">5 features</div>
+</section>
+
+<div class="page">
+
+<!-- FEATURE 07 -->
+<article class="feature" style="--tint:#ec4899">
+  <div class="feat-head">
+    <span class="feat-num">07</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">✓</div>
+      <div>
+        <div class="feat-title">Attendance <span class="en">· Digital Hazira</span></div>
+        <div class="feat-sub">The paper register is obsolete.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Paper registers, per-class notebooks, tick marks nobody can decipher at month end. <strong>Three-day absences go unnoticed</strong> until exam-day failure forces a conversation.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>A teacher taps through the class list on their phone in seconds. Missing students trigger an <strong>instant SMS to the guardian</strong>. Monthly reports print in one click.</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">admin/attendance</span></div>
+      <div class="mock-body">
+        <div class="mock-h" style="margin-bottom:10px">Today's Hazira · Class 7A · 35 students</div>
+        <div class="mock-row"><span class="l">Sakib Hasan (Roll 1)</span><span class="mock-pill pill-success">Present</span></div>
+        <div class="mock-row"><span class="l">Tamim (Roll 2)</span><span class="mock-pill pill-warning">Late</span></div>
+        <div class="mock-row"><span class="l">Maria (Roll 3)</span><span class="mock-pill" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5">Absent</span></div>
+        <div class="mock-row" style="background:#f0fdf4"><span class="l">✓ 33 present · 1 late · 1 absent</span><span class="r">94% attendance</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>Teacher:</strong> open Teacher dashboard → "Today's hazira" → select class → swipe through present/late/absent.</li>
+      <li>The moment a student is marked absent, an SMS goes to the guardian: "Your child is not in school today."</li>
+      <li><strong>Principal:</strong> live attendance % on the Dashboard; classes below 85% flash red.</li>
+      <li><strong>Monthly:</strong> one-click student-wise attendance report (PDF).</li>
+    </ol>
+
+    <div class="impact">
+      <div class="impact-item">⏱️ <strong>10 sec</strong> per class</div>
+      <div class="impact-item">📱 Instant guardian SMS</div>
+      <div class="impact-item">📊 Auto monthly report</div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 08 -->
+<article class="feature" style="--tint:#dc2626">
+  <div class="feat-head">
+    <span class="feat-num">08</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📝</div>
+      <div>
+        <div class="feat-title">Exams &amp; Results <span class="en">· Tabulation on Autopilot</span></div>
+        <div class="feat-sub">No more tabulation all-nighters.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Five teachers deliver marksheets. The tabulator transfers them by hand. A week of late nights, Bangla Unicode glitches, grade-calculation errors. Disputes from parents over wrong positions.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Teachers enter marks in a keyboard-friendly grid. The system computes <strong>totals, percentages, grades, positions, and GPA</strong>. Bilingual printable marksheets in two clicks.</p>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>Create exam:</strong> "Midterm 2026" → start/end date → subjects.</li>
+      <li><strong>Schedule:</strong> which day, which subject. Admit cards generate automatically.</li>
+      <li><strong>Marks entry:</strong> subject teachers sign in → grid view → type fast. "Lock" → principal approves.</li>
+      <li><strong>Publish:</strong> one click → visible in every student's portal, SMS notification to guardians.</li>
+    </ol>
+
+    <div class="callout"><strong>🎓 GPA 5.0</strong> by default, or switch to percentage or a custom rubric. Marksheets mirror Bangladesh's board format.</div>
+  </div>
+</article>
+
+<!-- FEATURE 09 -->
+<article class="feature" style="--tint:#f59e0b">
+  <div class="feat-head">
+    <span class="feat-num">09</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📎</div>
+      <div>
+        <div class="feat-title">Assignments <span class="en">· Homework</span></div>
+        <div class="feat-sub">Homework pages never go missing again.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>A teacher announces homework in class. Students forget or skip writing it in the diary. When a student fails the assignment, who's at fault? During remote learning, this problem multiplies by ten.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Teachers send a digital assignment — title, description, attachment, submission date. Students and parents receive portal notifications. Reminders go out as the due date approaches. Teachers grade submissions directly.</p>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>Teacher:</strong> "+ New Assignment" → title, file upload, due date.</li>
+      <li><strong>Student:</strong> notification in portal → upload answer (photo / PDF) or in-app text.</li>
+      <li><strong>Teacher:</strong> submissions list → grade + feedback.</li>
+      <li><strong>Overdue:</strong> system automatically SMSes the guardian.</li>
+    </ol>
+  </div>
+</article>
+
+<!-- FEATURE 10 -->
+<article class="feature" style="--tint:#06b6d4">
+  <div class="feat-head">
+    <span class="feat-num">10</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🎥</div>
+      <div>
+        <div class="feat-title">Online Classes <span class="en">· Live &amp; Recorded</span></div>
+        <div class="feat-sub">Zoom / Meet links, in one place.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>During COVID or floods, classes move online. Every day a new Zoom link goes out on WhatsApp — some get it, some don't. Attendance is untrackable.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>The teacher schedules "Class 7A — Math — 10am — Meet link". It appears in every student's portal. Joining automatically marks attendance. The recording is saved for later viewing.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 11 -->
+<article class="feature" style="--tint:#10b981">
+  <div class="feat-head">
+    <span class="feat-num">11</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📜</div>
+      <div>
+        <div class="feat-title">Certificates <span class="en">· Transfer, Character, Study</span></div>
+        <div class="feat-sub">From request to PDF in a minute.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>A parent requests a Transfer Certificate. Printing, signatures, the school seal — two days of back-and-forth. Character and Study certificates each involve a separate workflow.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Pre-made templates — TC, Character, Study, Transcript, Testimonial. Pick student → click → PDF ready with signature, seal, and QR verification. One minute of work.</p>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li>Open the student's profile → <strong>"Issue Certificate"</strong>.</li>
+      <li>Choose a template — TC / Character / Study / Transcript.</li>
+      <li>Auto-fill: name, class, dates, principal's signature, school seal.</li>
+      <li>A <strong>QR code</strong> is embedded so other institutions can verify authenticity.</li>
+    </ol>
+  </div>
+</article>
+
+</div>
+
+<!-- PART 4 -->
+<section class="section-cover" style="background:linear-gradient(135deg,#047857,#065f46)">
+  <div class="part">Part 04 · 7 features</div>
+  <h2>Financial Management</h2>
+  <p>Money in, money out, payroll, scholarships, donations, investments — the circulatory system of your institution.</p>
+  <div class="count">7 features</div>
+</section>
+
+<div class="page">
+
+<!-- FEATURE 12 -->
+<article class="feature" style="--tint:#059669">
+  <div class="feat-head">
+    <span class="feat-num">12</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">💳</div>
+      <div>
+        <div class="feat-title">Fees <span class="en">· Invoicing &amp; Collection</span></div>
+        <div class="feat-sub">From invoice generation to bKash / Nagad / card.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Every student has a slightly different fee structure (waivers, scholarships, transport add-ons). Monthly invoice generation, verifying bKash / Nagad receipts, chasing late payers — a week's worth of clerical work for 1,000 students.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Thirty <strong>pre-configured fee heads</strong> (Tuition, Exam fee, Transport, Hostel…). Per-student fee plans auto-generate. <strong>bKash, Nagad, SSLCommerz</strong> gateways connected — parents pay from the portal, receipts are automatic.</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">admin/fees</span></div>
+      <div class="mock-body">
+        <div class="mock-h" style="margin-bottom:10px">This Month's Fee Status</div>
+        <div class="mock-cards">
+          <div class="mock-card"><div class="label">Collected</div><div class="val" style="color:#16a34a">৳12.4L</div></div>
+          <div class="mock-card"><div class="label">Pending</div><div class="val" style="color:#d97706">৳1.2L</div></div>
+          <div class="mock-card"><div class="label">Overdue</div><div class="val" style="color:#dc2626">৳45k</div></div>
+          <div class="mock-card"><div class="label">Target</div><div class="val">৳15L</div></div>
+        </div>
+        <div class="mock-row"><span class="l">Sakib Hasan · April Tuition</span><span class="mock-pill pill-success">✓ ৳3,000 · bKash</span></div>
+        <div class="mock-row"><span class="l">Tamim · April Tuition</span><span class="mock-pill pill-warning">Due ৳3,000</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>Fee heads:</strong> Tuition, Exam, Transport — amounts configurable per class.</li>
+      <li><strong>Auto invoice:</strong> 1st of every month, for every student, in one batch.</li>
+      <li><strong>Reminders:</strong> automatic SMS / email as soon as a due date passes.</li>
+      <li><strong>Parents pay:</strong> from the portal via bKash / Nagad / Rocket — receipt instant.</li>
+      <li><strong>Partial payments and discounts</strong> supported first-class.</li>
+    </ol>
+
+    <div class="impact">
+      <div class="impact-item">💳 <strong>4</strong> payment gateways</div>
+      <div class="impact-item">📊 Live collection %</div>
+      <div class="impact-item">🎯 Auto reminders</div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 13 -->
+<article class="feature" style="--tint:#10b981">
+  <div class="feat-head">
+    <span class="feat-num">13</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🧾</div>
+      <div>
+        <div class="feat-title">Payments <span class="en">· Receipt Ledger</span></div>
+        <div class="feat-sub">Every rupee has a signed, auditable receipt.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>A parent says "I paid ৳3,000 last month." Twenty minutes of register-searching. It's there — or it isn't. Cash came in but the accountant forgot to issue a receipt.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Every payment — cash, bank, bKash, Nagad — on one timeline. QR-coded receipts. Every historical payment visible inside each student's portal. If the accountant skips an entry, the principal sees the gap instantly.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 14 -->
+<article class="feature" style="--tint:#f97316">
+  <div class="feat-head">
+    <span class="feat-num">14</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">💸</div>
+      <div>
+        <div class="feat-title">Expenses <span class="en">· Category Tracking</span></div>
+        <div class="feat-sub">Know where the money actually goes.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Electricity bills, book purchases, repairs, food — everything lumped into one "expense book". At month-end you can't see where the overruns are. No budget discipline.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Twenty-four <strong>pre-configured expense heads</strong> — Utility, Stationery, Food, Repair, Salary, Tax… Attach a receipt to every entry. A monthly pie chart reveals exactly which category is growing.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 15 -->
+<article class="feature" style="--tint:#db2777">
+  <div class="feat-head">
+    <span class="feat-num">15</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🤝</div>
+      <div>
+        <div class="feat-title">Donations <span class="en">· Campaign Ledger</span></div>
+        <div class="feat-sub">Every donor deserves a transparent answer.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Someone donates ৳10,000. Six months later they ask "Where did my money go?" If you can't answer clearly, you won't receive another donation.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Each <strong>donation campaign</strong> (masjid construction, Eid gifts, scholarship fund) is a separate ledger. Donor name, phone, amount, and how the money was used — all tracked. Donors receive automatic quarterly reports.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 16 -->
+<article class="feature" style="--tint:#06b6d4">
+  <div class="feat-head">
+    <span class="feat-num">16</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📈</div>
+      <div>
+        <div class="feat-title">Investments <span class="en">· Institutional Assets</span></div>
+        <div class="feat-sub">Watch over the institution's long-term holdings.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>The institution owns land, rents out shops, holds FDRs. Lease dates, rent renewals, monthly returns — no human memory holds all of it accurately.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Each asset (land, shop, FDR) gets its own record. Lease-renewal alerts fire 30 days in advance. Monthly returns auto-flow into this month's income.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 17 -->
+<article class="feature" style="--tint:#8b5cf6">
+  <div class="feat-head">
+    <span class="feat-num">17</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">💰</div>
+      <div>
+        <div class="feat-title">Payroll <span class="en">· Salary</span></div>
+        <div class="feat-sub">45 teachers' salaries — 5 minutes.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Month-end: basic, allowances, overtime, tax, absent-deductions, advances — each teacher is a different calculation. Two days for the accountant, and any mistake makes a teacher unhappy.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Set the pay scale once. On the 1st of every month the system <strong>auto-computes</strong> salary, allowances, and deductions. Export a bank file. Principal approves, transfers go out via bKash or bank.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 18 -->
+<article class="feature" style="--tint:#f59e0b">
+  <div class="feat-head">
+    <span class="feat-num">18</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🏆</div>
+      <div>
+        <div class="feat-title">Scholarships <span class="en">· Merit &amp; Need</span></div>
+        <div class="feat-sub">Rewarding brilliance, sustaining opportunity.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>One student gets a 50% waiver, another 100%, a third a special-case grant. Applying these discounts correctly on every invoice is error-prone. Mistakes trigger parent complaints.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Each scholarship — merit-based or need-based — is defined once and linked to a student. Fee invoices apply the discount automatically. Transparent, auditable reporting.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+</div>
+
+<!-- PART 5 -->
+<section class="section-cover" style="background:linear-gradient(135deg,#b45309,#92400e)">
+  <div class="part">Part 05 · 7 features</div>
+  <h2>Daily Operations</h2>
+  <p>Notices, messaging, library, transport, hostel, inventory, support — the institution's nervous system.</p>
+  <div class="count">7 features</div>
+</section>
+
+<div class="page">
+
+<!-- FEATURE 19 -->
+<article class="feature" style="--tint:#eab308">
+  <div class="feat-head">
+    <span class="feat-num">19</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📢</div>
+      <div>
+        <div class="feat-title">Notices <span class="en">· Announcements</span></div>
+        <div class="feat-sub">The paper notice board is dead.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>"Tomorrow is a holiday" — not every parent hears this in time. Paper notes get lost in backpacks. WhatsApp groups leave non-members out.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Publish once. It appears in every student's and parent's portal. Opt in and SMS goes out too. Read receipts tell you who saw it. Target a specific class (Class 9 only, Hifz only).</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 20 -->
+<article class="feature" style="--tint:#06b6d4">
+  <div class="feat-head">
+    <span class="feat-num">20</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">💬</div>
+      <div>
+        <div class="feat-title">Messaging Reports <span class="en">· SMS &amp; WhatsApp</span></div>
+        <div class="feat-sub">See where your SMS budget really goes.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>50–100 SMS a day (absence alerts, due reminders, exam notices). Monthly SMS bill: ৳10,000. Which template is overused? Where's the waste? Nobody knows.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Every SMS / WhatsApp is logged — time, recipient, template, delivery status. An <strong>AI template generator</strong> turns a short prompt into a natural-sounding message. Top up credit online.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 21 -->
+<article class="feature" style="--tint:#d97706">
+  <div class="feat-head">
+    <span class="feat-num">21</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📚</div>
+      <div>
+        <div class="feat-title">Library <span class="en">· Books &amp; Readers</span></div>
+        <div class="feat-sub">Lost books billed, avid readers rewarded.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>The librarian scribbles in a register. Six months later, nobody knows how many books are missing or who the top readers are.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Book catalog (ISBN search auto-fills), barcode / QR issue and return, automatic due dates, overdue fines, a monthly reading leaderboard.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 22 -->
+<article class="feature" style="--tint:#ea580c">
+  <div class="feat-head">
+    <span class="feat-num">22</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🚌</div>
+      <div>
+        <div class="feat-title">Transport <span class="en">· Bus &amp; Routes</span></div>
+        <div class="feat-sub">Real-time confirmation = parental peace of mind.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Did my child board the morning bus? Why is the afternoon bus late? Parents call the office every day for answers.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Routes, stops, rider lists. When the driver taps "pickup confirmed" on their phone, the parent instantly receives an SMS. Transport fees auto-invoice.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 23 -->
+<article class="feature" style="--tint:#0891b2">
+  <div class="feat-head">
+    <span class="feat-num">23</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🏠</div>
+      <div>
+        <div class="feat-title">Hostel <span class="en">· Residential Life</span></div>
+        <div class="feat-sub">Full life-cycle management for residential students.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>100 residential students in 25 rooms. Who is in which room? Who ate lunch? Who is on leave? All of it lives in the warden's head — and when the warden is away, the system breaks.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Room allocation grid, meal attendance (breakfast / lunch / dinner), leave forms with parental approval, hostel fee tracking — all on one screen.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 24 -->
+<article class="feature" style="--tint:#6366f1">
+  <div class="feat-head">
+    <span class="feat-num">24</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📦</div>
+      <div>
+        <div class="feat-title">Inventory <span class="en">· Stock &amp; Assets</span></div>
+        <div class="feat-sub">Know what you own, before you need it.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Class starts. "We're out of chalk." "The textbooks are finished." How many chairs do we have? Are any broken? Nobody knows.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Every item logged — quantity, location, purchase date, condition. Low-stock alerts. Breakage records. An annual audit report at one click.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 25 -->
+<article class="feature" style="--tint:#dc2626">
+  <div class="feat-head">
+    <span class="feat-num">25</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🆘</div>
+      <div>
+        <div class="feat-title">Support Tickets <span class="en">· Parent Concerns</span></div>
+        <div class="feat-sub">Complaints, organized.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>A parent calls: "My bill has an error." Who takes it? When is it resolved? Was there a follow-up? No trail exists.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Parents raise a ticket from the portal. Assigned to specific staff. Status tracked (open → in progress → resolved). Response-time reporting.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+</div>
+
+<!-- PART 6 -->
+<section class="section-cover" style="background:linear-gradient(135deg,#0e7490,#155e75)">
+  <div class="part">Part 06 · 3 features</div>
+  <h2>Madrasa-Specific Modules</h2>
+  <p>Dedicated to religious education — Hifz, Kitab, Sabaq. Bangladesh's first and only comprehensive Islamic-education tracking system.</p>
+  <div class="count">3 features</div>
+</section>
+
+<div class="page">
+
+<!-- FEATURE 26 -->
+<article class="feature" style="--tint:#0e7490">
+  <div class="feat-head">
+    <span class="feat-num">26</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📖</div>
+      <div>
+        <div class="feat-title">Hifz Tracking <span class="en">· Qur'an Memorization</span></div>
+        <div class="feat-sub">30 juz — every student's digital diary.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>The ustadh writes daily: "Student X — Juz 5, page 12, line 8." Six months later, the diary is full. Old progress becomes hard to retrieve. Parents asking for an update get vague answers.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>A visual timeline of each student's Hifz journey — surah, juz, pages, start date, end date. <strong>Sabaq / Sabqi / Manzil</strong> tracked separately. Parents see live progress from the portal.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 27 -->
+<article class="feature" style="--tint:#0f766e">
+  <div class="feat-head">
+    <span class="feat-num">27</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📕</div>
+      <div>
+        <div class="feat-title">Kitab Progress <span class="en">· Dars-e-Nizami</span></div>
+        <div class="feat-sub">Eight-year journey, stage by stage.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Dars-e-Nizami spans 8 years. Each year has specific kitab. Which ones has a student completed? Which are pending? Long, error-prone registers.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Pre-configured Dars-e-Nizami curriculum — Mishkat, Bukhari, Muslim, Abu Dawud, Mufkin… Each kitab shows completion %, and the exact date of completion.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 28 -->
+<article class="feature" style="--tint:#059669">
+  <div class="feat-head">
+    <span class="feat-num">28</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">☀️</div>
+      <div>
+        <div class="feat-title">Daily Sabaq <span class="en">· Lesson Tracking</span></div>
+        <div class="feat-sub">Today's lesson, tomorrow's revision.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>The madrasa concept of "sabaq" is unique: new content every day, "sabqi" revision the next day, "manzil" weekly revision. Without tracking this cycle, students fall behind quietly.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Daily sabaq entry — lesson, quality (excellent / good / weak), ustadh's remarks. A 7-day chart shows the trend. Weak scores trigger guardian alerts.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+</div>
+
+<!-- PART 7 -->
+<section class="section-cover" style="background:linear-gradient(135deg,#dc2626,#991b1b)">
+  <div class="part">Part 07 · 4 features</div>
+  <h2>Insight &amp; Security</h2>
+  <p>Reports, AI, Audit — three "eyes" that watch the institution even when yours are closed.</p>
+  <div class="count">4 features</div>
+</section>
+
+<div class="page">
+
+<!-- FEATURE 29 -->
+<article class="feature" style="--tint:#dc2626">
+  <div class="feat-head">
+    <span class="feat-num">29</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📊</div>
+      <div>
+        <div class="feat-title">Reports <span class="en">· Pre-built</span></div>
+        <div class="feat-sub">Seven printable reports, one click each.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Monthly board report. Donor fund-use report. Government enrollment data. Each takes the accountant a week of compiling.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Seven pre-built reports: Fee Collection, Attendance Summary, Income-Expense, Dues Aging, Student Enrollment, Payroll Summary, Expense Category. All export to PDF or Excel.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 30 -->
+<article class="feature" style="--tint:#9333ea">
+  <div class="feat-head">
+    <span class="feat-num">30</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🤖</div>
+      <div>
+        <div class="feat-title">AI Risk Analysis <span class="en">· Dropout Prevention</span></div>
+        <div class="feat-sub">AI tells you who's about to drop out — early.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Every year 5–10% of students disappear mid-session. Parents rarely say anything. You find out when it's too late to do anything.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>AI analyzes each student's pattern (attendance ↓, marks ↓, late fees, missing assignments, paused Hifz) and assigns a "risk score". High-risk students are automatically flagged — counselors reach out proactively.</p>
+      </div>
+    </div>
+
+    <div class="callout"><strong>🧠 Data-driven:</strong> Not just attendance — marks trends, sabaq quality, guardian payment patterns, assignment submission rates — every signal combined.</div>
+  </div>
+</article>
+
+<!-- FEATURE 31 -->
+<article class="feature" style="--tint:#475569">
+  <div class="feat-head">
+    <span class="feat-num">31</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🔍</div>
+      <div>
+        <div class="feat-title">Audit Log <span class="en">· Activity Trail</span></div>
+        <div class="feat-sub">Who did what — signed, timestamped, unchangeable.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Someone changed a student's marks. Someone voided a receipt. But who? When? No proof.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Every critical action — create, update, delete — is logged with timestamp, IP, and user. Nobody can alter the log after the fact. Tamper-proof accountability.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 32 -->
+<article class="feature" style="--tint:#64748b">
+  <div class="feat-head">
+    <span class="feat-num">32</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">⚙️</div>
+      <div>
+        <div class="feat-title">Settings <span class="en">· Institution DNA</span></div>
+        <div class="feat-sub">Configure once, every document carries your identity.</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ The Problem</h4>
+        <p>Every institution has its own logo, seal, name (in multiple languages), EIIN, address, session pattern, grading rubric. Retyping these everywhere is painful.</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ The Solution</h4>
+        <p>Configure once in Settings — certificates, reports, invoices, marksheets all pick up your branding automatically. Enable <strong>2FA</strong> on the principal account for extra security.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- CLOSING -->
+<section class="section-cover" style="background:linear-gradient(135deg,#0f172a,#1e1b4b);page-break-before:always;page-break-after:avoid">
+  <div class="part">Epilogue</div>
+  <h2>This software is equal to a full-time assistant.</h2>
+  <p>The work of a ৳25,000-a-month assistant, at 90% less cost — but with far greater accuracy and speed.</p>
+</section>
+
+</div>
+<div class="page">
+
+<section style="padding:24px;background:linear-gradient(135deg,#f0fdf4,#dbeafe);border-radius:16px;margin:20px 0">
+  <h2 style="font-size:20pt;font-weight:800;margin-bottom:16px;letter-spacing:-0.02em">🌟 First-Week Checklist</h2>
+  <ol class="steps" style="font-size:11pt">
+    <li><strong>Day 1:</strong> Settings → institution info, logo, EIIN. Activate the current academic year.</li>
+    <li><strong>Day 2:</strong> Define classes, sections, subjects. Assign subject teachers.</li>
+    <li><strong>Day 3:</strong> Add staff one-by-one (or Excel import).</li>
+    <li><strong>Day 4:</strong> Students — Excel import (100+ students in a minute).</li>
+    <li><strong>Day 5:</strong> Verify fee heads and generate the first batch of invoices. Connect payment gateways (bKash / Nagad).</li>
+    <li><strong>Day 6:</strong> One-hour training for teachers — mobile attendance + marks entry.</li>
+    <li><strong>Day 7:</strong> Share portal links with parents. Publish the first notice.</li>
+  </ol>
+</section>
+
+<section class="foot">
+  <div class="mark">Muhius Sunnah</div>
+  <div style="margin-bottom:8px"><strong>The premier madrasa &amp; school management platform for Bangladesh</strong></div>
+  <div>🕌 32 features · 14 user roles · 4 languages · 3 security layers</div>
+  <div style="margin-top:10px">© 2026 Muhius Sunnah · <strong>muhiussunnah.app</strong> · ☎ +880 1767-682381</div>
+  <div style="margin-top:6px;font-size:8pt;opacity:0.6">Prepared for principals and administrators. Share within your institution's policy.</div>
+</section>
+
+</div>
+</body>
+</html>

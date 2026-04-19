@@ -1,0 +1,1576 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8" />
+<title>Muhius Sunnah — ব্যবহার নির্দেশিকা</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --primary:#7c5cff;
+    --primary-dark:#5b3fd6;
+    --accent:#22d3ee;
+    --success:#16a34a;
+    --warning:#d97706;
+    --danger:#dc2626;
+    --ink:#0f172a;
+    --ink-soft:#475569;
+    --ink-muted:#94a3b8;
+    --bg:#f8fafc;
+    --surface:#fff;
+    --border:#e2e8f0;
+    --border-soft:#eef0f4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{
+    font-family:'Hind Siliguri','Noto Sans Bengali','Inter',system-ui,sans-serif;
+    color:var(--ink);background:var(--bg);
+    font-size:11pt;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .en,en{font-family:'Inter',sans-serif}
+  .mono{font-family:'JetBrains Mono',monospace}
+  @page{size:A4;margin:12mm 10mm}
+  .page{max-width:192mm;margin:0 auto}
+  .break{page-break-after:always}
+
+  /* ======================= COVER ======================= */
+  .cover{
+    position:relative;
+    padding:60px 40px;
+    margin:-6mm -4mm 24px;
+    border-radius:24px;
+    min-height:250mm;
+    background:
+      radial-gradient(circle at 15% 15%, rgba(124,92,255,0.35) 0, transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(34,211,238,0.25) 0, transparent 45%),
+      linear-gradient(135deg,#0f172a 0%,#1e1b4b 60%,#0c4a6e 100%);
+    color:#fff;overflow:hidden;
+    display:flex;flex-direction:column;justify-content:space-between;
+    page-break-after:always;
+  }
+  .cover::before{
+    content:"";position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px);
+    background-size:40px 40px;
+  }
+  .cover-top{position:relative;display:flex;align-items:center;gap:14px}
+  .cover-mark{
+    width:56px;height:56px;border-radius:16px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    display:flex;align-items:center;justify-content:center;
+    font-size:30px;font-weight:800;
+    box-shadow:0 10px 30px rgba(124,92,255,0.5);
+  }
+  .cover-brand .name{font-family:'Inter',sans-serif;font-size:18pt;font-weight:800;letter-spacing:-0.02em}
+  .cover-brand .tag{font-size:9pt;opacity:0.75;letter-spacing:0.08em;text-transform:uppercase}
+  .cover-mid{position:relative;margin:80px 0}
+  .cover h1{
+    font-size:46pt;font-weight:900;letter-spacing:-0.03em;line-height:1.0;
+    background:linear-gradient(135deg,#fff 0%,#c4b5fd 60%,#67e8f9 100%);
+    background-clip:text;-webkit-background-clip:text;color:transparent;
+  }
+  .cover-sub{
+    font-size:16pt;opacity:0.9;margin-top:16px;max-width:500px;line-height:1.45;
+  }
+  .cover-tag{
+    display:inline-flex;align-items:center;gap:8px;margin-top:24px;
+    padding:7px 16px;border-radius:999px;
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.25);
+    backdrop-filter:blur(8px);
+    font-size:10pt;font-weight:600;
+  }
+  .cover-bot{position:relative;display:flex;justify-content:space-between;align-items:flex-end;font-size:10pt;opacity:0.7}
+  .cover-bot .ver{font-family:'JetBrains Mono',monospace;letter-spacing:0.05em}
+
+  /* ======================= TOC ======================= */
+  .toc{margin:0 0 30px;padding:0}
+  .toc-title{
+    font-size:24pt;font-weight:800;margin-bottom:18px;letter-spacing:-0.02em;
+    display:flex;align-items:center;gap:12px;
+  }
+  .toc-title::after{
+    content:"";flex:1;height:3px;
+    background:linear-gradient(90deg,var(--primary),transparent);
+    border-radius:2px;
+  }
+  .toc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .toc-group{
+    padding:14px 18px;border:1px solid var(--border);border-radius:14px;background:#fff;
+  }
+  .toc-group h3{
+    font-size:11pt;font-weight:800;margin-bottom:8px;
+    display:flex;align-items:center;gap:8px;letter-spacing:-0.01em;
+  }
+  .toc-group h3 .icon{
+    width:28px;height:28px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;
+  }
+  .toc-group ol{list-style:none;padding:0;counter-reset:toc}
+  .toc-group ol li{
+    counter-increment:toc;
+    padding:3px 0 3px 26px;position:relative;
+    font-size:9.5pt;color:var(--ink-soft);
+  }
+  .toc-group ol li::before{
+    content:counter(toc,decimal-leading-zero);
+    position:absolute;left:0;top:3px;
+    font-family:'JetBrains Mono',monospace;font-size:8pt;font-weight:700;
+    color:var(--primary);opacity:0.7;
+  }
+
+  /* ======================= SECTION DIVIDER ======================= */
+  .section-cover{
+    padding:40px 30px;
+    margin:30px -4mm;
+    border-radius:20px;
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    color:#fff;position:relative;overflow:hidden;
+    page-break-before:always;page-break-after:always;
+  }
+  .section-cover::before{
+    content:"";position:absolute;top:-40px;right:-30px;
+    width:240px;height:240px;border-radius:50%;
+    background:rgba(255,255,255,0.1);
+  }
+  .section-cover .part{
+    font-family:'JetBrains Mono',monospace;font-size:10pt;
+    letter-spacing:0.15em;opacity:0.7;margin-bottom:8px;
+  }
+  .section-cover h2{
+    font-size:32pt;font-weight:800;letter-spacing:-0.02em;line-height:1.1;
+  }
+  .section-cover p{
+    font-size:12pt;margin-top:12px;opacity:0.9;max-width:540px;line-height:1.55;
+  }
+  .section-cover .count{
+    display:inline-block;margin-top:16px;
+    padding:5px 14px;border-radius:999px;
+    background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);
+    font-size:10pt;font-weight:600;
+  }
+
+  /* ======================= FEATURE BLOCK ======================= */
+  .feature{
+    margin:0 0 22px;padding:0;
+    border:1px solid var(--border);border-radius:16px;
+    background:#fff;overflow:hidden;
+    page-break-inside:avoid;
+  }
+  .feat-head{
+    display:grid;grid-template-columns:auto 1fr auto;gap:14px;
+    align-items:center;
+    padding:14px 18px;
+    background:linear-gradient(135deg,color-mix(in srgb,var(--tint,var(--primary)) 8%,#fff),#fff);
+    border-bottom:1px solid var(--border-soft);
+  }
+  .feat-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9pt;font-weight:700;letter-spacing:0.08em;
+    color:var(--tint,var(--primary));
+  }
+  .feat-icon{
+    width:44px;height:44px;border-radius:12px;
+    background:linear-gradient(135deg,var(--tint,var(--primary)),color-mix(in srgb,var(--tint,var(--primary)) 60%,#fff));
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;
+    box-shadow:0 4px 12px color-mix(in srgb,var(--tint,var(--primary)) 30%,transparent);
+  }
+  .feat-title{font-size:14pt;font-weight:800;letter-spacing:-0.01em}
+  .feat-title .en{color:var(--tint,var(--primary));font-weight:700}
+  .feat-sub{font-size:9pt;color:var(--ink-muted);margin-top:2px}
+
+  .feat-body{padding:16px 18px;display:grid;gap:14px}
+
+  /* Problem / Solution blocks */
+  .ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .ps{
+    padding:12px 14px;border-radius:12px;
+    font-size:10pt;line-height:1.55;
+  }
+  .ps.problem{
+    background:linear-gradient(135deg,#fef2f2,#fff);
+    border:1px solid #fecaca;
+  }
+  .ps.solution{
+    background:linear-gradient(135deg,#f0fdf4,#fff);
+    border:1px solid #bbf7d0;
+  }
+  .ps h4{
+    font-size:9pt;font-weight:800;letter-spacing:0.04em;
+    text-transform:uppercase;margin-bottom:6px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .ps.problem h4{color:#b91c1c}
+  .ps.solution h4{color:#15803d}
+  .ps p{color:var(--ink-soft)}
+  .ps strong{color:var(--ink)}
+
+  /* UI mockup — "fake screenshot" */
+  .mock{
+    border:1px solid var(--border);border-radius:12px;
+    background:#f8fafc;overflow:hidden;
+    font-family:'Inter',sans-serif;
+  }
+  .mock-bar{
+    display:flex;align-items:center;gap:6px;
+    padding:7px 12px;background:#e2e8f0;border-bottom:1px solid #cbd5e1;
+  }
+  .mock-bar .dot{width:9px;height:9px;border-radius:50%}
+  .mock-bar .dot.r{background:#fca5a5}
+  .mock-bar .dot.y{background:#fcd34d}
+  .mock-bar .dot.g{background:#86efac}
+  .mock-bar .url{
+    margin-left:auto;font-size:8pt;color:#64748b;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .mock-body{padding:14px;font-size:9.5pt}
+  .mock-h{
+    font-size:11pt;font-weight:700;color:var(--ink);
+    margin-bottom:8px;letter-spacing:-0.01em;
+  }
+  .mock-sub{color:var(--ink-muted);font-size:9pt;margin-bottom:12px}
+  .mock-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 10px;border:1px solid var(--border);border-radius:8px;
+    background:#fff;margin-bottom:6px;
+  }
+  .mock-row .l{font-weight:600;color:var(--ink)}
+  .mock-row .r{color:var(--ink-muted);font-size:8.5pt}
+  .mock-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+  .mock-card{
+    padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;
+  }
+  .mock-card .label{font-size:7.5pt;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);font-weight:600}
+  .mock-card .val{font-size:15pt;font-weight:800;color:var(--ink);margin-top:2px;font-variant-numeric:tabular-nums}
+  .mock-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:7px 14px;border-radius:10px;
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    color:#fff;font-size:9pt;font-weight:600;
+    box-shadow:0 2px 8px rgba(124,92,255,0.3);
+  }
+  .mock-pill{
+    display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:8pt;font-weight:600;
+  }
+  .pill-success{background:#dcfce7;color:#166534;border:1px solid #86efac}
+  .pill-warning{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+  .pill-primary{background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd}
+
+  /* Steps */
+  .steps{counter-reset:step;list-style:none;padding:0;margin:0}
+  .steps li{
+    counter-increment:step;
+    position:relative;padding:7px 10px 7px 38px;
+    font-size:10pt;color:var(--ink-soft);
+    border-radius:8px;margin-bottom:4px;
+  }
+  .steps li::before{
+    content:counter(step);
+    position:absolute;left:8px;top:8px;
+    width:22px;height:22px;border-radius:50%;
+    background:linear-gradient(135deg,var(--tint,var(--primary)),color-mix(in srgb,var(--tint,var(--primary)) 60%,#fff));
+    color:#fff;font-family:'Inter',sans-serif;font-size:9pt;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .steps li strong{color:var(--ink)}
+
+  /* Impact stats */
+  .impact{
+    display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;
+    padding:10px 12px;border-radius:10px;
+    background:linear-gradient(135deg,#fef3c7,#fffbeb);
+    border:1px solid #fcd34d;
+  }
+  .impact-item{
+    display:flex;align-items:center;gap:7px;font-size:9.5pt;color:#78350f;
+  }
+  .impact-item strong{color:#9a3412;font-family:'Inter',sans-serif}
+
+  /* Callout */
+  .callout{
+    padding:12px 14px;border-radius:10px;font-size:9.5pt;
+    border-left:3px solid var(--tint,var(--primary));
+    background:color-mix(in srgb,var(--tint,var(--primary)) 6%,#fff);
+    color:var(--ink-soft);
+  }
+  .callout strong{color:var(--ink)}
+
+  /* Footer */
+  .foot{
+    margin:28px 0 0;padding:18px 0 6px;
+    border-top:2px solid var(--border);
+    text-align:center;font-size:9pt;color:var(--ink-muted);
+  }
+  .foot .mark{
+    display:inline-block;padding:4px 14px;border-radius:999px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:9pt;
+    margin-bottom:6px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================== COVER ======================== -->
+<section class="cover">
+  <div class="cover-top">
+    <div class="cover-mark">م</div>
+    <div class="cover-brand">
+      <div class="name">Muhius Sunnah</div>
+      <div class="tag">School &amp; Madrasa Management Platform</div>
+    </div>
+  </div>
+
+  <div class="cover-mid">
+    <div style="font-size:11pt;opacity:0.7;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px">Principal&apos;s Handbook · ১৪৪৭ হিঃ</div>
+    <h1>ব্যবহার<br/>নির্দেশিকা</h1>
+    <div class="cover-sub">৩২টি feature — প্রতিটির পেছনে আছে আপনার স্কুলের একটি বাস্তব সমস্যা। এই বইটি দেখাবে কীভাবে Muhius Sunnah সেগুলো সমাধান করে।</div>
+    <div class="cover-tag">✨ Problem → Solution → কীভাবে ব্যবহার করবেন</div>
+  </div>
+
+  <div class="cover-bot">
+    <div>
+      <div style="font-weight:700;color:#fff;margin-bottom:2px">হাতে রেখে পড়ার জন্য</div>
+      <div>আপনার প্রতিষ্ঠানের ব্যবস্থাপকদের সঙ্গে শেয়ার করুন</div>
+    </div>
+    <div class="ver">v1.0 · muhiussunnah.app</div>
+  </div>
+</section>
+
+<div class="page">
+
+<!-- ======================== TABLE OF CONTENTS ======================== -->
+<section class="toc">
+  <div class="toc-title">📚 বিষয়সূচি</div>
+  <div class="toc-grid">
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#ede9fe;color:#7c3aed">🎯</span>শুরুতে</h3>
+      <ol>
+        <li>ড্যাশবোর্ড — সব কিছু একনজরে</li>
+        <li>ভর্তি জিজ্ঞাসা — লিড ট্র্যাকিং</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#dbeafe;color:#2563eb">🎓</span>একাডেমিক কাঠামো</h3>
+      <ol>
+        <li>ছাত্র-ছাত্রী</li>
+        <li>শিক্ষক / স্টাফ</li>
+        <li>শ্রেণি, সেকশন, বিষয়</li>
+        <li>শিক্ষাবর্ষ</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#fce7f3;color:#be185d">📝</span>পাঠদান ও মূল্যায়ন</h3>
+      <ol>
+        <li>উপস্থিতি</li>
+        <li>পরীক্ষা ও রেজাল্ট</li>
+        <li>অ্যাসাইনমেন্ট</li>
+        <li>অনলাইন ক্লাস</li>
+        <li>সার্টিফিকেট</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#d1fae5;color:#047857">💰</span>আর্থিক ব্যবস্থাপনা</h3>
+      <ol>
+        <li>ফি</li>
+        <li>পেমেন্ট</li>
+        <li>খরচ</li>
+        <li>চাঁদা</li>
+        <li>বিনিয়োগ</li>
+        <li>বেতন</li>
+        <li>বৃত্তি</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#fef3c7;color:#b45309">🛠️</span>অপারেশন</h3>
+      <ol>
+        <li>নোটিশ</li>
+        <li>মেসেজিং রিপোর্ট</li>
+        <li>লাইব্রেরি</li>
+        <li>পরিবহন</li>
+        <li>হোস্টেল</li>
+        <li>ইনভেন্টরি</li>
+        <li>সাপোর্ট</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#cffafe;color:#0e7490">🕌</span>মাদ্রাসা বিশেষ</h3>
+      <ol>
+        <li>হিফজ ট্র্যাকিং</li>
+        <li>কিতাব প্রোগ্রেস</li>
+        <li>দৈনিক সবক</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#fef2f2;color:#dc2626">📊</span>অন্তর্দৃষ্টি</h3>
+      <ol>
+        <li>রিপোর্ট</li>
+        <li>AI ঝুঁকি বিশ্লেষণ</li>
+        <li>অডিট লগ</li>
+      </ol>
+    </div>
+    <div class="toc-group">
+      <h3><span class="icon" style="background:#f3f4f6;color:#4b5563">⚙️</span>কনফিগারেশন</h3>
+      <ol>
+        <li>সেটিংস</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     SECTION 1: শুরুতে
+     ======================================================== -->
+<section class="section-cover">
+  <div class="part">Part 01 · 2 features</div>
+  <h2>শুরুতে —<br/>দিনের শুরুটা হাতে রাখুন</h2>
+  <p>প্রতিদিন সকালে অফিসে এসে "আজ কি চলছে?" বুঝতে ঘণ্টা লেগে যায়। ড্যাশবোর্ড সেই প্রশ্নের উত্তর দেয় ৩০ সেকেন্ডে। আর ভর্তি জিজ্ঞাসা আপনার হাতছাড়া lead গুলোকে ফিরিয়ে আনে।</p>
+  <div class="count">২টি feature</div>
+</section>
+
+<!-- FEATURE 01: ড্যাশবোর্ড -->
+<article class="feature" style="--tint:#7c5cff">
+  <div class="feat-head">
+    <span class="feat-num">01</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📊</div>
+      <div>
+        <div class="feat-title">ড্যাশবোর্ড <span class="en">· Dashboard</span></div>
+        <div class="feat-sub">সকালে অফিসে বসে ৩০ সেকেন্ডে দিনের পরিস্থিতি বুঝুন</div>
+      </div>
+    </div>
+    <span></span>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>সকালে অফিসে এসে জানতে চান — <strong>কতজন ছাত্র আছে?</strong> <strong>আজ কতজন উপস্থিত?</strong> <strong>এ মাসে কত টাকা এলো?</strong> <strong>কত ফি বাকি?</strong> — প্রতিটি উত্তর পেতে আলাদা রেজিস্টার খুলতে হয়, অফিস সহকারীকে জিজ্ঞাসা করতে হয়। ১০ মিনিটের সিদ্ধান্ত নিতে ৩০ মিনিট লাগে।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>লগইন করার <strong>সাথে সাথেই</strong> পুরো স্কুলের "live photo" — মোট ছাত্র, আজকের উপস্থিতি %, এই মাসের আয়, বাকি ফি — সব এক স্ক্রিনে। সাথে "AI alerts" বলে দেবে কোন ছাত্র দীর্ঘ দিন absent, কোন class-এর collection কমছে।</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="url">muhiussunnah.app/admin</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-h">স্বাগতম, Mustaqeem সাহেব</div>
+        <div class="mock-sub">আজ ১৯ এপ্রিল ২০২৬, রবিবার / ২ জিলকদ, ১৪৪৭ হিঃ</div>
+        <div class="mock-cards">
+          <div class="mock-card"><div class="label">মোট ছাত্র</div><div class="val">১,২৪৭</div></div>
+          <div class="mock-card"><div class="label">আজকের উপস্থিতি</div><div class="val" style="color:#16a34a">৯৪%</div></div>
+          <div class="mock-card"><div class="label">এ মাসের আয়</div><div class="val">৳৮.৫ল</div></div>
+          <div class="mock-card"><div class="label">বাকি ফি</div><div class="val" style="color:#d97706">৳১.২ল</div></div>
+        </div>
+        <div class="mock-row"><span class="l">🤖 AI সতর্কতা</span><span class="r">৩ জন ছাত্র ৫ দিনের বেশি absent</span></div>
+        <div class="mock-row"><span class="l">💰 আজকের collection</span><span class="r">৮৪ টি receipt · ৳২৫,৪০০</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>লগইন করুন</strong> — সিস্টেম নিজেই আপনাকে ড্যাশবোর্ডে নিয়ে যাবে।</li>
+      <li><strong>চারটি metric card</strong> দেখুন — সংখ্যা কম/বেশি হলে নিচে ছোট arrow দেখাবে।</li>
+      <li><strong>"AI সতর্কতা"</strong> row-তে click করে বিস্তারিত দেখুন — কোন ছাত্র, কোন ক্লাসের সমস্যা।</li>
+      <li><strong>নিচের দুটি CTA</strong> — "প্রথম শিক্ষার্থী ভর্তি করুন" ও "ক্লাস সেট করুন" — প্রথম দিন setup-এর shortcut।</li>
+    </ol>
+
+    <div class="impact">
+      <div class="impact-item">⏱️ <strong>30 sec</strong> — পুরো দিনের snapshot</div>
+      <div class="impact-item">🎯 <strong>4</strong> core metrics live</div>
+      <div class="impact-item">🧠 AI alert — হাত না লাগিয়েই সমস্যা চেনা</div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 02: ভর্তি জিজ্ঞাসা -->
+<article class="feature" style="--tint:#3b82f6">
+  <div class="feat-head">
+    <span class="feat-num">02</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📋</div>
+      <div>
+        <div class="feat-title">ভর্তি জিজ্ঞাসা <span class="en">· Admission Inquiry</span></div>
+        <div class="feat-sub">হারানো lead-কে ছাত্রে রূপান্তর করুন</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>সারা বছর অভিভাবকরা ভর্তির জন্য ফোন করেন, অফিসে আসেন। তাদের ফোন নম্বর, কোন class এর জন্য, কবে এসেছিলেন — একটা খাতায় টুকে রাখা হয়। <strong>৬ মাস পর সেই খাতা হারিয়ে যায়।</strong> Follow up না হওয়ায় হাজারো সম্ভাব্য ছাত্র অন্য প্রতিষ্ঠানে চলে যায়।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>প্রতিটি inquiry-কে ৬ ধাপের pipeline-এ বসান: <strong>New → Contacted → Visited → Form filled → Enrolled → Lost</strong>। সাথে নোট, reminder, automatic SMS। এক ক্লিকে দেখুন কোন lead টা এখনো contact করা হয়নি।</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">admin/admission-inquiry</span></div>
+      <div class="mock-body">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <div class="mock-h">ভর্তি জিজ্ঞাসা · ২৪ টি active</div>
+          <span class="mock-btn">+ নতুন inquiry</span>
+        </div>
+        <div class="mock-row"><span class="l">তাহসিন আহমেদ · Class 6</span><span class="mock-pill pill-warning">Contacted</span></div>
+        <div class="mock-row"><span class="l">মারিয়াম খাতুন · Class 3</span><span class="mock-pill pill-primary">Visited</span></div>
+        <div class="mock-row"><span class="l">সাকিব হাসান · Nursery</span><span class="mock-pill pill-success">Enrolled</span></div>
+        <div class="mock-row"><span class="l">আব্দুল্লাহ · Hifz</span><span class="mock-pill" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5">New</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li>Sidebar থেকে <strong>"ভর্তি জিজ্ঞাসা"</strong> খুলুন।</li>
+      <li><strong>"+ নতুন inquiry"</strong> click — অভিভাবকের নাম, ফোন, expected class, source (facebook/referral/etc) লিখুন।</li>
+      <li>প্রতি সপ্তাহে <strong>"New"</strong> status-গুলো filter করে WhatsApp-এ follow up করুন।</li>
+      <li>ছাত্র ভর্তি হয়ে গেলে "Enrolled" এ move করুন — এটি automatically <strong>student record</strong> তৈরি করবে।</li>
+    </ol>
+
+    <div class="callout"><strong>💡 Pro tip:</strong> প্রতিদিন সকালে ১০ মিনিট "New" tab-এ দিন — এক মাসে ২০-৩০% বেশি ভর্তি লক্ষ্য করবেন।</div>
+  </div>
+</article>
+
+<!-- ========================================================
+     SECTION 2: একাডেমিক কাঠামো
+     ======================================================== -->
+<section class="section-cover" style="background:linear-gradient(135deg,#2563eb,#1e40af)">
+  <div class="part">Part 02 · 4 features</div>
+  <h2>একাডেমিক কাঠামো —<br/>স্কুলের ভিত্তি</h2>
+  <p>ছাত্র-ছাত্রী, শিক্ষক, ক্লাস-সেকশন-বিষয় ও শিক্ষাবর্ষ — এই চারটি ছাড়া অন্য কিছু কাজ করবে না। প্রথম দিন এই চারটি সেট করলে বাকি ২৮টি feature স্বয়ংক্রিয়ভাবে কাজ শুরু করে।</p>
+  <div class="count">৪টি feature</div>
+</section>
+
+<!-- FEATURE 03: ছাত্র-ছাত্রী -->
+<article class="feature" style="--tint:#3b82f6">
+  <div class="feat-head">
+    <span class="feat-num">03</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">👨‍🎓</div>
+      <div>
+        <div class="feat-title">ছাত্র-ছাত্রী <span class="en">· Students</span></div>
+        <div class="feat-sub">পুরো স্কুলের student database — একটি ক্লিকে সার্চ</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>একজন ছাত্রের <strong>বাবার ফোন নম্বর</strong> দরকার — রেজিস্টার খুঁজতে হবে। <strong>তার গত বছরের রেজাল্ট</strong> চান — আরেকটি খাতা। <strong>সে কত টাকা ফি দিয়েছে</strong> — অ্যাকাউন্ট বইয়ে। প্রতি ছাত্রের তথ্য ৫-১০টি কাগজে ছড়ানো।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>প্রতি ছাত্রের একটি <strong>master profile</strong> — ছবি, অভিভাবক, ঠিকানা, health info, admission date, transfer history, বেড়ে ওঠার রেজাল্ট timeline, fee ledger, attendance pattern, Hifz progress, behavior notes — সব এক জায়গায়। সার্চ করলে ২ সেকেন্ডে পাবেন।</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">admin/students</span></div>
+      <div class="mock-body">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;gap:8px">
+          <input style="flex:1;padding:7px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:9pt" placeholder="🔍 নাম / roll / ফোন দিয়ে খুঁজুন..." />
+          <span class="mock-btn">+ নতুন ভর্তি</span>
+          <span class="mock-btn" style="background:#64748b">⬇ Excel import</span>
+        </div>
+        <div class="mock-row"><span class="l">🎒 সাকিব হাসান · Roll 12 · Class 7A</span><span class="r">Fee: ✅ · Attn: ৯৮%</span></div>
+        <div class="mock-row"><span class="l">🎒 তামিম ইকবাল · Roll 08 · Class 5B</span><span class="r">Fee: ⚠️ ৳২০০০ · Attn: ৮৫%</span></div>
+        <div class="mock-row"><span class="l">🎒 মারিয়া জাহান · Roll 23 · Class 9A</span><span class="r">Fee: ✅ · Attn: ১০০%</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>প্রথমবার:</strong> "Excel থেকে import" বাটন — template download, পূরণ করে upload। ১০০+ ছাত্র ১ মিনিটে।</li>
+      <li><strong>নতুন ভর্তির সময়:</strong> "নতুন ভর্তি" → ছবি, অভিভাবক, EIIN, birth certificate — এক ফর্মে সব।</li>
+      <li><strong>যে কোনো ছাত্রের উপর ক্লিক</strong> করুন — তার পুরো profile (attendance, result, fee, hifz) দেখবেন।</li>
+      <li><strong>Transfer / TC</strong> — status পরিবর্তন করলে automatic certificate তৈরি হয়।</li>
+    </ol>
+
+    <div class="impact">
+      <div class="impact-item">⏱️ <strong>2 sec</strong> search</div>
+      <div class="impact-item">📂 <strong>12</strong> tabs per profile</div>
+      <div class="impact-item">📤 Excel import supported</div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 04: শিক্ষক/স্টাফ -->
+<article class="feature" style="--tint:#6366f1">
+  <div class="feat-head">
+    <span class="feat-num">04</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">👨‍🏫</div>
+      <div>
+        <div class="feat-title">শিক্ষক / স্টাফ <span class="en">· Staff</span></div>
+        <div class="feat-sub">HR management — joining থেকে bonus পর্যন্ত</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p><strong>কার joining কবে?</strong> <strong>কার NID কোথায়?</strong> <strong>কে কোন class-এ পড়ান?</strong> <strong>কার বেতন কত?</strong> — প্রতিটি তথ্য আলাদা খাতায়। একজন শিক্ষক ছুটি নিলে কে substitute হবেন মনে রাখতে হয়।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>প্রতি শিক্ষকের profile-এ — joining date, pay scale, NID, academic certificate, assigned classes ও subjects, contact, emergency person, leave balance। সিস্টেম নিজেই বেতন গণনা করে, ছুটি record রাখে, performance track করে।</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">admin/staff</span></div>
+      <div class="mock-body">
+        <div class="mock-h" style="margin-bottom:10px">শিক্ষক ও স্টাফ · ৪৭ জন active</div>
+        <div class="mock-row"><span class="l">👨‍🏫 মাওলানা আব্দুল্লাহ · Class Teacher</span><span class="r">Class 6A · ৳২৫,০০০/মাস</span></div>
+        <div class="mock-row"><span class="l">👩‍🏫 উম্মে হাবিবা · Subject Teacher</span><span class="r">English · ৳২২,০০০/মাস</span></div>
+        <div class="mock-row"><span class="l">👨‍💼 রহিম উদ্দিন · Accountant</span><span class="r">Finance · ৳১৮,০০০/মাস</span></div>
+        <div class="mock-row"><span class="l">👷 আকবর আলী · Peon</span><span class="r">Support · ৳৮,০০০/মাস</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>নতুন শিক্ষক যোগ:</strong> পুরো নাম, ফোন, NID, designation, pay scale, joining date — এক ফর্মে সব।</li>
+      <li><strong>Role assign করুন:</strong> CLASS_TEACHER / SUBJECT_TEACHER / ACCOUNTANT / LIBRARIAN — এটি তার dashboard নির্ধারণ করে।</li>
+      <li><strong>Class-subject link:</strong> "ইংরেজি - Class 7A, 7B" — এরপর থেকে সেই শিক্ষক শুধু এই ক্লাসের marks entry করতে পারবেন।</li>
+      <li><strong>Leave management:</strong> ছুটির আবেদন, approve, balance auto update।</li>
+    </ol>
+  </div>
+</article>
+
+<!-- FEATURE 05: ক্লাস -->
+<article class="feature" style="--tint:#8b5cf6">
+  <div class="feat-head">
+    <span class="feat-num">05</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🏫</div>
+      <div>
+        <div class="feat-title">শ্রেণি, সেকশন, বিষয় <span class="en">· Classes</span></div>
+        <div class="feat-sub">স্কুলের structural backbone</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>Class 6 এ ৪টি section, প্রতিটিতে ১২টি বিষয়, প্রতি বিষয়ের pass mark আলাদা, কোন section এ কোন শিক্ষক — এই mapping প্রতি বছর শুরুতে মাথায় রাখতে রাখতে হিমশিম খান।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>এক জায়গায় সব define করুন: <strong>Class</strong> (Nursery → Class 10 / Hifz / Kitab), <strong>Section</strong> (A, B, C…), <strong>Subject</strong> (Bangla, English, Math, ইসলামিয়াত…), <strong>Subject-Teacher assignment</strong>। এরপর বাকি features (exam, attendance, marks) এই কাঠামো অনুসারে automatically কাজ করে।</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">admin/classes</span></div>
+      <div class="mock-body">
+        <div class="mock-h" style="margin-bottom:10px">ক্লাস কাঠামো</div>
+        <div class="mock-row"><span class="l">📚 Class 6 (৩ সেকশন)</span><span class="r">A: 35 · B: 32 · C: 30 · ১২টি বিষয়</span></div>
+        <div class="mock-row"><span class="l">📚 Class 7 (৩ সেকশন)</span><span class="r">A: 38 · B: 34 · C: 29 · ১২টি বিষয়</span></div>
+        <div class="mock-row"><span class="l">📖 হিফজ Level 1</span><span class="r">১৫ জন · ৩০ পারা target</span></div>
+        <div class="mock-row"><span class="l">📖 কিতাব প্রথম বর্ষ</span><span class="r">২০ জন · ৮টি কিতাব</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>প্রথমে শ্রেণি:</strong> "নতুন Class" → নাম (Class 6), GPA scale select করুন।</li>
+      <li><strong>সেকশন:</strong> Class 6 → "+ Section" → A / B / C।</li>
+      <li><strong>বিষয়:</strong> Class 6 → "+ Subject" → বাংলা / English / Math…  প্রতিটির full mark ও pass mark।</li>
+      <li><strong>শিক্ষক-বিষয় assign:</strong> "Class 6A - বাংলা" → শিক্ষক বাছাই।</li>
+    </ol>
+
+    <div class="callout"><strong>💡 Madrasa</strong> প্রতিষ্ঠানের জন্য Hifz Level + Kitab Stage প্রি-configured। কুরআন পারা ১-৩০, কিতাব Stage 1-8 auto ready।</div>
+  </div>
+</article>
+
+<!-- FEATURE 06: শিক্ষাবর্ষ -->
+<article class="feature" style="--tint:#0891b2">
+  <div class="feat-head">
+    <span class="feat-num">06</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📅</div>
+      <div>
+        <div class="feat-title">শিক্ষাবর্ষ <span class="en">· Academic Years</span></div>
+        <div class="feat-sub">বছর বদলালে data হারাবে না</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>২০২৫ শেষ হলো। ২০২৬-এ নতুন ক্লাস শুরু। কিন্তু ২০২৫-এর হাজিরা, রেজাল্ট, fee record কোথায় যাবে? খাতা মুছে নতুন করে লিখতে গিয়ে আগের ডেটা হারিয়ে যায়।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>প্রতি বছর একটি <strong>"Academic Year"</strong> container। Active year বদলানো মাত্র নতুন বছরের ক্লাস শুরু। পুরনো বছর archive মোডে — পুরোপুরি readonly, যখন দরকার পুরো transcript বের করা যায়।</p>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>নতুন বছর তৈরি:</strong> "২০২৬" · শুরু ১ জানুয়ারি · শেষ ৩১ ডিসেম্বর।</li>
+      <li><strong>Set Active:</strong> active করলে নতুন attendance / marks / fee এই বছরের জন্য save হবে।</li>
+      <li><strong>Student promotion:</strong> এক ক্লিকে পুরো Class 6 → Class 7 promote — পুরনো records intact।</li>
+      <li><strong>Archive পুরনো বছর:</strong> সবসময় browse করতে পারবেন, edit করতে পারবেন না।</li>
+    </ol>
+  </div>
+</article>
+
+</div>
+<!-- === continued in subsequent pages via separate HTML sections below === -->
+
+<!-- This is Part 1 of 5. Full document continues on next pages. -->
+
+<section class="section-cover" style="background:linear-gradient(135deg,#be185d,#9f1239)">
+  <div class="part">Part 03 · 5 features</div>
+  <h2>পাঠদান ও মূল্যায়ন</h2>
+  <p>হাজিরা থেকে সার্টিফিকেট পর্যন্ত — প্রতিদিনের একাডেমিক কাজ।</p>
+  <div class="count">৫টি feature</div>
+</section>
+
+<div class="page">
+
+<!-- FEATURE 07: উপস্থিতি -->
+<article class="feature" style="--tint:#ec4899">
+  <div class="feat-head">
+    <span class="feat-num">07</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">✓</div>
+      <div>
+        <div class="feat-title">উপস্থিতি <span class="en">· Attendance</span></div>
+        <div class="feat-sub">Smart hazira — কাগজের খাতার দিন শেষ</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>প্রতি ক্লাসে খাতা, প্রতি শিক্ষক tick mark দেন, মাস শেষে হিসাব করতে দিন লাগে। <strong>৩ দিন absent হলেও অভিভাবক জানেন না</strong> — পরীক্ষায় fail হওয়ার পর জানেন।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>শিক্ষক মোবাইল থেকে এক ক্লিকে পুরো class-এর attendance। যে ছাত্র absent, তার অভিভাবকের কাছে <strong>SMS চলে যায়</strong> সাথে সাথে। মাসিক report এক click-এ।</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">admin/attendance</span></div>
+      <div class="mock-body">
+        <div class="mock-h" style="margin-bottom:10px">আজকের হাজিরা · Class 7A · ৩৫ জন</div>
+        <div class="mock-row"><span class="l">সাকিব হাসান (Roll 1)</span><span class="mock-pill pill-success">Present</span></div>
+        <div class="mock-row"><span class="l">তামিম (Roll 2)</span><span class="mock-pill pill-warning">Late</span></div>
+        <div class="mock-row"><span class="l">মারিয়া (Roll 3)</span><span class="mock-pill" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5">Absent</span></div>
+        <div class="mock-row" style="background:#f0fdf4"><span class="l">✓ ৩৩ উপস্থিত · ১ late · ১ absent</span><span class="r">৯৪% attendance</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>শিক্ষক:</strong> Teacher dashboard → "আজকের হাজিরা" → class select → swipe করে present/late/absent mark।</li>
+      <li><strong>Absent চিহ্নিত করলে</strong> automatic — অভিভাবকের ফোনে SMS: "আপনার সন্তান আজ উপস্থিত নেই।"</li>
+      <li><strong>Principal:</strong> dashboard-এ live attendance %, কোন class-এ ৮৫% এর নিচে — red alert।</li>
+      <li><strong>মাসিক:</strong> এক click এ ছাত্র-wise attendance report PDF।</li>
+    </ol>
+
+    <div class="impact">
+      <div class="impact-item">⏱️ <strong>10 sec</strong> per class</div>
+      <div class="impact-item">📱 SMS to guardian instant</div>
+      <div class="impact-item">📊 Auto monthly report</div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 08: পরীক্ষা ও রেজাল্ট -->
+<article class="feature" style="--tint:#dc2626">
+  <div class="feat-head">
+    <span class="feat-num">08</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📝</div>
+      <div>
+        <div class="feat-title">পরীক্ষা ও রেজাল্ট <span class="en">· Exams</span></div>
+        <div class="feat-sub">Tabulation-এর রাত জাগা থেকে মুক্তি</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>৫ জন শিক্ষক marksheet আনলেন — তাদেরটা tabulator-এ বসতে হবে। <strong>১ সপ্তাহের রাত জাগা কাজ</strong>, Bangla Unicode-এ সংখ্যা ভুল, grade calculation-এ ভুল, position ঠিক না হলে অভিভাবকের অভিযোগ।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>শিক্ষক tablet/laptop থেকে marks entry করেন (keyboard grid)। সিস্টেম automatic — <strong>total, percentage, grade, position, GPA</strong>। Printable bilingual marksheet ২ ক্লিকে।</p>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>পরীক্ষা তৈরি:</strong> "মিডটার্ম ২০২৬" → শুরু/শেষ date → subjects মনোনীত।</li>
+      <li><strong>রুটিন:</strong> কোন দিন কোন বিষয় — auto admit card generate।</li>
+      <li><strong>Marks entry:</strong> Subject teacher login → grid view → দ্রুত টাইপ। "Lock" → principal approve।</li>
+      <li><strong>Publish:</strong> এক ক্লিক → সমস্ত ছাত্র portal-এ দেখবে, guardian-কে SMS যায়।</li>
+    </ol>
+
+    <div class="callout"><strong>🎓 GPA 5.0 scale</strong> default — চাইলে percentage বা custom rubric ব্যবহার করা যায়। Bangla Unicode marksheet BD-এর official format mirror করে।</div>
+  </div>
+</article>
+
+<!-- FEATURE 09: অ্যাসাইনমেন্ট -->
+<article class="feature" style="--tint:#f59e0b">
+  <div class="feat-head">
+    <span class="feat-num">09</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📎</div>
+      <div>
+        <div class="feat-title">অ্যাসাইনমেন্ট <span class="en">· Assignments</span></div>
+        <div class="feat-sub">হোমওয়ার্ক-এর কাগজ হারিয়ে যাবে না</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>শিক্ষক class-এ homework দিলেন, ছাত্ররা ভুলে যায় বা diary-তে লেখে না। পরে fail করলে দোষ কার? Covid-এ অনলাইন শেখার সময় এই সমস্যা ১০ গুণ বড় হয়েছিল।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>শিক্ষক digital assignment পাঠান — title, description, attachment (PDF/image), submission date। ছাত্র portal/অভিভাবক portal-এ notification। Due date-এ SMS reminder। Submit হলে teacher grade দেন।</p>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>শিক্ষক:</strong> "নতুন assignment" → title, file upload, due date select।</li>
+      <li><strong>ছাত্র:</strong> Portal-এ notification → answer upload (photo/PDF) বা in-app text।</li>
+      <li><strong>শিক্ষক:</strong> Submissions list → grade + feedback।</li>
+      <li><strong>Overdue:</strong> সিস্টেম auto SMS → অভিভাবকের ফোনে।</li>
+    </ol>
+  </div>
+</article>
+
+<!-- FEATURE 10: অনলাইন ক্লাস -->
+<article class="feature" style="--tint:#06b6d4">
+  <div class="feat-head">
+    <span class="feat-num">10</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🎥</div>
+      <div>
+        <div class="feat-title">অনলাইন ক্লাস <span class="en">· Online Classes</span></div>
+        <div class="feat-sub">Zoom/Meet লিংক এক জায়গায়</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>Covid বা বন্যার সময় অনলাইন ক্লাস — প্রতিদিন নতুন Zoom লিংক WhatsApp group-এ ছড়িয়ে পড়ে, কেউ পায় কেউ পায় না। Attendance track হয় না।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>Teacher schedule করেন "Class 7A - Math - 10:00am - Meet link"। ছাত্রের portal-এ auto appear। Join করার সময় attendance auto mark। Recording link-ও save হয় পরে দেখার জন্য।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 11: সার্টিফিকেট -->
+<article class="feature" style="--tint:#10b981">
+  <div class="feat-head">
+    <span class="feat-num">11</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📜</div>
+      <div>
+        <div class="feat-title">সার্টিফিকেট <span class="en">· Certificates</span></div>
+        <div class="feat-sub">TC, Character, Study — সেকেন্ডে print</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>ছাত্র TC (Transfer Certificate) চায় — ছাপাখানায় প্রিন্ট, সাইন, সিল — ২ দিন লাগে। Character certificate, Study certificate — প্রতিটি আলাদা।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>প্রি-made templates (TC, Character, Study, Transcript, Testimonial)। ছাত্র সিলেক্ট → ক্লিক → PDF ready with signature + seal + QR verification। ১ মিনিটের কাজ।</p>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li>ছাত্রের profile থেকে <strong>"Certificate issue"</strong> বাটন।</li>
+      <li>টেমপ্লেট বাছাই — TC / Character / Study / Transcript।</li>
+      <li>Auto-fill — নাম, ক্লাস, তারিখ, CEO signature, school seal।</li>
+      <li><strong>QR code</strong> যুক্ত — অন্য প্রতিষ্ঠান verify করতে পারবে।</li>
+    </ol>
+  </div>
+</article>
+
+</div>
+
+<section class="section-cover" style="background:linear-gradient(135deg,#047857,#065f46)">
+  <div class="part">Part 04 · 7 features</div>
+  <h2>আর্থিক ব্যবস্থাপনা</h2>
+  <p>টাকা ঢোকা, বের হওয়া, বেতন, বৃত্তি, চাঁদা, বিনিয়োগ — স্কুলের অর্থনৈতিক রক্ত সঞ্চালন।</p>
+  <div class="count">৭টি feature</div>
+</section>
+
+<div class="page">
+
+<!-- FEATURE 12: ফি -->
+<article class="feature" style="--tint:#059669">
+  <div class="feat-head">
+    <span class="feat-num">12</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">💳</div>
+      <div>
+        <div class="feat-title">ফি <span class="en">· Fees</span></div>
+        <div class="feat-sub">Invoice থেকে bKash/Nagad — সম্পূর্ণ চক্র</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>প্রতি ছাত্রের fee structure আলাদা (scholarship থাকলে), মাসে মাসে invoice generate, bKash/Nagad-এ টাকা এলো কিনা verify — ১০০০ ছাত্রে এই কাজ এক সপ্তাহের।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>৩০ টি <strong>pre-configured fee heads</strong> (Tuition, Exam fee, Transport, Hostel…)। প্রতি ছাত্রের fee plan auto-generate। <strong>bKash / Nagad / SSLCommerz</strong> gateway connected — অভিভাবক portal থেকে pay করলে receipt auto।</p>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">admin/fees</span></div>
+      <div class="mock-body">
+        <div class="mock-h" style="margin-bottom:10px">এ মাসের Fee Status</div>
+        <div class="mock-cards">
+          <div class="mock-card"><div class="label">Collected</div><div class="val" style="color:#16a34a">৳১২.৪ল</div></div>
+          <div class="mock-card"><div class="label">Pending</div><div class="val" style="color:#d97706">৳১.২ল</div></div>
+          <div class="mock-card"><div class="label">Overdue</div><div class="val" style="color:#dc2626">৳৪৫হ</div></div>
+          <div class="mock-card"><div class="label">Target</div><div class="val">৳১৫ল</div></div>
+        </div>
+        <div class="mock-row"><span class="l">সাকিব হাসান · April Tuition</span><span class="mock-pill pill-success">✓ ৳৩,০০০ · bKash</span></div>
+        <div class="mock-row"><span class="l">তামিম · April Tuition</span><span class="mock-pill pill-warning">Due ৳৩,০০০</span></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>Fee heads:</strong> Tuition, Exam, Transport — প্রতিটির amount by class।</li>
+      <li><strong>Invoice generate:</strong> মাসের ১ তারিখে auto — সকল ছাত্রের জন্য।</li>
+      <li><strong>SMS/Email reminder:</strong> Due হলে auto notification।</li>
+      <li><strong>অভিভাবক pay:</strong> portal থেকে bKash/Nagad/Rocket — receipt instant।</li>
+      <li><strong>Partial payment / discount:</strong> সমর্থিত।</li>
+    </ol>
+
+    <div class="impact">
+      <div class="impact-item">💳 <strong>4</strong> payment gateways</div>
+      <div class="impact-item">📊 Live collection %</div>
+      <div class="impact-item">🎯 Auto reminder</div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 13: পেমেন্ট -->
+<article class="feature" style="--tint:#10b981">
+  <div class="feat-head">
+    <span class="feat-num">13</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🧾</div>
+      <div>
+        <div class="feat-title">পেমেন্ট <span class="en">· Payments</span></div>
+        <div class="feat-sub">প্রতিটি টাকার রশিদ, প্রতিটি receipt auditable</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>অভিভাবক বলেন "আমি গত মাসে ৩০০০ টাকা দিয়েছি"। রেজিস্টার খুঁজতে ২০ মিনিট — পাওয়া গেলো বা গেলো না। Cash এসেছে কিন্তু accountant receipt ছেঁড়েনি।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>প্রতিটি payment — cash, bank, bKash, Nagad — এক timeline-এ। প্রতি receipt-এর QR। ছাত্রের portal-এ <strong>সকল historical payment</strong> visible। Accountant entry না করলে principal সাথে সাথে দেখেন।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 14: খরচ -->
+<article class="feature" style="--tint:#f97316">
+  <div class="feat-head">
+    <span class="feat-num">14</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">💸</div>
+      <div>
+        <div class="feat-title">খরচ <span class="en">· Expenses</span></div>
+        <div class="feat-sub">কোন category-তে কত খরচ হচ্ছে — transparent</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>বিদ্যুৎ বিল, বই কেনা, মেরামত, খাবার — সব "খরচ খাতা"য় mixed। মাস শেষে বুঝতে পারেন না কোথায় বেশি খরচ হচ্ছে। Budget control নাই।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>২৪টি <strong>pre-configured expense heads</strong> — Utility, Stationery, Food, Repair, Salary, Tax…। প্রতি entry-তে receipt upload। মাসিক pie chart দেখায় কোন category-তে কত %।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 15: চাঁদা -->
+<article class="feature" style="--tint:#db2777">
+  <div class="feat-head">
+    <span class="feat-num">15</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🤝</div>
+      <div>
+        <div class="feat-title">চাঁদা / দান <span class="en">· Donations</span></div>
+        <div class="feat-sub">দাতার প্রতি দায়বদ্ধতা</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>কেউ ১০,০০০ টাকা দান করলেন। ছয় মাস পর জিজ্ঞাসা করলেন "আমার টাকা কোথায় লাগলো?" — সঠিক উত্তর দিতে না পারলে future-এ আর দান পাওয়া যাবে না।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>প্রতি <strong>donation campaign</strong> (Masjid construction, Eid gift, Scholarship fund) আলাদা। দাতার নাম-ফোন, পরিমাণ, কী কাজে use হলো — সব tracked। দাতার কাছে quarterly report auto-SMS।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 16: বিনিয়োগ -->
+<article class="feature" style="--tint:#06b6d4">
+  <div class="feat-head">
+    <span class="feat-num">16</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📈</div>
+      <div>
+        <div class="feat-title">বিনিয়োগ <span class="en">· Investments</span></div>
+        <div class="feat-sub">প্রতিষ্ঠানের সম্পদ তদারকি</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>স্কুলের নিজস্ব জমি, ভাড়া দেওয়া দোকান, bank deposit — এসবের lease date, return কবে, কোন মাসে কত — সব memory-তে রাখা যায় না।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>প্রতি asset (জমি/দোকান/FDR) আলাদা entry। Lease renewal-এর ৩০ দিন আগে alert। Monthly return auto-calculate হয়ে এ মাসের আয়ে যোগ হয়।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 17: বেতন -->
+<article class="feature" style="--tint:#8b5cf6">
+  <div class="feat-head">
+    <span class="feat-num">17</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">💰</div>
+      <div>
+        <div class="feat-title">বেতন / Payroll <span class="en">· Salary</span></div>
+        <div class="feat-sub">৪৫ জন শিক্ষকের বেতন — ৫ মিনিটে</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>মাস শেষে প্রতি শিক্ষকের — basic, allowance, overtime, tax, absent-deduction, advance — সব calculate করতে accountant-এর ২ দিন লাগে। ভুল হলে শিক্ষক অসন্তুষ্ট।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>পে scale set করলে প্রতি মাসের ১ তারিখে <strong>auto-calculation</strong> — salary, allowance, deductions। Bank file export। Principal approve করলেই bKash/bank transfer।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 18: বৃত্তি -->
+<article class="feature" style="--tint:#f59e0b">
+  <div class="feat-head">
+    <span class="feat-num">18</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🏆</div>
+      <div>
+        <div class="feat-title">বৃত্তি <span class="en">· Scholarships</span></div>
+        <div class="feat-sub">মেধাবী ও দরিদ্র — দুজনের জন্য</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>এক ছাত্র ৫০% waiver পায়, আরেকজন ১০০%, তৃতীয়জন বিশেষ ক্ষেত্রে — fee invoice generate-এর সময় প্রতিবার মাথায় রাখতে হয়। ভুল হলে অভিভাবকের অভিযোগ।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>প্রতি বৃত্তি — <strong>merit-based / need-based</strong> — সংজ্ঞায়িত। ছাত্রের profile-এ link। Fee invoice auto সেই ছাত্রের জন্য discount apply। Transparent reporting।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+</div>
+
+<section class="section-cover" style="background:linear-gradient(135deg,#b45309,#92400e)">
+  <div class="part">Part 05 · 7 features</div>
+  <h2>দৈনন্দিন অপারেশন</h2>
+  <p>নোটিশ, messaging, library, transport, hostel, inventory, support — প্রতিষ্ঠানের জীবনরেখা।</p>
+  <div class="count">৭টি feature</div>
+</section>
+
+<div class="page">
+
+<!-- FEATURE 19: নোটিশ -->
+<article class="feature" style="--tint:#eab308">
+  <div class="feat-head">
+    <span class="feat-num">19</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📢</div>
+      <div>
+        <div class="feat-title">নোটিশ <span class="en">· Notices</span></div>
+        <div class="feat-sub">Paper notice board is dead</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>"আগামীকাল ছুটি" — এই খবর সব অভিভাবক পৌঁছায় না। কাগজে বেঁধে দিলে বাচ্চা হারিয়ে ফেলে, WhatsApp group-এ সবাই member না।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>Notice publish — সব ছাত্র-অভিভাবকের portal-এ appear। Opt-in করলে SMS-ও যায়। Read receipt — কে পড়েছে, কে পড়েনি। Target group (শুধু Class 9 / শুধু Hifz) করা যায়।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 20: মেসেজিং রিপোর্ট -->
+<article class="feature" style="--tint:#06b6d4">
+  <div class="feat-head">
+    <span class="feat-num">20</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">💬</div>
+      <div>
+        <div class="feat-title">মেসেজিং রিপোর্ট <span class="en">· Messaging</span></div>
+        <div class="feat-sub">SMS/WhatsApp credit কোথায় যাচ্ছে?</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>প্রতিদিন ৫০-১০০টা SMS যায় (absent alert, due reminder, exam notice)। মাসে ৳১০,০০০ SMS খরচ। কোন template সবচেয়ে বেশি use হচ্ছে, কোথায় অপচয় হচ্ছে — জানা নেই।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>সব SMS/WhatsApp log — কোন time, কাকে, কোন template, delivery status। <strong>AI SMS template generator</strong> — শুধু context লিখুন, natural Bangla SMS ready। Credit top-up online।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 21: লাইব্রেরি -->
+<article class="feature" style="--tint:#d97706">
+  <div class="feat-head">
+    <span class="feat-num">21</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📚</div>
+      <div>
+        <div class="feat-title">লাইব্রেরি <span class="en">· Library</span></div>
+        <div class="feat-sub">বই হারালে fine, পড়লে পুরস্কার</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>লাইব্রেরিয়ান খাতায় লিখেন "সাকিব - Ibn Sina - 12 March" — সাকিব ফেরত দিলে পাতা বদলান। ৬ মাসে কত বই missing, কে কতবার নিয়েছে — কোনো অস্পষ্ট।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>Book catalog (ISBN search with auto-fill), barcode/QR issue-return, automatic due date, overdue fine calculation, reading leaderboard (সেরা পাঠক প্রতি মাসে)।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 22: পরিবহন -->
+<article class="feature" style="--tint:#ea580c">
+  <div class="feat-head">
+    <span class="feat-num">22</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🚌</div>
+      <div>
+        <div class="feat-title">পরিবহন <span class="en">· Transport</span></div>
+        <div class="feat-sub">Bus tracking → অভিভাবকের মনের শান্তি</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>বাচ্চা সকালে bus-এ উঠেছে কি না? বিকেলে বাস দেরি কেন? প্রতিদিন অভিভাবক ফোন করে উত্তর চান।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>৩টা route, ১০টা stop, প্রতি stop-এ যে ছাত্ররা উঠবে তাদের list। Driver mobile থেকে "pickup confirmed" tap করলেই অভিভাবকের কাছে SMS। Transport fee auto-invoice।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 23: হোস্টেল -->
+<article class="feature" style="--tint:#0891b2">
+  <div class="feat-head">
+    <span class="feat-num">23</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🏠</div>
+      <div>
+        <div class="feat-title">হোস্টেল <span class="en">· Hostel</span></div>
+        <div class="feat-sub">আবাসিক ছাত্রদের সম্পূর্ণ life management</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>১০০ জন আবাসিক ছাত্র, ২৫টি কক্ষ। কে কোন কক্ষে, কতজন আজ খাবার নিয়েছে, কে ছুটিতে বাড়ি গেছে — ওয়ার্ডেনের মাথায় থাকে, তিনি ছুটিতে গেলে ঝামেলা।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>Room allocation grid, meal attendance (সকাল-দুপুর-রাত), leave forms (অভিভাবকের approval সহ), hostel fee tracking। সব এক screen-এ।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 24: ইনভেন্টরি -->
+<article class="feature" style="--tint:#6366f1">
+  <div class="feat-head">
+    <span class="feat-num">24</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📦</div>
+      <div>
+        <div class="feat-title">ইনভেন্টরি <span class="en">· Inventory</span></div>
+        <div class="feat-sub">স্টক-এর রক্ষক</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>ক্লাস শুরুর দিন জানা যায় "চক নেই", "বই শেষ হয়ে গেছে"। ফার্নিচার কয়টি? চেয়ার ভেঙেছে? কেউ জানে না।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>প্রতি item — quantity, location, purchase date, condition। Low stock alert। Breakage record। Annual audit report।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 25: সাপোর্ট -->
+<article class="feature" style="--tint:#dc2626">
+  <div class="feat-head">
+    <span class="feat-num">25</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🆘</div>
+      <div>
+        <div class="feat-title">সাপোর্ট টিকেট <span class="en">· Support</span></div>
+        <div class="feat-sub">অভিভাবকের অভিযোগ — organized</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>অভিভাবক ফোন করেন — "আমার বিলে ভুল"। কে handle করবে? কবে solve হলো? Follow-up হলো কি? কোনো tracking নেই।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>Ticket system — অভিভাবক portal থেকে issue raise করেন। Assign হয় specific staff-কে। Status tracking (open → in progress → resolved)। Response time report।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+</div>
+
+<section class="section-cover" style="background:linear-gradient(135deg,#0e7490,#155e75)">
+  <div class="part">Part 06 · 3 features</div>
+  <h2>মাদ্রাসা বিশেষ মডিউল</h2>
+  <p>দ্বীনি শিক্ষার জন্য বিশেষায়িত — হিফজ, কিতাব, সবক। বাংলাদেশের প্রথম এবং একমাত্র পূর্ণাঙ্গ Islamic education tracking।</p>
+  <div class="count">৩টি feature</div>
+</section>
+
+<div class="page">
+
+<!-- FEATURE 26: হিফজ -->
+<article class="feature" style="--tint:#0e7490">
+  <div class="feat-head">
+    <span class="feat-num">26</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📖</div>
+      <div>
+        <div class="feat-title">হিফজ ট্র্যাকিং <span class="en">· Hifz</span></div>
+        <div class="feat-sub">৩০ পারা মুখস্থ — প্রতিটি ছাত্রের digital diary</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>উস্তাদ প্রতিদিন diary-তে লেখেন "ছাত্র X — পারা 5, পৃষ্ঠা 12, লাইন 8"। ৬ মাস পর diary পূর্ণ, নতুন diary শুরু — পুরানো progress দেখতে কষ্ট। অভিভাবক জিজ্ঞাসা করলে সহজে বলতে পারেন না।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>প্রতি ছাত্রের Hifz journey visual timeline — কোন সূরা, কোন পারা, কত পৃষ্ঠা, কবে শুরু, কবে শেষ। Sabaq / Sabqi / Manzil আলাদা tracking। অভিভাবক portal-এ live progress।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 27: কিতাব -->
+<article class="feature" style="--tint:#0f766e">
+  <div class="feat-head">
+    <span class="feat-num">27</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📕</div>
+      <div>
+        <div class="feat-title">কিতাব প্রোগ্রেস <span class="en">· Kitab</span></div>
+        <div class="feat-sub">দাওরা থেকে মুনতাহা — stage-by-stage</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>দারসে নিজামীর ৮ বছর। প্রতি বছর নির্দিষ্ট কিতাব। ছাত্র কোন কিতাব শেষ করেছে, কোনটি বাকি — দীর্ঘ খাতা।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>প্রি-configured দারসে নিজামীর pathway — Mishkat, Bukhari, Muslim, Abu Dawud, Mufkin… প্রতি কিতাবের progress %, completion date।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 28: দৈনিক সবক -->
+<article class="feature" style="--tint:#059669">
+  <div class="feat-head">
+    <span class="feat-num">28</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">☀️</div>
+      <div>
+        <div class="feat-title">দৈনিক সবক <span class="en">· Daily Sabaq</span></div>
+        <div class="feat-sub">আজকের পড়া, কালকের পরীক্ষা</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>মাদ্রাসায় "সবক" ধারণাটি আলাদা — প্রতিদিন নতুন পাঠ। পরের দিন sabqi (revision)। সপ্তাহে manzil (large revision)। এই চক্র track না হলে ছাত্র পিছিয়ে পড়ে।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>Daily sabaq entry — পাঠ, quality (excellent/good/weak), উস্তাদের মন্তব্য। 7-day chart দেখায় trend। Weak হলে guardian-কে alert।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+</div>
+
+<section class="section-cover" style="background:linear-gradient(135deg,#dc2626,#991b1b)">
+  <div class="part">Part 07 · 4 features</div>
+  <h2>অন্তর্দৃষ্টি ও নিরাপত্তা</h2>
+  <p>Report, AI, Audit — তিনটি "চোখ" যা আপনি চোখ বুজে রাখলেও আপনার প্রতিষ্ঠান দেখে।</p>
+  <div class="count">৪টি feature</div>
+</section>
+
+<div class="page">
+
+<!-- FEATURE 29: রিপোর্ট -->
+<article class="feature" style="--tint:#dc2626">
+  <div class="feat-head">
+    <span class="feat-num">29</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">📊</div>
+      <div>
+        <div class="feat-title">রিপোর্ট <span class="en">· Reports</span></div>
+        <div class="feat-sub">৭ ধরনের printable report, ১ ক্লিকে</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>বোর্ডকে monthly report দিতে হবে। Donor-কে fund use report। Government-কে enrollment data। প্রতি report তৈরি করতে accountant-এর ১ সপ্তাহ।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>৭টি pre-built report — Fee Collection, Attendance Summary, Income-Expense, Dues Aging, Student Enrollment, Payroll Summary, Expense Category। প্রতিটি PDF / Excel export।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 30: AI ঝুঁকি -->
+<article class="feature" style="--tint:#9333ea">
+  <div class="feat-head">
+    <span class="feat-num">30</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🤖</div>
+      <div>
+        <div class="feat-title">AI ঝুঁকি বিশ্লেষণ <span class="en">· AI Risk</span></div>
+        <div class="feat-sub">কোন ছাত্র ড্রপআউট হতে পারে — AI বলে দেবে</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>বছরের মাঝে ৫-১০% ছাত্র হঠাৎ হারিয়ে যায়। অভিভাবক কিছু বলেন না। আপনি জানতে পারেন যখন অনেক দেরি হয়ে গেছে।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>AI প্রতি ছাত্রের pattern (attendance↓, marks↓, fee delayed, assignment missing, Hifz stopped) বিশ্লেষণ করে "ঝুঁকি score" দেয়। High risk ছাত্রদের auto-flag — counselor contact করেন।</p>
+      </div>
+    </div>
+
+    <div class="callout"><strong>🧠 Data-driven:</strong> শুধু attendance না — marks trend, sabaq quality, guardian payment pattern — সব signal-এর সমন্বয়ে predict।</div>
+  </div>
+</article>
+
+<!-- FEATURE 31: অডিট লগ -->
+<article class="feature" style="--tint:#475569">
+  <div class="feat-head">
+    <span class="feat-num">31</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">🔍</div>
+      <div>
+        <div class="feat-title">অডিট লগ <span class="en">· Audit Log</span></div>
+        <div class="feat-sub">কে কী করেছে — সবকিছুর signature</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>কেউ একটি ছাত্রের marks পরিবর্তন করেছে, ফি receipt ছিঁড়েছে, কিন্তু কে? কখন? প্রমাণ নেই।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>প্রতিটি critical action — create, update, delete — timestamp, IP, user সহ log। পরে কেউ বদলাতে পারবে না। Tamper-proof।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- FEATURE 32: সেটিংস -->
+<article class="feature" style="--tint:#64748b">
+  <div class="feat-head">
+    <span class="feat-num">32</span>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="feat-icon">⚙️</div>
+      <div>
+        <div class="feat-title">সেটিংস <span class="en">· Settings</span></div>
+        <div class="feat-sub">School DNA — প্রথম দিনের configuration</div>
+      </div>
+    </div>
+  </div>
+  <div class="feat-body">
+    <div class="ps-grid">
+      <div class="ps problem">
+        <h4>⚠️ সমস্যা</h4>
+        <p>প্রতিটি প্রতিষ্ঠানের নিজস্ব logo, seal, school name (বাংলা+ইংরেজি+আরবি), EIIN, address, session pattern, grade rubric — এসব প্রতিবার টাইপ করতে কষ্ট।</p>
+      </div>
+      <div class="ps solution">
+        <h4>✅ সমাধান</h4>
+        <p>একবার settings-এ সব set করুন — সার্টিফিকেট, রিপোর্ট, invoice, marksheet — সব auto এই branding নেবে। <strong>2FA</strong> enable করুন principal account-এ।</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- ==================== CLOSING ==================== -->
+
+<section class="section-cover" style="background:linear-gradient(135deg,#0f172a,#1e1b4b);page-break-before:always;page-break-after:avoid">
+  <div class="part">Epilogue</div>
+  <h2>এই software-টি আপনার ১ জন <br/>full-time assistant-এর সমান</h2>
+  <p>প্রতি মাসে ৳২৫,০০০ বেতনের সহকারীর কাজ, ৯০% কম খরচে — কিন্তু অনেক বেশি accuracy ও speed-এ।</p>
+</section>
+
+<div class="page">
+
+<section style="padding:24px;background:linear-gradient(135deg,#f0fdf4,#dbeafe);border-radius:16px;margin:20px 0">
+  <h2 style="font-size:20pt;font-weight:800;margin-bottom:16px;letter-spacing:-0.02em">🌟 প্রথম সপ্তাহের checklist</h2>
+  <ol class="steps" style="font-size:11pt">
+    <li><strong>Day 1:</strong> Settings → School info, logo, EIIN। Academic year active করুন।</li>
+    <li><strong>Day 2:</strong> ক্লাস + সেকশন + বিষয় define করুন। Subject teacher assign।</li>
+    <li><strong>Day 3:</strong> Staff এক এক করে যোগ করুন (বা Excel import)।</li>
+    <li><strong>Day 4:</strong> Students — Excel import করুন (১০০+ student এক মিনিটে)।</li>
+    <li><strong>Day 5:</strong> Fee heads verify, প্রথম invoice generate। Payment gateway connect (bKash/Nagad)।</li>
+    <li><strong>Day 6:</strong> শিক্ষকদের ১ ঘণ্টা training — mobile থেকে attendance, marks entry।</li>
+    <li><strong>Day 7:</strong> অভিভাবকদের portal link পাঠান। প্রথম notice publish করুন।</li>
+  </ol>
+</section>
+
+<section class="foot">
+  <div class="mark">Muhius Sunnah</div>
+  <div style="margin-bottom:8px"><strong>বাংলাদেশের সেরা মাদ্রাসা ও স্কুল ম্যানেজমেন্ট সফটওয়্যার</strong></div>
+  <div>🕌 ৩২টি feature · ১৪ ধরনের ইউজার রোল · ৪টি ভাষা · ৩ স্তরের নিরাপত্তা</div>
+  <div style="margin-top:10px">© ২০২৬ Muhius Sunnah · <strong>muhiussunnah.app</strong> · ☎ +৮৮০ ১৭৬৭-৬৮২৩৮১</div>
+  <div style="margin-top:6px;font-size:8pt;opacity:0.6">এই গাইডটি Principal ও Administrators-এর জন্য তৈরি। কোনো তৃতীয় ব্যক্তির সঙ্গে শেয়ার করার আগে নিজ প্রতিষ্ঠানের নীতি মেনে চলুন।</div>
+</section>
+
+</div>
+</body>
+</html>

@@ -15,10 +15,12 @@ export default async function SchoolSettingsPage({ params }: PageProps) {
   const membership = await requireRole(schoolSlug, ADMIN_ROLES);
 
   const supabase = await supabaseServer();
+  // Select the * so new columns (logo_url, display_name_locale from migration
+  // 0018) are included if present; unmigrated projects fall back gracefully.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase as any)
     .from("schools")
-    .select("slug, name_bn, name_en, eiin, type, address, phone, email, website, subscription_status, trial_ends_at")
+    .select("*")
     .eq("id", membership.school_id)
     .single();
 
@@ -27,6 +29,7 @@ export default async function SchoolSettingsPage({ params }: PageProps) {
     type: "school" | "madrasa" | "both"; address: string | null; phone: string | null;
     email: string | null; website: string | null;
     subscription_status: string; trial_ends_at: string | null;
+    logo_url?: string | null; display_name_locale?: "bn" | "en" | null;
   } | null;
 
   if (!school) return null;

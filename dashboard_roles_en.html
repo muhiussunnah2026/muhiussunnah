@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Muhius Sunnah — User Access Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --primary:      #7c5cff;
+    --primary-dark: #5b3fd6;
+    --accent:       #22d3ee;
+    --bg:           #f9fafb;
+    --surface:      #ffffff;
+    --ink:          #0f172a;
+    --ink-soft:     #475569;
+    --ink-muted:    #94a3b8;
+    --border:       #e2e8f0;
+    --border-soft:  #eef0f4;
+    --success:      #16a34a;
+    --danger:       #dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    font-size: 11pt;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  @page { size: A4; margin: 14mm 12mm; }
+  .page { max-width: 190mm; margin: 0 auto; }
+
+  /* ============ HERO ============ */
+  .hero {
+    position: relative;
+    padding: 28px 30px 34px;
+    margin: 0 0 22px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #7c5cff 0%, #5b3fd6 40%, #22d3ee 100%);
+    color: #fff;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,255,255,0.25) 0, transparent 35%),
+      radial-gradient(circle at 85% 80%, rgba(255,255,255,0.15) 0, transparent 40%);
+    pointer-events: none;
+  }
+  .brand-row { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; position: relative; }
+  .brand-mark {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(255,255,255,0.2); backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 800;
+    border: 1px solid rgba(255,255,255,0.35);
+  }
+  .brand-text { font-size: 14pt; font-weight: 800; letter-spacing: -0.02em; }
+  .brand-sub { font-size: 9pt; opacity: 0.85; letter-spacing: 0.02em; }
+  .hero h1 {
+    position: relative;
+    font-size: 26pt; font-weight: 800; letter-spacing: -0.02em;
+    line-height: 1.1; margin-bottom: 6px;
+  }
+  .hero p { position: relative; font-size: 11pt; opacity: 0.92; max-width: 520px; }
+  .hero-chip {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 16px; padding: 5px 12px; border-radius: 999px;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.35);
+    backdrop-filter: blur(6px);
+    font-size: 9pt; font-weight: 600;
+  }
+  /* ============ INTRO BLOCK ============ */
+  .intro {
+    margin: 0 0 22px; padding: 16px 18px;
+    border: 1px solid var(--border); border-radius: 14px; background: var(--surface);
+    display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center;
+  }
+  .intro-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .intro p { color: var(--ink-soft); line-height: 1.6; }
+  .intro strong { color: var(--ink); }
+
+  /* ============ SECTION HEADER ============ */
+  .section-title {
+    margin: 18px 0 12px; padding: 0 4px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13pt; font-weight: 800; letter-spacing: -0.01em;
+  }
+  .section-title .num {
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    background-clip: text; -webkit-background-clip: text; color: transparent;
+    font-size: 18pt;
+  }
+
+  /* ============ ROLE CARD ============ */
+  .role {
+    --tint: var(--primary);
+    position: relative; margin: 0 0 14px; padding: 0;
+    border: 1px solid var(--border); border-radius: 16px;
+    background: var(--surface); overflow: hidden;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .role-stripe {
+    height: 5px;
+    background: linear-gradient(90deg, var(--tint), color-mix(in srgb, var(--tint) 50%, #fff));
+  }
+  .role-head {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 14px;
+    align-items: center; padding: 14px 16px 10px;
+  }
+  .role-badge {
+    width: 42px; height: 42px; border-radius: 12px;
+    background: color-mix(in srgb, var(--tint) 12%, #fff);
+    color: var(--tint);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    border: 1px solid color-mix(in srgb, var(--tint) 30%, #fff);
+  }
+  .role-title { font-size: 13pt; font-weight: 800; letter-spacing: -0.01em; }
+  .role-title .en { color: var(--tint); font-weight: 700; }
+  .role-subtitle { font-size: 9pt; color: var(--ink-muted); margin-top: 1px; }
+  .sidebar-count {
+    padding: 4px 12px; border-radius: 999px;
+    background: color-mix(in srgb, var(--tint) 12%, #fff);
+    color: var(--tint);
+    border: 1px solid color-mix(in srgb, var(--tint) 25%, #fff);
+    font-size: 9pt; font-weight: 700; white-space: nowrap;
+  }
+  .role-meta {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 4px 16px 10px;
+  }
+  .role-meta .cell {
+    padding: 8px 12px; border-radius: 10px; background: var(--border-soft);
+    font-size: 9.5pt; line-height: 1.5;
+  }
+  .role-meta .cell strong {
+    display: block; font-size: 8pt; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--tint); margin-bottom: 3px;
+  }
+  /* Access table */
+  .access {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px; background: var(--border); border-top: 1px solid var(--border);
+  }
+  .access .col { background: #fff; padding: 12px 14px; }
+  .access h4 {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 9pt; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .access h4.ok  { color: var(--success); }
+  .access h4.no  { color: var(--danger); }
+  .access ul { list-style: none; padding: 0; }
+  .access li {
+    position: relative; padding: 3px 0 3px 18px;
+    font-size: 9.5pt; color: var(--ink-soft); line-height: 1.5;
+    page-break-inside: avoid;
+  }
+  .access li::before {
+    position: absolute; left: 0; top: 3px;
+    font-size: 10pt; font-weight: 700;
+  }
+  .access .col.ok li::before { content: "✓"; color: var(--success); }
+  .access .col.no li::before { content: "✕"; color: var(--danger); }
+
+  /* Admin highlight */
+  .admin-highlight {
+    padding: 14px 16px; margin: 0 16px 14px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 1px solid #fcd34d;
+    color: #78350f; font-weight: 600; font-size: 10pt;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  /* ============ SECURITY SECTION ============ */
+  .security {
+    margin: 22px 0; padding: 22px 24px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #fff; position: relative; overflow: hidden;
+  }
+  .security::before {
+    content: "🛡️"; position: absolute;
+    top: -20px; right: -10px; font-size: 120px; opacity: 0.08;
+  }
+  .security h2 { font-size: 16pt; font-weight: 800; margin-bottom: 14px; letter-spacing: -0.01em; }
+  .security-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .security-tier {
+    padding: 12px 14px; border-radius: 12px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+  }
+  .security-tier .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    background: rgba(124,92,255,0.25); color: #c4b5fd;
+    font-size: 8pt; font-weight: 700; letter-spacing: 0.03em; margin-bottom: 6px;
+  }
+  .security-tier h3 { font-size: 10.5pt; font-weight: 700; margin-bottom: 4px; }
+  .security-tier p { font-size: 9pt; color: #cbd5e1; line-height: 1.45; }
+  .security-result {
+    padding: 12px 14px; border-radius: 10px;
+    background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.3);
+    color: #a5f3fc; font-size: 10pt; font-weight: 600;
+  }
+
+  /* ============ SUMMARY TABLE ============ */
+  .summary { margin: 22px 0; }
+  .summary h2 {
+    font-size: 15pt; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .summary table {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    border-radius: 14px; overflow: hidden;
+    border: 1px solid var(--border); background: var(--surface); font-size: 10pt;
+  }
+  .summary th {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff; text-align: start; padding: 10px 14px;
+    font-weight: 700; letter-spacing: 0.02em; font-size: 9.5pt;
+  }
+  .summary td { padding: 9px 14px; border-top: 1px solid var(--border-soft); vertical-align: middle; }
+  .summary tr:nth-child(even) td { background: #fafbfc; }
+  .summary .role-name { font-weight: 700; color: var(--ink); }
+  .summary .pill {
+    display: inline-block; padding: 2px 9px; border-radius: 999px;
+    font-size: 9pt; font-weight: 700;
+  }
+  .pill-full   { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+  .pill-high   { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+  .pill-med    { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; }
+  .pill-low    { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+
+  /* ============ FOOTER ============ */
+  .footer {
+    margin: 28px 0 0; padding: 18px;
+    border-top: 2px solid var(--border);
+    text-align: center; color: var(--ink-muted); font-size: 9pt;
+  }
+  .footer strong { color: var(--ink); }
+  .footer .mark {
+    display: inline-block; padding: 4px 14px; border-radius: 999px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff; font-weight: 700; font-size: 9pt; margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="brand-row">
+    <div class="brand-mark">م</div>
+    <div>
+      <div class="brand-text">Muhius <span style="opacity:0.85">Sunnah</span></div>
+      <div class="brand-sub">Modern Madrasa &amp; School Management</div>
+    </div>
+  </div>
+  <h1>User Access Guide</h1>
+  <p>A complete reference for Principals &amp; Administrators — detailing what each role can see, what they cannot, and why that matters.</p>
+  <div class="hero-chip">📘 14 roles · 32 features · 3 layers of security</div>
+</section>
+
+<!-- INTRO -->
+<div class="intro">
+  <div class="intro-icon">ℹ️</div>
+  <p>
+    The system defines <strong>14 distinct user roles</strong>. Each role is granted access only to what it needs for its duties — a design decision rooted in staff privacy, student safety, and financial integrity. The admin sidebar exposes <strong>32 features</strong> in total; roles see a curated subset of these.
+  </p>
+</div>
+
+<!-- SECTION 1 -->
+<div class="section-title"><span class="num">01</span> Administrative Leadership</div>
+
+<article class="role" style="--tint:#d97706;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🏫</div>
+    <div>
+      <div class="role-title"><span class="en">SCHOOL_ADMIN</span> — Principal</div>
+      <div class="role-subtitle">Head of Institution, Principal, Mohtamim</div>
+    </div>
+    <div class="sidebar-count">32 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>Principal, Head of Institution, Mohtamim</div>
+    <div class="cell"><strong>Core authority</strong>Complete ownership of the institution — no restrictions.</div>
+  </div>
+  <div class="admin-highlight">
+    👑 <span>Full access: students, staff, classes, exams, fees, expenses, payroll, investments, reports, AI insights, settings, Audit Log, 2FA — everything.</span>
+  </div>
+</article>
+
+<article class="role" style="--tint:#2563eb;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🎓</div>
+    <div>
+      <div class="role-title"><span class="en">VICE_PRINCIPAL</span> — Assistant Principal</div>
+      <div class="role-subtitle">Vice Principal, Assistant Principal, Naib Mohtamim</div>
+    </div>
+    <div class="sidebar-count">31 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>Vice Principal, Assistant Principal, Naib Mohtamim</div>
+    <div class="cell"><strong>Core authority</strong>Near-principal authority with certain sensitive options locked.</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ Can access</h4>
+      <ul>
+        <li>Full academic operations</li>
+        <li>Financial viewing and approval</li>
+        <li>All reports and AI insights</li>
+        <li>Staff management</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ Cannot access</h4>
+      <ul>
+        <li>Super-admin setting changes</li>
+        <li>Deleting the institution</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#16a34a;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🏢</div>
+    <div>
+      <div class="role-title"><span class="en">BRANCH_ADMIN</span> — Branch Head <span style="color:#64748b;font-weight:500;font-size:9pt;">(Scale plan)</span></div>
+      <div class="role-subtitle">Principal of a branch in a multi-branch institution</div>
+    </div>
+    <div class="sidebar-count">~30 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>Head of a single branch in a multi-branch institution</div>
+    <div class="cell"><strong>Core authority</strong>Full authority inside their branch only — isolated from other branches.</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ Can access</h4>
+      <ul>
+        <li>All data within their own branch</li>
+        <li>Branch-level reports</li>
+        <li>Students, staff, fees, expenses — branch-scoped</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ Cannot access</h4>
+      <ul>
+        <li>Data from other branches</li>
+        <li>Institution-wide consolidated reports</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<!-- SECTION 2 -->
+<div class="section-title"><span class="num">02</span> Finance Team</div>
+
+<article class="role" style="--tint:#9333ea;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">💰</div>
+    <div>
+      <div class="role-title"><span class="en">ACCOUNTANT</span> — Finance Officer</div>
+      <div class="role-subtitle">Accountant, Cashier, Bookkeeper</div>
+    </div>
+    <div class="sidebar-count">~12 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>Accountant, Cashier, Bookkeeper</div>
+    <div class="cell"><strong>Core authority</strong>Financial operations only — no access to academic data.</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ Can access</h4>
+      <ul>
+        <li>Dashboard (finance view)</li>
+        <li>Fee management</li>
+        <li>Payment records</li>
+        <li>Expenses, donations, investments</li>
+        <li>Payroll</li>
+        <li>Scholarships</li>
+        <li>Finance reports</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ Cannot access</h4>
+      <ul>
+        <li>Student profile details</li>
+        <li>Exam marks entry</li>
+        <li>Assignments</li>
+        <li>Online classes</li>
+        <li>Certificate issuance</li>
+        <li>Messaging</li>
+        <li>Audit Log / Settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<!-- SECTION 3 -->
+<div class="section-title"><span class="num">03</span> Teaching Staff</div>
+
+<article class="role" style="--tint:#0d9488;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">👨‍🏫</div>
+    <div>
+      <div class="role-title"><span class="en">CLASS_TEACHER</span> — Class Teacher</div>
+      <div class="role-subtitle">Teacher responsible for a specific class · Teacher Dashboard</div>
+    </div>
+    <div class="sidebar-count">~10 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>Teacher responsible for a specific class</div>
+    <div class="cell"><strong>Core authority</strong>Everything scoped to their own class.</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ Can access</h4>
+      <ul>
+        <li>Student roster for their class</li>
+        <li>Daily attendance</li>
+        <li>Marks entry for their class</li>
+        <li>Assigning homework</li>
+        <li>Class-level notices</li>
+        <li>Direct messaging with guardians</li>
+        <li>Scheduling online classes</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ Cannot access</h4>
+      <ul>
+        <li>Other classes' students</li>
+        <li>School-wide reports</li>
+        <li>Fees, payments, expenses</li>
+        <li>Payroll, investments</li>
+        <li>Staff management</li>
+        <li>Settings / Audit Log</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#6366f1;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">📖</div>
+    <div>
+      <div class="role-title"><span class="en">SUBJECT_TEACHER</span> — Subject Teacher</div>
+      <div class="role-subtitle">Teacher of a specific subject</div>
+    </div>
+    <div class="sidebar-count">~7 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>Teacher of a specific subject</div>
+    <div class="cell"><strong>Core authority</strong>Scoped to the subject(s) they are assigned.</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ Can access</h4>
+      <ul>
+        <li>Class list for their subject</li>
+        <li>Marks of students in that class</li>
+        <li>Subject-level attendance</li>
+        <li>Subject-level assignments</li>
+        <li>Online classes for their subject</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ Cannot access</h4>
+      <ul>
+        <li>Student fees / payments</li>
+        <li>Marks for other subjects</li>
+        <li>Staff list / salary</li>
+        <li>Admin settings</li>
+        <li>Reports section</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#059669;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🕌</div>
+    <div>
+      <div class="role-title"><span class="en">MADRASA_USTADH</span> — Madrasa Teacher</div>
+      <div class="role-subtitle">Qur'an and religious studies teacher</div>
+    </div>
+    <div class="sidebar-count">~12 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>Qur'an / dīniyyāt teacher at a madrasa</div>
+    <div class="cell"><strong>Core authority</strong>Hifz, sabaq, kitab plus standard teacher access.</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ Special modules</h4>
+      <ul>
+        <li>Hifz (tracking para / juz progress)</li>
+        <li>Daily sabaq entry</li>
+        <li>Kitab progress</li>
+        <li>Madrasa-specific attendance</li>
+        <li>Sanad / Ijaza tracking</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ Cannot access</h4>
+      <ul>
+        <li>Financial modules (fees, expenses, payroll)</li>
+        <li>Staff management</li>
+        <li>Admin settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<!-- SECTION 4 -->
+<div class="section-title"><span class="num">04</span> Operational Staff</div>
+
+<article class="role" style="--tint:#d97706;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">📚</div>
+    <div>
+      <div class="role-title"><span class="en">LIBRARIAN</span> — Librarian</div>
+      <div class="role-subtitle">Library operations lead</div>
+    </div>
+    <div class="sidebar-count">~3 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>Library operations lead</div>
+    <div class="cell"><strong>Core authority</strong>Library module only.</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ Can access</h4>
+      <ul>
+        <li>Book catalog</li>
+        <li>Issue / Return</li>
+        <li>Fine calculation</li>
+        <li>Reading statistics</li>
+        <li>Student reading history</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ Cannot access</h4>
+      <ul>
+        <li>Academic records</li>
+        <li>Marks / Exams</li>
+        <li>Fees / Payments</li>
+        <li>Staff / Payroll</li>
+        <li>Settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#ea580c;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🚌</div>
+    <div>
+      <div class="role-title"><span class="en">TRANSPORT_MANAGER</span> — Transport Manager</div>
+      <div class="role-subtitle">Bus / transport operations team</div>
+    </div>
+    <div class="sidebar-count">~4 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>Bus / transport operations team</div>
+    <div class="cell"><strong>Core authority</strong>Transport operations only.</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ Can access</h4>
+      <ul>
+        <li>Bus route management</li>
+        <li>Driver assignments</li>
+        <li>Pickup / drop lists</li>
+        <li>Transport fee tracking</li>
+        <li>Vehicle maintenance</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ Cannot access</h4>
+      <ul>
+        <li>Student marks</li>
+        <li>General fees / payments</li>
+        <li>Academic records</li>
+        <li>Staff management</li>
+        <li>Settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#0891b2;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🏠</div>
+    <div>
+      <div class="role-title"><span class="en">HOSTEL_WARDEN</span> — Hostel Warden</div>
+      <div class="role-subtitle">In charge of residential students</div>
+    </div>
+    <div class="sidebar-count">~5 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>In charge of residential students</div>
+    <div class="cell"><strong>Core authority</strong>Hostel operations only.</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ Can access</h4>
+      <ul>
+        <li>Room allocation</li>
+        <li>Resident list</li>
+        <li>Meal attendance</li>
+        <li>Leave forms</li>
+        <li>Hostel fee records</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ Cannot access</h4>
+      <ul>
+        <li>Academic marks</li>
+        <li>General fees / payroll</li>
+        <li>Teacher data</li>
+        <li>Reports</li>
+        <li>Settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#db2777;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🍽️</div>
+    <div>
+      <div class="role-title"><span class="en">CANTEEN_MANAGER</span> — Canteen Manager</div>
+      <div class="role-subtitle">School canteen operator</div>
+    </div>
+    <div class="sidebar-count">~3 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>School canteen operator</div>
+    <div class="cell"><strong>Core authority</strong>Canteen and wallet only.</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ Can access</h4>
+      <ul>
+        <li>Menu management</li>
+        <li>Daily sales</li>
+        <li>Student wallet top-ups</li>
+        <li>Stock tracking</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ Cannot access</h4>
+      <ul>
+        <li>Academic data</li>
+        <li>Main school finance</li>
+        <li>Staff management</li>
+        <li>Settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#65a30d;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">🧠</div>
+    <div>
+      <div class="role-title"><span class="en">COUNSELOR</span> — Counselor</div>
+      <div class="role-subtitle">School counselor, mentor, student-welfare officer</div>
+    </div>
+    <div class="sidebar-count">~6 / 32</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>School counselor, mentor, student-welfare officer</div>
+    <div class="cell"><strong>Core authority</strong>Student welfare — private, encrypted logs.</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ Can access</h4>
+      <ul>
+        <li>Student profile (basic)</li>
+        <li>Counseling session logs</li>
+        <li>AI dropout-risk alerts</li>
+        <li>Private notes (encrypted)</li>
+        <li>Student attendance patterns</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ Cannot access</h4>
+      <ul>
+        <li>Financial records</li>
+        <li>Teacher payroll</li>
+        <li>Exam marks</li>
+        <li>Admin settings</li>
+        <li>Marks entry</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<!-- SECTION 5 -->
+<div class="section-title"><span class="num">05</span> Portal Users — Students &amp; Parents</div>
+
+<article class="role" style="--tint:#0284c7;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">👨‍🎓</div>
+    <div>
+      <div class="role-title"><span class="en">STUDENT</span> — Student</div>
+      <div class="role-subtitle">Student Portal Dashboard · no admin sidebar access</div>
+    </div>
+    <div class="sidebar-count">Portal</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>Every enrolled student</div>
+    <div class="cell"><strong>Core authority</strong>Their own data only, inside a dedicated Portal UI.</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ Visible in portal</h4>
+      <ul>
+        <li>Their own profile</li>
+        <li>Their own marks / report card</li>
+        <li>Their own attendance</li>
+        <li>Fee status + online payment</li>
+        <li>Assignment submission</li>
+        <li>Joining online classes</li>
+        <li>Notice board</li>
+        <li>Hifz progress (madrasa)</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ Not visible</h4>
+      <ul>
+        <li>Data of other students</li>
+        <li>Staff / teacher salary</li>
+        <li>Assignments of other classes</li>
+        <li>School finance</li>
+        <li>Admin panel (anything at all)</li>
+        <li>Settings</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<article class="role" style="--tint:#e11d48;">
+  <div class="role-stripe"></div>
+  <div class="role-head">
+    <div class="role-badge">👨‍👩‍👧</div>
+    <div>
+      <div class="role-title"><span class="en">PARENT</span> — Parent / Guardian</div>
+      <div class="role-subtitle">Parent Portal · no admin sidebar access</div>
+    </div>
+    <div class="sidebar-count">Portal</div>
+  </div>
+  <div class="role-meta">
+    <div class="cell"><strong>Given to</strong>Parents / guardians of enrolled students</div>
+    <div class="cell"><strong>Core authority</strong>Their own child's data only.</div>
+  </div>
+  <div class="access">
+    <div class="col ok">
+      <h4 class="ok">✓ For their own child</h4>
+      <ul>
+        <li>Child's profile</li>
+        <li>Report card download</li>
+        <li>Attendance history</li>
+        <li>Fee status + online payment</li>
+        <li>Direct chat with teacher</li>
+        <li>Notice board</li>
+        <li>Hifz / sabaq progress</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4 class="no">✕ Not visible</h4>
+      <ul>
+        <li>Data of other students</li>
+        <li>School finance</li>
+        <li>Staff salary</li>
+        <li>Admin tools</li>
+        <li>Exam question papers</li>
+        <li>Counseling logs</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<!-- SECURITY -->
+<section class="security">
+  <h2>🛡️ Three layers of system security</h2>
+  <div class="security-grid">
+    <div class="security-tier">
+      <span class="tag">Layer 01</span>
+      <h3>Database layer</h3>
+      <p>PostgreSQL Row-Level Security — even bypassing the API cannot leak data.</p>
+    </div>
+    <div class="security-tier">
+      <span class="tag">Layer 02</span>
+      <h3>Server layer</h3>
+      <p>Every action passes through a <span style="font-family:'JetBrains Mono',monospace">requirePermission()</span> check.</p>
+    </div>
+    <div class="security-tier">
+      <span class="tag">Layer 03</span>
+      <h3>UI layer</h3>
+      <p>Buttons and links are hidden from users who do not have permission to use them.</p>
+    </div>
+  </div>
+  <div class="security-result">
+    ✓ Result: An accountant can never view or change exam marks — even by manipulating the URL.
+  </div>
+</section>
+
+<!-- SUMMARY -->
+<section class="summary">
+  <h2>📊 Quick reference</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Role</th>
+        <th>Role (short)</th>
+        <th>Sidebar</th>
+        <th>Dashboard</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td class="role-name">SCHOOL_ADMIN</td><td>Principal</td><td><span class="pill pill-full">32 / 32</span></td><td>Admin</td></tr>
+      <tr><td>2</td><td class="role-name">VICE_PRINCIPAL</td><td>Asst. Principal</td><td><span class="pill pill-full">31 / 32</span></td><td>Admin</td></tr>
+      <tr><td>3</td><td class="role-name">BRANCH_ADMIN</td><td>Branch Head</td><td><span class="pill pill-high">~30 / 32</span></td><td>Admin</td></tr>
+      <tr><td>4</td><td class="role-name">ACCOUNTANT</td><td>Finance Officer</td><td><span class="pill pill-med">~12 / 32</span></td><td>Admin (finance)</td></tr>
+      <tr><td>5</td><td class="role-name">CLASS_TEACHER</td><td>Class Teacher</td><td><span class="pill pill-med">~10 / 32</span></td><td>Teacher</td></tr>
+      <tr><td>6</td><td class="role-name">SUBJECT_TEACHER</td><td>Subject Teacher</td><td><span class="pill pill-low">~7 / 32</span></td><td>Teacher</td></tr>
+      <tr><td>7</td><td class="role-name">MADRASA_USTADH</td><td>Madrasa Teacher</td><td><span class="pill pill-med">~12 / 32</span></td><td>Teacher</td></tr>
+      <tr><td>8</td><td class="role-name">LIBRARIAN</td><td>Librarian</td><td><span class="pill pill-low">~3 / 32</span></td><td>Admin (library)</td></tr>
+      <tr><td>9</td><td class="role-name">TRANSPORT_MANAGER</td><td>Transport Mgr.</td><td><span class="pill pill-low">~4 / 32</span></td><td>Admin (transport)</td></tr>
+      <tr><td>10</td><td class="role-name">HOSTEL_WARDEN</td><td>Hostel Warden</td><td><span class="pill pill-low">~5 / 32</span></td><td>Admin (hostel)</td></tr>
+      <tr><td>11</td><td class="role-name">CANTEEN_MANAGER</td><td>Canteen Mgr.</td><td><span class="pill pill-low">~3 / 32</span></td><td>Admin (canteen)</td></tr>
+      <tr><td>12</td><td class="role-name">COUNSELOR</td><td>Counselor</td><td><span class="pill pill-low">~6 / 32</span></td><td>Admin (welfare)</td></tr>
+      <tr><td>13</td><td class="role-name">STUDENT</td><td>Student</td><td><span class="pill pill-low">Portal</span></td><td>Student Portal</td></tr>
+      <tr><td>14</td><td class="role-name">PARENT</td><td>Parent</td><td><span class="pill pill-low">Portal</span></td><td>Parent Portal</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="mark">Muhius Sunnah</div>
+  <div>The premier madrasa &amp; school management platform for Bangladesh</div>
+  <div style="margin-top:6px;">© 2026 Muhius Sunnah · <strong>muhiussunnah.app</strong></div>
+</footer>
+
+</div>
+</body>
+</html>
