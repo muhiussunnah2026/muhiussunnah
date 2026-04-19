@@ -65,12 +65,38 @@ export async function signInAction(
   }
 
   const supabase = await supabaseServer();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { data: authData, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { ok: false, error: translateAuthError(error.message) };
 
-  const next = (formData.get("next") as string | null) || "/";
+  // Resolve destination: if a `next` was supplied (e.g. came from /login?next=/school/.../admin)
+  // use it, otherwise look up the user's primary school and send them to its admin dashboard.
+  // If the user has no school membership (super admin or edge case) fall back to /.
+  const rawNext = (formData.get("next") as string | null)?.trim();
+  let destination = rawNext && rawNext !== "/" ? rawNext : "";
+
+  if (!destination && authData.user) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const admin = supabaseAdmin() as any;
+    const { data: membership } = await admin
+      .from("school_users")
+      .select("school_id, role, schools(slug)")
+      .eq("user_id", authData.user.id)
+      .eq("status", "active")
+      .limit(1)
+      .maybeSingle();
+
+    const slug = membership?.schools?.slug as string | undefined;
+    if (slug) {
+      // Route by role: teachers and students get their portals, admins get admin.
+      const role = membership?.role as string | undefined;
+      if (role === "TEACHER") destination = `/school/${slug}/teacher`;
+      else if (role === "STUDENT" || role === "GUARDIAN") destination = `/school/${slug}/portal`;
+      else destination = `/school/${slug}/admin`;
+    }
+  }
+
   revalidatePath("/", "layout");
-  redirect(next);
+  redirect(destination || "/");
 }
 
 // ---------------------------------------------------------------------------
