@@ -75,7 +75,14 @@ export function NewStudentForm({ schoolSlug, classes }: { schoolSlug: string; cl
           </Label>
           <Select value={classId} onValueChange={(v) => setClassId(v ?? "")}>
             <SelectTrigger id="class_id">
-              <SelectValue placeholder="ক্লাস বাছাই করুন" />
+              <SelectValue placeholder="ক্লাস বাছাই করুন">
+                {(v: unknown) => {
+                  const id = typeof v === "string" ? v : "";
+                  const c = classes.find((x) => x.id === id);
+                  if (!c) return "ক্লাস বাছাই করুন";
+                  return c.name_bn + (c.name_en ? ` (${c.name_en})` : "");
+                }}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {classes.map((c) => (
@@ -104,7 +111,13 @@ export function NewStudentForm({ schoolSlug, classes }: { schoolSlug: string; cl
             </Label>
             <Select value={sectionId} onValueChange={(v) => setSectionId(v ?? "")}>
               <SelectTrigger id="section_picker">
-                <SelectValue placeholder="সেকশন বাছাই করুন" />
+                <SelectValue placeholder="সেকশন বাছাই করুন">
+                  {(v: unknown) => {
+                    const id = typeof v === "string" ? v : "";
+                    const s = selectedClass?.sections.find((x) => x.id === id);
+                    return s?.name ?? "সেকশন বাছাই করুন";
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {selectedClass?.sections.map((s) => (

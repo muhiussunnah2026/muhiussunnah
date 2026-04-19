@@ -76,7 +76,25 @@ export function StudentsFilters({ schoolSlug, classes, initial }: Props) {
 
       <Select value={currentValue} onValueChange={updateFilter}>
         <SelectTrigger className="h-10 w-60">
-          <SelectValue />
+          <SelectValue placeholder="সকল ক্লাস">
+            {(v: unknown) => {
+              const value = typeof v === "string" ? v : "";
+              if (!value || value === "all") return "সকল ক্লাস";
+              if (value.startsWith("class:")) {
+                const id = value.slice("class:".length);
+                const c = classes.find((x) => x.id === id);
+                return c ? `📚 ${c.name_bn}` : "সকল ক্লাস";
+              }
+              if (value.startsWith("section:")) {
+                const id = value.slice("section:".length);
+                for (const c of classes) {
+                  const s = c.sections.find((x) => x.id === id);
+                  if (s) return `${c.name_bn} — সেকশন ${s.name}`;
+                }
+              }
+              return "সকল ক্লাস";
+            }}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">সকল ক্লাস</SelectItem>
