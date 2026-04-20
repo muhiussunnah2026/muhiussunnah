@@ -28,6 +28,7 @@ const studentSchema = z.object({
   name_ar: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
   roll: z.coerce.number().int().min(0).max(99999).optional(),
   section_id: z.string().uuid().optional().or(z.literal("").transform(() => undefined)),
+  class_id: z.string().uuid().optional().or(z.literal("").transform(() => undefined)),
   branch_id: z.string().uuid().optional().or(z.literal("").transform(() => undefined)),
   admission_date: z.string().optional().or(z.literal("").transform(() => undefined)),
   date_of_birth: z.string().optional().or(z.literal("").transform(() => undefined)),
@@ -40,6 +41,9 @@ const studentSchema = z.object({
   guardian_relation: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
   mother_name: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
   mother_phone: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
+  extra_guardian_name: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
+  extra_guardian_phone: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
+  extra_guardian_relation: z.string().trim().max(100).optional().or(z.literal("").transform(() => undefined)),
   address_present: z.string().trim().max(500).optional().or(z.literal("").transform(() => undefined)),
   address_permanent: z.string().trim().max(500).optional().or(z.literal("").transform(() => undefined)),
   previous_school: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
@@ -83,6 +87,33 @@ export async function addStudentAction(
   const supabase = await supabaseServer();
   const code = parsed.student_code ?? (await nextStudentCode(auth.active.school_id));
 
+  // Resolve section_id. If the form didn't pick one explicitly, fall back to
+  // the first section of the chosen class. If the class somehow has no
+  // sections (legacy / race), create a default "ক" section on the fly so
+  // enrollment never blocks on admin plumbing.
+  let resolvedSectionId: string | null = parsed.section_id ?? null;
+  if (!resolvedSectionId && parsed.class_id) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: firstSection } = await (supabase as any)
+      .from("sections")
+      .select("id")
+      .eq("class_id", parsed.class_id)
+      .order("name", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (firstSection?.id) {
+      resolvedSectionId = firstSection.id as string;
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: created } = await (supabase as any)
+        .from("sections")
+        .insert({ class_id: parsed.class_id, name: "ক", capacity: null })
+        .select("id")
+        .single();
+      resolvedSectionId = (created?.id as string) ?? null;
+    }
+  }
+
   // Persist photo if the form captured one (data URL from camera/file upload).
   const photoUrl =
     parsed.photo_data_url && parsed.photo_data_url.startsWith("data:")
@@ -102,7 +133,7 @@ export async function addStudentAction(
     name_en: parsed.name_en ?? null,
     name_ar: parsed.name_ar ?? null,
     roll: parsed.roll ?? null,
-    section_id: parsed.section_id ?? null,
+    section_id: resolvedSectionId,
     admission_date: parsed.admission_date ?? null,
     date_of_birth: parsed.date_of_birth ?? null,
     gender: parsed.gender ?? null,
@@ -167,6 +198,21 @@ export async function addStudentAction(
       phone: parsed.mother_phone ?? null,
       relation: "mother",
       is_primary: parsed.guardian_relation === "mother",
+    });
+  }
+
+  // Extra guardian — for children staying with uncles / aunts / grandparents
+  // when both parents are not the primary caregiver. Relation is free text
+  // so the admin can capture culturally-specific roles (চাচা, মামা, ফুপা,
+  // দাদা, নানা, খালা, etc.).
+  if (parsed.extra_guardian_name || parsed.extra_guardian_phone) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from("student_guardians").insert({
+      student_id: studentRow.id,
+      name_bn: parsed.extra_guardian_name ?? "অভিভাবক",
+      phone: parsed.extra_guardian_phone ?? null,
+      relation: parsed.extra_guardian_relation ?? "guardian",
+      is_primary: false,
     });
   }
 

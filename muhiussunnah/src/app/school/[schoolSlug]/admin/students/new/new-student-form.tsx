@@ -74,6 +74,9 @@ type FormValues = {
   guardian_phone: string;
   mother_name: string;
   mother_phone: string;
+  extra_guardian_name: string;
+  extra_guardian_phone: string;
+  extra_guardian_relation: string;
   address_present: string;
   address_permanent: string;
   previous_school: string;
@@ -99,6 +102,9 @@ const makeEmpty = (): FormValues => ({
   guardian_phone: "",
   mother_name: "",
   mother_phone: "",
+  extra_guardian_name: "",
+  extra_guardian_phone: "",
+  extra_guardian_relation: "",
   address_present: "",
   address_permanent: "",
   previous_school: "",
@@ -226,8 +232,11 @@ export function NewStudentForm({
     URL.revokeObjectURL(url);
   }
 
-  const canSubmit =
-    values.name_bn.trim().length >= 2 && classId !== "" && resolvedSectionId !== "";
+  // Submit only requires name + class. Section_id is auto-resolved on the
+  // server: if the class has sections we pick the first one, otherwise we
+  // create a default "ক" section on the fly. Admins never have to think
+  // about sections unless they actually use multiple.
+  const canSubmit = values.name_bn.trim().length >= 2 && classId !== "";
 
   return (
     <>
@@ -263,9 +272,27 @@ export function NewStudentForm({
           <option key={n} value={n} />
         ))}
       </datalist>
+      {/* Relation datalist — common Bangladeshi family roles. Not exhaustive
+          on purpose — admins can always type their own. */}
+      <datalist id="datalist-relations">
+        <option value="বাবা" />
+        <option value="মা" />
+        <option value="ভাই" />
+        <option value="বোন" />
+        <option value="চাচা" />
+        <option value="মামা" />
+        <option value="দাদা" />
+        <option value="নানা" />
+        <option value="খালা" />
+        <option value="ফুপা" />
+        <option value="দাদী" />
+        <option value="নানী" />
+        <option value="অভিভাবক" />
+      </datalist>
 
       <form action={action} className="grid gap-5">
         <input type="hidden" name="schoolSlug" value={schoolSlug} />
+        <input type="hidden" name="class_id" value={classId} />
         <input type="hidden" name="section_id" value={resolvedSectionId} />
         <input type="hidden" name="session_id" value={sessionId} />
         <input type="hidden" name="photo_data_url" value={photoDataUrl} />
@@ -628,6 +655,54 @@ export function NewStudentForm({
               </SelectContent>
             </Select>
             <input type="hidden" name="guardian_relation" value={values.guardian_relation} />
+          </div>
+        </fieldset>
+
+        {/* ========== Extra Guardian (when child lives with uncle/aunt/grandparent) ========== */}
+        <fieldset className="grid gap-4 md:grid-cols-3 border-t border-border/60 pt-5">
+          <legend className="col-span-full text-sm font-semibold text-muted-foreground">
+            🤝 অতিরিক্ত অভিভাবক <span className="text-[10px] font-normal text-muted-foreground/70">(ঐচ্ছিক)</span>
+          </legend>
+          <p className="col-span-full text-xs text-muted-foreground -mt-2">
+            💡 ছাত্র যদি মা-বাবার সাথে না থেকে অন্য কারো (চাচা / মামা / দাদা / খালা) কাছে থাকে, তাহলে এখানে যোগ করুন।
+          </p>
+
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel htmlFor="extra_guardian_name">অভিভাবকের নাম</FieldLabel>
+            <Input
+              id="extra_guardian_name"
+              name="extra_guardian_name"
+              value={values.extra_guardian_name}
+              onChange={(e) => set("extra_guardian_name", e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel htmlFor="extra_guardian_phone">মোবাইল</FieldLabel>
+            <Input
+              id="extra_guardian_phone"
+              name="extra_guardian_phone"
+              type="tel"
+              inputMode="tel"
+              value={values.extra_guardian_phone}
+              onChange={(e) => set("extra_guardian_phone", e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel htmlFor="extra_guardian_relation">সম্পর্ক</FieldLabel>
+            <Input
+              id="extra_guardian_relation"
+              name="extra_guardian_relation"
+              list="datalist-relations"
+              placeholder="যেমন: চাচা, মামা, অথবা লিখুন"
+              value={values.extra_guardian_relation}
+              onChange={(e) => set("extra_guardian_relation", e.target.value)}
+              autoComplete="off"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              সাজেশন থেকে বাছাই বা নিজে লিখুন (যেকোনো সম্পর্ক)।
+            </p>
           </div>
         </fieldset>
 
