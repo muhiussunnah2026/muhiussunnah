@@ -93,6 +93,14 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@supabase/ssr", "@supabase/supabase-js"],
 
   experimental: {
+    // Router cache stale-times. Next 15+ default is 30s for dynamic
+    // routes which makes every back-navigation look like a fresh fetch.
+    // Bumping to 3 minutes makes within-session navigation feel instant
+    // — e.g. visiting /students → /fees → back to /students is cached.
+    staleTimes: {
+      dynamic: 180,
+      static: 300,
+    },
     optimizePackageImports: [
       "lucide-react",
       "date-fns",

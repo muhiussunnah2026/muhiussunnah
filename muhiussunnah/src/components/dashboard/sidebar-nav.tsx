@@ -20,11 +20,10 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
 
   const isActive = (href: string): boolean => {
     if (!pathname) return false;
-    // Dashboard index (/school/xxx/admin) — match exactly, otherwise every
-    // sub-page would also "activate" the dashboard link.
-    const segments = href.split("/").filter(Boolean);
-    const isRoot = segments.length === 3 && segments[2] === "admin";
-    if (isRoot) return pathname === href;
+    // Dashboard home URLs (/admin, /teacher, /portal) must match
+    // exactly — otherwise any descendant would also "activate" them.
+    const rootHomes = new Set(["/admin", "/teacher", "/portal"]);
+    if (rootHomes.has(href)) return pathname === href;
     return pathname === href || pathname.startsWith(href + "/");
   };
 
@@ -36,6 +35,12 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
           <Link
             key={item.href}
             href={item.href}
+            // Force full prefetch on all sidebar links. By default Next 15+
+            // prefetches only the loading boundary for dynamic routes; forcing
+            // the full RSC payload means clicking a sidebar item after hover
+            // is instant (no server round-trip). Cost: a bit more upfront
+            // bandwidth when the sidebar is in view, which is negligible.
+            prefetch={true}
             aria-current={active ? "page" : undefined}
             className={cn(
               "group/nav relative flex items-center gap-2.5 rounded-xl border px-3.5 py-2.5 text-sm font-medium transition-all",

@@ -11,6 +11,8 @@ import { RegisterServiceWorker } from "@/components/pwa/register-sw";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { AnalyticsProvider } from "@/components/analytics/analytics-provider";
 import { WebVitalsReporter } from "@/components/analytics/web-vitals-reporter";
+import { NavProgress } from "@/components/nav-progress";
+import { Suspense } from "react";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { defaultLocale, isLocale, localeCookieName, localeDirection, type Locale } from "@/lib/i18n/config";
 import "./globals.css";
@@ -247,6 +249,9 @@ export default async function RootLayout({
           Skip to main content
         </a>
         <ThemeProvider>
+          <Suspense fallback={null}>
+            <NavProgress />
+          </Suspense>
           {children}
           <Toaster position="top-right" richColors closeButton />
           <InstallPrompt />
