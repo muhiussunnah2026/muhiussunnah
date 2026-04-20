@@ -20,42 +20,44 @@ export function AnimatedCounter({
   bangla?: boolean;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const [display, setDisplay] = useState(0);
-  const [started, setStarted] = useState(false);
+  // Default to the final value so SSR ships the correct number for SEO
+  // and LCP. Below-fold animation is cosmetic — it fires only when the
+  // element scrolls into view, and if the user never scrolls there they
+  // see the final value anyway.
+  const [display, setDisplay] = useState(value);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || started) return;
+    if (!el) return;
+    let animationRaf = 0;
     const io = new IntersectionObserver(
       (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            setStarted(true);
-            io.disconnect();
-          }
-        });
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          io.disconnect();
+          // Reset to 0 and animate up. The flash is invisible because
+          // this only fires when the element scrolls into view.
+          setDisplay(0);
+          const start = performance.now();
+          const tick = (now: number) => {
+            const t = Math.min(1, (now - start) / duration);
+            const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+            setDisplay(Math.floor(value * eased));
+            if (t < 1) animationRaf = requestAnimationFrame(tick);
+            else setDisplay(value);
+          };
+          animationRaf = requestAnimationFrame(tick);
+          break;
+        }
       },
       { threshold: 0.3 },
     );
     io.observe(el);
-    return () => io.disconnect();
-  }, [started]);
-
-  useEffect(() => {
-    if (!started) return;
-    const start = performance.now();
-    let raf = 0;
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      // ease-out-expo
-      const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-      setDisplay(Math.floor(value * eased));
-      if (t < 1) raf = requestAnimationFrame(tick);
-      else setDisplay(value);
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(animationRaf);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [started, value, duration]);
+  }, [value, duration]);
 
   const formatted = display.toLocaleString("en-IN");
   const text = bangla

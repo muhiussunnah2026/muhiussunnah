@@ -1,4 +1,5 @@
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { cookies } from "next/headers";
 import {
   ArrowRight, ArrowUpRight, Check, Users, Calendar, Wallet, Award, Megaphone, BookOpen,
@@ -10,11 +11,24 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getMarketingCopy } from "@/lib/i18n/marketing";
 import { Reveal } from "@/components/marketing/reveal";
 import { TextReveal } from "@/components/marketing/text-reveal";
-import { AnimatedCounter } from "@/components/marketing/animated-counter";
 import { TiltCard } from "@/components/marketing/tilt-card";
 import { Magnetic } from "@/components/marketing/magnetic";
-import { Marquee } from "@/components/marketing/marquee";
-import { TestimonialCard } from "@/components/marketing/testimonial-card";
+
+/**
+ * Below-the-fold components — code-split out of the initial bundle.
+ * `ssr: true` keeps HTML in the server response (SEO preserved) but the
+ * JS ships as a separate chunk that doesn't block initial hydration.
+ * This was the primary TBT contributor on mobile PageSpeed.
+ */
+const AnimatedCounter = dynamic(
+  () => import("@/components/marketing/animated-counter").then((m) => m.AnimatedCounter),
+);
+const Marquee = dynamic(
+  () => import("@/components/marketing/marquee").then((m) => m.Marquee),
+);
+const TestimonialCard = dynamic(
+  () => import("@/components/marketing/testimonial-card").then((m) => m.TestimonialCard),
+);
 
 const iconMap: Record<string, typeof Users> = {
   users: Users, calendar: Calendar, wallet: Wallet, award: Award,

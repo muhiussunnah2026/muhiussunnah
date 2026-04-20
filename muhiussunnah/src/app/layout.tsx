@@ -1,9 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import {
-  Hind_Siliguri,
   Inter,
-  JetBrains_Mono,
   Noto_Naskh_Arabic,
   Noto_Nastaliq_Urdu,
   Noto_Sans_Bengali,
@@ -17,42 +15,50 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { defaultLocale, isLocale, localeCookieName, localeDirection, type Locale } from "@/lib/i18n/config";
 import "./globals.css";
 
-const hindSiliguri = Hind_Siliguri({
-  variable: "--font-hind-siliguri",
-  subsets: ["bengali", "latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-});
-
+/**
+ * Font strategy — optimized for Core Web Vitals.
+ *
+ * Previously we loaded SIX font families (Hind Siliguri, Inter, JetBrains
+ * Mono, Noto Sans Bengali, Noto Naskh Arabic, Noto Nastaliq Urdu), all
+ * preloaded on every page. That cost ~300KB of font CSS + preload
+ * requests before first paint.
+ *
+ * Now:
+ *  - Inter + Noto Sans Bengali are preloaded (the primary Bangla+Latin UI).
+ *  - Arabic + Urdu are loaded on-demand via CSS (preload: false) — only
+ *    users with locale=ar/ur actually download them.
+ *  - Hind Siliguri removed entirely (Noto Sans Bengali covers everything).
+ *  - JetBrains Mono removed — ui-monospace system fallback works for the
+ *    two or three places we use font-mono.
+ */
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 const notoSansBengali = Noto_Sans_Bengali({
   variable: "--font-noto-sans-bengali",
-  subsets: ["bengali", "latin"],
+  subsets: ["bengali"],
   display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 const notoNaskhArabic = Noto_Naskh_Arabic({
   variable: "--font-noto-naskh-arabic",
   subsets: ["arabic"],
   display: "swap",
+  preload: false,
+  weight: ["400", "700"],
 });
 
 const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
   variable: "--font-noto-nastaliq-urdu",
   subsets: ["arabic"],
-  weight: ["400", "500", "600", "700"],
   display: "swap",
+  preload: false,
+  weight: ["400", "700"],
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://muhiussunnah.app";
@@ -209,7 +215,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={dir}
-      className={`${hindSiliguri.variable} ${inter.variable} ${jetbrainsMono.variable} ${notoSansBengali.variable} ${notoNaskhArabic.variable} ${notoNastaliqUrdu.variable} h-full`}
+      className={`${inter.variable} ${notoSansBengali.variable} ${notoNaskhArabic.variable} ${notoNastaliqUrdu.variable} h-full`}
       suppressHydrationWarning
     >
       <head>

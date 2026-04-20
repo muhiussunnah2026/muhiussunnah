@@ -20,25 +20,34 @@ export function TextReveal({
   as?: "span" | "h1" | "h2" | "h3" | "p";
 }) {
   const ref = useRef<HTMLElement>(null);
-  const [shown, setShown] = useState(false);
+  // Default visible so SSR renders the hero text fully opaque — otherwise
+  // the words sit at opacity-0 until hydration and Google measures LCP
+  // as 4+ seconds even though the HTML arrived in milliseconds.
+  const [shown, setShown] = useState(true);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || shown) return;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const inView = rect.top < window.innerHeight - 40 && rect.bottom > 0;
+    if (inView) return; // above-fold → stay visible, no animation needed
+
+    setShown(false);
     const io = new IntersectionObserver(
       (entries) => {
-        entries.forEach((e) => {
+        for (const e of entries) {
           if (e.isIntersecting) {
             setShown(true);
             io.disconnect();
+            break;
           }
-        });
+        }
       },
       { threshold: 0.3 },
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [shown]);
+  }, []);
 
   const words = text.split(/(\s+)/);
 
