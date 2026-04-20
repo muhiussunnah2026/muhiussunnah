@@ -6,10 +6,17 @@ import { cn } from "@/lib/utils";
 type Variant = "fade-up" | "fade-in" | "slide-left" | "slide-right" | "scale-in" | "blur-in";
 
 /**
- * Reveal — IntersectionObserver-driven scroll animation wrapper.
+ * Reveal — scroll-in animation wrapper that's friendly to Core Web Vitals.
  *
- * The child enters from a transformed/faded state and animates to its
- * natural state once it intersects the viewport (40% visible).
+ * CRITICAL: we default `shown = true` so the SSR HTML paints fully
+ * visible. Previously we defaulted to false + opacity-0, which made
+ * the hero H1 (our LCP element) invisible until client-side hydration
+ * finished — blowing LCP to 5+ seconds on mobile.
+ *
+ * On mount we check if the element is currently below the viewport.
+ * If it is, we hide it and let the IntersectionObserver animate it in
+ * when the user scrolls. Above-fold content never flashes because it
+ * was already visible from SSR.
  */
 export function Reveal({
   children,
@@ -17,42 +24,45 @@ export function Reveal({
   delay = 0,
   className,
   as: Tag = "div",
-  eager = false,
 }: {
   children: ReactNode;
   variant?: Variant;
   delay?: number;
   className?: string;
   as?: "div" | "section" | "article" | "header" | "h1" | "h2" | "h3" | "p" | "span";
-  /** When true, animate on mount regardless of viewport intersection. Useful for
-   *  hero content that sits below the fold on short mobile viewports where the
-   *  IntersectionObserver would otherwise never fire until the user scrolls. */
+  /** Kept for backward compatibility with existing call sites. Now a no-op
+   *  — every Reveal is effectively "eager" on the server, which is what we
+   *  actually want for Largest Contentful Paint. */
   eager?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
-  const [shown, setShown] = useState(false);
+  const [shown, setShown] = useState(true);
 
   useEffect(() => {
-    if (eager) {
-      setShown(true);
-      return;
-    }
     const el = ref.current;
-    if (!el || shown) return;
+    if (!el) return;
+    // If the element is already in the viewport when we mount, leave it
+    // visible. Otherwise hide it and animate in on scroll.
+    const rect = el.getBoundingClientRect();
+    const inView = rect.top < window.innerHeight - 80 && rect.bottom > 0;
+    if (inView) return;
+
+    setShown(false);
     const io = new IntersectionObserver(
       (entries) => {
-        entries.forEach((e) => {
+        for (const e of entries) {
           if (e.isIntersecting) {
             setShown(true);
             io.disconnect();
+            break;
           }
-        });
+        }
       },
       { threshold: 0.15, rootMargin: "0px 0px -80px 0px" },
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [shown, eager]);
+  }, []);
 
   const hiddenStyles: Record<Variant, string> = {
     "fade-up": "opacity-0 translate-y-10",
