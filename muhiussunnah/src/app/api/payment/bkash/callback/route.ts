@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   const status = url.searchParams.get("status") ?? "";
 
   if (!paymentID) {
-    return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/portal/fees/pay/fail?code=no_payment_id`);
+    return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/pay/fail?code=no_payment_id`);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,23 +29,23 @@ export async function GET(request: Request) {
     .maybeSingle();
 
   if (!payment) {
-    return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/portal/fees/pay/fail?code=payment_not_found`);
+    return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/pay/fail?code=payment_not_found`);
   }
 
   if (status === "cancel") {
     await admin.from("payments").update({ status: "canceled" }).eq("id", payment.id);
-    return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/portal/fees/pay/cancel?tran=${payment.transaction_id}`);
+    return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/pay/cancel?tran=${payment.transaction_id}`);
   }
   if (status === "failure") {
     await admin.from("payments").update({ status: "failed" }).eq("id", payment.id);
-    return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/portal/fees/pay/fail?tran=${payment.transaction_id}`);
+    return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/pay/fail?tran=${payment.transaction_id}`);
   }
 
   // status === 'success' → finalize
   const exec = await executeBkashPayment(paymentID);
   if (!exec.ok) {
     await admin.from("payments").update({ status: "failed", notes: exec.error }).eq("id", payment.id);
-    return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/portal/fees/pay/fail?code=execute_failed`);
+    return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/pay/fail?code=execute_failed`);
   }
 
   await admin
@@ -79,5 +79,5 @@ export async function GET(request: Request) {
     });
   }
 
-  return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/portal/fees/pay/success?tran=${exec.trxID}`);
+  return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/pay/success?tran=${exec.trxID}`);
 }

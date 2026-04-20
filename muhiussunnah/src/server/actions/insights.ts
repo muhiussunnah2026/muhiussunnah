@@ -143,6 +143,6 @@ export async function computeRiskScoresAction(
 
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${schoolSlug}/admin/insights/dropout-risk`);
+  revalidatePath(`/admin/insights/dropout-risk`);
   return ok({ count: rows.length }, `${rows.length} জন ছাত্রের ঝুঁকি স্কোর গণনা হয়েছে।`);
 }

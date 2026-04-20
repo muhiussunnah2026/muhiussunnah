@@ -66,7 +66,7 @@ export async function addTemplateAction(
   });
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/certificates/templates`);
+  revalidatePath(`/admin/certificates/templates`);
   return ok(undefined, "টেমপ্লেট যোগ হয়েছে।");
 }
 
@@ -128,10 +128,10 @@ export async function issueCertificateAction(
     meta: { serial, student_id: parsed.student_id },
   });
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/certificates`);
+  revalidatePath(`/admin/certificates`);
   return ok(
     { id: data.id, serial },
     `সার্টিফিকেট ইস্যু হয়েছে (${serial})`,
-    `/school/${parsed.schoolSlug}/admin/certificates/${data.id}`,
+    `/admin/certificates/${data.id}`,
   );
 }

@@ -93,11 +93,11 @@ async function handle(request: Request) {
     });
   }
 
-  return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/portal/fees/pay/success?tran=${tranId}`);
+  return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/pay/success?tran=${tranId}`);
 }
 
 function redirectWithError(code: string) {
-  return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/portal/fees/pay/fail?code=${encodeURIComponent(code)}`);
+  return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/pay/fail?code=${encodeURIComponent(code)}`);
 }
 
 export async function POST(request: Request) { return handle(request); }

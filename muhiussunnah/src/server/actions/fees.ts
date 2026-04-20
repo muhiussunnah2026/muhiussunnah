@@ -78,7 +78,7 @@ export async function addFeeHeadAction(
     resourceType: "fee_head",
     meta: { name_bn: parsed.name_bn },
   });
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/fees/heads`);
+  revalidatePath(`/admin/fees/heads`);
   return ok(undefined, "ফি হেড যোগ হয়েছে।");
 }
 
@@ -111,7 +111,7 @@ export async function updateFeeHeadAmountAction(
     .eq("school_id", auth.active.school_id);
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/fees/heads`);
+  revalidatePath(`/admin/fees/heads`);
   return ok(undefined, "আপডেট হয়েছে।");
 }
 
@@ -169,7 +169,7 @@ export async function upsertFeeStructureAction(
 
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/fees/structures`);
+  revalidatePath(`/admin/fees/structures`);
   return ok(undefined, "ফি কাঠামো আপডেট হয়েছে।");
 }
 
@@ -333,7 +333,7 @@ export async function generateMonthlyInvoicesAction(
     meta: { month, year, created, skipped, total: studentList.length },
   });
 
-  revalidatePath(`/school/${schoolSlug}/admin/fees/invoices`);
+  revalidatePath(`/admin/fees/invoices`);
   return ok(
     { invoices_created: created, invoices_skipped: skipped, students_processed: studentList.length, errors: errors.slice(0, 20) },
     `${created} টি invoice তৈরি হয়েছে, ${skipped} টি আগে থেকে ছিল।`,
@@ -427,7 +427,7 @@ export async function recordCashPaymentAction(
     meta: { amount: parsed.amount, method: parsed.method, receipt: receiptNo },
   });
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/fees/invoices`);
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/fees/invoices/${invoice.id}`);
+  revalidatePath(`/admin/fees/invoices`);
+  revalidatePath(`/admin/fees/invoices/${invoice.id}`);
   return ok({ receiptNo }, `পেমেন্ট সংরক্ষিত (${receiptNo})`);
 }

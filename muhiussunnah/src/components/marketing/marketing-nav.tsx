@@ -28,9 +28,9 @@ async function resolveDashboardHref(userId: string): Promise<string | null> {
     const slug = data?.schools?.slug as string | undefined;
     if (!slug) return null;
     const role = data?.role as string | undefined;
-    if (role === "TEACHER") return `/school/${slug}/teacher`;
-    if (role === "STUDENT" || role === "GUARDIAN") return `/school/${slug}/portal`;
-    return `/school/${slug}/admin`;
+    if (role === "TEACHER") return `/teacher`;
+    if (role === "STUDENT" || role === "GUARDIAN") return `/portal`;
+    return `/admin`;
   } catch {
     return null;
   }

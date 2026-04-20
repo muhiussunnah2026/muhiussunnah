@@ -69,7 +69,7 @@ export async function saveAttendanceAction(input: {
     meta: { section_id, date, count: rows.length },
   });
 
-  revalidatePath(`/school/${schoolSlug}/teacher/attendance`);
-  revalidatePath(`/school/${schoolSlug}/admin/attendance`);
+  revalidatePath(`/teacher/attendance`);
+  revalidatePath(`/admin/attendance`);
   return ok({ saved: rows.length }, `${rows.length} জনের attendance সংরক্ষণ করা হয়েছে।`);
 }

@@ -47,7 +47,7 @@ export async function saveSmsTemplateAction(
   );
 
   if (error) return fail(error.message);
-  revalidatePath(`/school/${schoolSlug}/admin/messaging/templates`);
+  revalidatePath(`/admin/messaging/templates`);
   return ok(null, "টেমপ্লেট সেভ হয়েছে।");
 }
 
@@ -67,6 +67,6 @@ export async function deleteSmsTemplateAction(
   const { error } = await (supabase as any).from("sms_templates").delete().eq("id", id).eq("school_id", auth.active.school_id);
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${schoolSlug}/admin/messaging/templates`);
+  revalidatePath(`/admin/messaging/templates`);
   return ok(null, "টেমপ্লেট মুছে ফেলা হয়েছে।");
 }

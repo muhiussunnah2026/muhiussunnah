@@ -54,7 +54,7 @@ export async function addCampaignAction(
   });
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/donations`);
+  revalidatePath(`/admin/donations`);
   return ok(undefined, "চাঁদা ক্যাম্পেইন যোগ হয়েছে।");
 }
 
@@ -120,6 +120,6 @@ export async function addDonationAction(
     meta: { amount: parsed.amount, campaign_id: parsed.campaign_id, receipt: receiptNo },
   });
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/donations`);
+  revalidatePath(`/admin/donations`);
   return ok({ receiptNo }, `চাঁদা গ্রহণ করা হয়েছে (${receiptNo})`);
 }

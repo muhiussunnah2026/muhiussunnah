@@ -2,6 +2,7 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 import { requireSchoolMembership } from "./session";
+import { requireActiveRole } from "./active-school";
 import type { UserRole } from "./roles";
 
 /**
@@ -15,7 +16,19 @@ export async function requireMadrasaRole(slug: string, allowed: UserRole[]) {
   const { session, active } = await requireSchoolMembership(slug);
   if (!allowed.includes(active.role)) redirect(`/school/${slug}`);
   if (active.school_type !== "madrasa" && active.school_type !== "both") {
-    redirect(`/school/${slug}/admin`);
+    redirect(`/admin`);
   }
   return { session, active };
+}
+
+/**
+ * Cookie/active-school variant — same semantics but no slug param.
+ * Use inside clean-URL routes (/admin/madrasa/*).
+ */
+export async function requireActiveMadrasaRole(allowed: UserRole[]) {
+  const active = await requireActiveRole(allowed);
+  if (active.school_type !== "madrasa" && active.school_type !== "both") {
+    redirect(`/admin`);
+  }
+  return { active };
 }

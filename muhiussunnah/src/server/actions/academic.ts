@@ -93,7 +93,7 @@ export async function addAcademicYearAction(
     resourceType: "academic_year",
     meta: { name: parsed.name },
   });
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/academic-years`);
+  revalidatePath(`/admin/academic-years`);
   return ok(undefined, "শিক্ষাবর্ষ যোগ হয়েছে।");
 }
 
@@ -154,7 +154,7 @@ export async function addClassAction(
     resourceType: "class",
     meta: { name_bn: parsed.name_bn, stream: parsed.stream },
   });
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/classes`);
+  revalidatePath(`/admin/classes`);
   return ok(undefined, "ক্লাস যোগ হয়েছে। একটি ডিফল্ট সেকশন (ক) তৈরি করা হয়েছে।");
 }
 
@@ -204,7 +204,7 @@ export async function updateClassAction(
     resourceId: parsed.classId,
     meta: { name_bn: parsed.name_bn },
   });
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/classes`);
+  revalidatePath(`/admin/classes`);
   return ok(undefined, "ক্লাস আপডেট হয়েছে।");
 }
 
@@ -232,7 +232,7 @@ export async function deleteClassAction(
     .eq("school_id", auth.active.school_id);
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${schoolSlug}/admin/classes`);
+  revalidatePath(`/admin/classes`);
   return ok(undefined, "ক্লাস মুছে ফেলা হয়েছে।");
 }
 
@@ -281,7 +281,7 @@ export async function addSectionAction(
     resourceType: "section",
     meta: { class_id: parsed.class_id, name: parsed.name },
   });
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/classes`);
+  revalidatePath(`/admin/classes`);
   return ok(undefined, "সেকশন যোগ হয়েছে।");
 }
 
@@ -340,6 +340,6 @@ export async function addSubjectAction(
     resourceType: "subject",
     meta: { name_bn: parsed.name_bn },
   });
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/subjects`);
+  revalidatePath(`/admin/subjects`);
   return ok(undefined, "বিষয় যোগ হয়েছে।");
 }

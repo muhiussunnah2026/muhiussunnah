@@ -57,7 +57,7 @@ export async function addInvestmentAction(
     resourceType: "investment",
     meta: { title: parsed.title, principal: parsed.principal },
   });
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/investments`);
+  revalidatePath(`/admin/investments`);
   return ok(undefined, "বিনিয়োগ যোগ হয়েছে।");
 }
 
@@ -93,6 +93,6 @@ export async function addInvestmentReturnAction(
   });
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/investments`);
+  revalidatePath(`/admin/investments`);
   return ok(undefined, "রিটার্ন রেকর্ড করা হয়েছে।");
 }

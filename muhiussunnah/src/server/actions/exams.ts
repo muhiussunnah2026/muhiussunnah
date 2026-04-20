@@ -80,8 +80,8 @@ export async function addExamAction(
     resourceId: data.id,
     meta: { name: parsed.name, type: parsed.type },
   });
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/exams`);
-  return ok({ id: data.id }, "পরীক্ষা তৈরি হয়েছে।", `/school/${parsed.schoolSlug}/admin/exams/${data.id}`);
+  revalidatePath(`/admin/exams`);
+  return ok({ id: data.id }, "পরীক্ষা তৈরি হয়েছে।", `/admin/exams/${data.id}`);
 }
 
 // -----------------------------------------------------------------
@@ -128,7 +128,7 @@ export async function addRoutineRowAction(
   });
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/exams/${parsed.exam_id}`);
+  revalidatePath(`/admin/exams/${parsed.exam_id}`);
   return ok(undefined, "রুটিন এন্ট্রি যোগ হয়েছে।");
 }
 
@@ -149,7 +149,7 @@ export async function deleteRoutineRowAction(
   const { error } = await (supabase as any).from("exam_subjects").delete().eq("id", id);
   if (error) return fail(error.message);
 
-  if (examId) revalidatePath(`/school/${schoolSlug}/admin/exams/${examId}`);
+  if (examId) revalidatePath(`/admin/exams/${examId}`);
   return ok(undefined, "মুছে ফেলা হয়েছে।");
 }
 
@@ -311,8 +311,8 @@ export async function publishExamAction(
     meta: { report_cards: rows.length },
   });
 
-  revalidatePath(`/school/${schoolSlug}/admin/exams/${examId}`);
-  revalidatePath(`/school/${schoolSlug}/portal/results`);
+  revalidatePath(`/admin/exams/${examId}`);
+  revalidatePath(`/portal/results`);
   return ok({ report_cards_built: rows.length }, `✓ ${rows.length} টি report card তৈরি হয়েছে ও প্রকাশ পেয়েছে।`);
 }
 
@@ -332,6 +332,6 @@ export async function unpublishExamAction(
     .eq("school_id", auth.active.school_id);
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${schoolSlug}/admin/exams/${examId}`);
+  revalidatePath(`/admin/exams/${examId}`);
   return ok(undefined, "ফলাফল unpublish করা হয়েছে।");
 }

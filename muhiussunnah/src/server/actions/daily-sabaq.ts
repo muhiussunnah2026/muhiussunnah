@@ -84,7 +84,7 @@ export async function saveDailySabaqAction(input: SaveInput): Promise<ActionResu
     meta: { date: input.date, count: rows.length },
   });
 
-  revalidatePath(`/school/${input.schoolSlug}/admin/madrasa/daily-sabaq`);
-  revalidatePath(`/school/${input.schoolSlug}/teacher/daily-sabaq`);
+  revalidatePath(`/admin/madrasa/daily-sabaq`);
+  revalidatePath(`/teacher/daily-sabaq`);
   return ok({ saved: rows.length }, `${rows.length} জনের সবক সংরক্ষণ হয়েছে।`);
 }

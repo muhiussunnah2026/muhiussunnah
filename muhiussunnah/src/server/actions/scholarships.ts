@@ -46,7 +46,7 @@ export async function addScholarshipAction(
   });
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/scholarships`);
+  revalidatePath(`/admin/scholarships`);
   return ok(undefined, "বৃত্তি যোগ হয়েছে।");
 }
 
@@ -92,6 +92,6 @@ export async function assignScholarshipAction(
     meta: { student_id: parsed.student_id, scholarship_id: parsed.scholarship_id },
   });
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/scholarships`);
+  revalidatePath(`/admin/scholarships`);
   return ok(undefined, "বৃত্তি প্রদান করা হয়েছে।");
 }

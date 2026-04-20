@@ -135,7 +135,7 @@ export async function updateSchoolAction(
     meta: { name_bn: parsed.name_bn },
   });
 
-  revalidatePath(`/school/${parsed.schoolSlug}`, "layout");
+  revalidatePath(`/admin`, "layout");
   return ok(undefined, "স্কুলের তথ্য আপডেট হয়েছে।");
 }
 
@@ -187,7 +187,7 @@ export async function addBranchAction(
     meta: { name: parsed.name },
   });
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/branches`);
+  revalidatePath(`/admin/branches`);
   return ok(undefined, "শাখা যোগ হয়েছে।");
 }
 
@@ -216,6 +216,6 @@ export async function deleteBranchAction(
 
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${schoolSlug}/admin/branches`);
+  revalidatePath(`/admin/branches`);
   return ok(undefined, "শাখা মুছে ফেলা হয়েছে।");
 }

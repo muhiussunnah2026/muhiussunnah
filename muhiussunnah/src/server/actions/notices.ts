@@ -189,7 +189,7 @@ export async function createNoticeAction(
       resourceId: notice.id,
       meta: { audience: parsed.audience, channels, scheduled_for: parsed.scheduled_for },
     });
-    revalidatePath(`/school/${parsed.schoolSlug}/admin/notices`);
+    revalidatePath(`/admin/notices`);
     return ok(undefined, `📅 নোটিশ ${parsed.scheduled_for}-এ পাঠানো হবে।`);
   }
 
@@ -197,7 +197,7 @@ export async function createNoticeAction(
   const recipients = await resolveRecipients(supabase, auth.active.school_id, parsed.audience, parsed.audience_target_id);
 
   if (recipients.length === 0) {
-    revalidatePath(`/school/${parsed.schoolSlug}/admin/notices`);
+    revalidatePath(`/admin/notices`);
     return ok(undefined, "নোটিশ তৈরি হয়েছে, কিন্তু কোন প্রাপক পাওয়া যায়নি।");
   }
 
@@ -219,7 +219,7 @@ export async function createNoticeAction(
     meta: { audience: parsed.audience, channels, dispatched: dispatch.sent, failed: dispatch.failed, cost: dispatch.cost },
   });
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/notices`);
+  revalidatePath(`/admin/notices`);
 
   const summary = `✓ ${dispatch.sent} জনের কাছে পৌঁছেছে · ৳ ${dispatch.cost.toFixed(2)} খরচ`;
   if (dispatch.insufficientCredit) {
@@ -256,6 +256,6 @@ export async function deleteNoticeAction(
     .is("sent_at", null);
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${schoolSlug}/admin/notices`);
+  revalidatePath(`/admin/notices`);
   return ok(undefined, "নোটিশ মুছে ফেলা হয়েছে।");
 }

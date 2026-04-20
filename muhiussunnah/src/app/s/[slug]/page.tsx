@@ -70,7 +70,7 @@ export default async function PublicSchoolPage({ params }: PageProps) {
             <Link href={`/school/${slug}/login`} className="rounded-md bg-white text-primary px-5 py-2.5 text-sm font-medium hover:bg-white/90">
               অভিভাবক / ছাত্র পোর্টাল
             </Link>
-            <Link href={`/school/${slug}/admin/admission-inquiry`} className="rounded-md border border-white/30 px-5 py-2.5 text-sm font-medium hover:bg-white/10">
+            <Link href={`/admin/admission-inquiry`} className="rounded-md border border-white/30 px-5 py-2.5 text-sm font-medium hover:bg-white/10">
               ভর্তি জিজ্ঞাসা
             </Link>
           </div>

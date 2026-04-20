@@ -276,11 +276,11 @@ export async function addStudentAction(
     meta: { student_code: code, name_bn: parsed.name_bn },
   });
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/students`);
+  revalidatePath(`/admin/students`);
   return ok(
     { id: studentRow.id, code },
     `${parsed.name_bn} ভর্তি হয়েছে (${code})`,
-    `/school/${parsed.schoolSlug}/admin/students/${studentRow.id}`,
+    `/admin/students/${studentRow.id}`,
   );
 }
 
@@ -386,7 +386,7 @@ export async function bulkImportStudentsAction(
     resourceType: "student",
     meta: { inserted, skipped, total: rows.length },
   });
-  revalidatePath(`/school/${schoolSlug}/admin/students`);
+  revalidatePath(`/admin/students`);
   return ok({ inserted, skipped, errors: errors.slice(0, 20) }, `${inserted} জন ভর্তি হয়েছে, ${skipped} জন বাদ পড়েছে।`);
 }
 
@@ -454,6 +454,6 @@ export async function shiftStudentAction(
     meta: { from_section_id: current.section_id, to_section_id: parsed.to_section_id },
   });
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/students/${parsed.student_id}`);
+  revalidatePath(`/admin/students/${parsed.student_id}`);
   return ok(undefined, "শিক্ষার্থী স্থানান্তর করা হয়েছে।");
 }

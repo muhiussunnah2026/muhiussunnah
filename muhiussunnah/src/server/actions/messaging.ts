@@ -65,7 +65,7 @@ export async function startConversationAction(
       .eq("conversation_id", row.conversation_id);
     const otherIds = ((others ?? []) as { user_id: string }[]).map((r) => r.user_id);
     if (otherIds.includes(parsed.other_user_id) && otherIds.length === 2) {
-      return ok({ id: row.conversation_id }, "", `/school/${parsed.schoolSlug}/messages/${row.conversation_id}`);
+      return ok({ id: row.conversation_id }, "", `/admin/messaging/${row.conversation_id}`);
     }
   }
 
@@ -89,8 +89,8 @@ export async function startConversationAction(
     { conversation_id: conversation.id, user_id: parsed.other_user_id },
   ]);
 
-  revalidatePath(`/school/${parsed.schoolSlug}/teacher/messages`);
-  revalidatePath(`/school/${parsed.schoolSlug}/portal/messages`);
+  revalidatePath(`/teacher/messages`);
+  revalidatePath(`/portal/messages`);
   return ok({ id: conversation.id }, "কথোপকথন শুরু হয়েছে।");
 }
 
@@ -141,8 +141,8 @@ export async function sendMessageAction(
     .update({ updated_at: new Date().toISOString() })
     .eq("id", parsed.conversation_id);
 
-  revalidatePath(`/school/${parsed.schoolSlug}/teacher/messages/${parsed.conversation_id}`);
-  revalidatePath(`/school/${parsed.schoolSlug}/portal/messages/${parsed.conversation_id}`);
+  revalidatePath(`/teacher/messages/${parsed.conversation_id}`);
+  revalidatePath(`/portal/messages/${parsed.conversation_id}`);
   return ok(undefined, "পাঠানো হয়েছে।");
 }
 

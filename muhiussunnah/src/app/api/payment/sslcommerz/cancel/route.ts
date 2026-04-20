@@ -21,7 +21,7 @@ async function handle(request: Request) {
       .eq("transaction_id", tranId)
       .eq("status", "pending");
   }
-  return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/portal/fees/pay/cancel?tran=${tranId}`);
+  return NextResponse.redirect(`${env.NEXT_PUBLIC_APP_URL}/pay/cancel?tran=${tranId}`);
 }
 
 export async function POST(request: Request) { return handle(request); }

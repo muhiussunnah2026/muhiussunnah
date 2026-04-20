@@ -90,11 +90,11 @@ export async function signInAction(
       // Route by role: teachers and students get their portals, admins get admin.
       const role = membership?.role as string | undefined;
       if (role === "CLASS_TEACHER" || role === "SUBJECT_TEACHER" || role === "MADRASA_USTADH") {
-        destination = `/school/${slug}/teacher`;
+        destination = `/teacher`;
       } else if (role === "STUDENT" || role === "PARENT") {
-        destination = `/school/${slug}/portal`;
+        destination = `/portal`;
       } else {
-        destination = `/school/${slug}/admin`;
+        destination = `/admin`;
       }
     }
   }
@@ -220,7 +220,7 @@ export async function registerSchoolAction(
   return {
     ok: true,
     message: "স্কুল সফলভাবে তৈরি হয়েছে! ড্যাশবোর্ডে যাচ্ছে...",
-    redirect: `/school/${school.slug}/admin`,
+    redirect: `/admin`,
   };
 }
 

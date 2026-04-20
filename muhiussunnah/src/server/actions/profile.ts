@@ -49,7 +49,7 @@ export async function updateProfileNameAction(
     .eq("school_id", school.id);
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${parsed.schoolSlug}`, "layout");
+  revalidatePath(`/admin`, "layout");
   return ok(undefined, "নাম আপডেট হয়েছে।");
 }
 

@@ -129,7 +129,7 @@ export async function inviteStaffAction(
     meta: { email: parsed.email, role: parsed.role },
   });
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/staff`);
+  revalidatePath(`/admin/staff`);
   return ok(undefined, `${parsed.full_name_bn} যোগ হয়েছে। পাসওয়ার্ড সেট করার লিংক তাদের ইমেইলে পাঠানো হয়েছে।`);
 }
 
@@ -181,7 +181,7 @@ export async function updateStaffAction(
     meta: { role: parsed.role, status: parsed.status },
   });
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/staff`);
+  revalidatePath(`/admin/staff`);
   return ok(undefined, "স্টাফের তথ্য আপডেট হয়েছে।");
 }
 
@@ -224,7 +224,7 @@ export async function grantPermissionAction(
   });
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/staff/${parsed.school_user_id}/permissions`);
+  revalidatePath(`/admin/staff/${parsed.school_user_id}/permissions`);
   return ok(undefined, "অনুমতি দেওয়া হয়েছে।");
 }
 
@@ -252,6 +252,6 @@ export async function revokePermissionAction(
     .eq("id", permissionId);
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${schoolSlug}/admin/staff/${schoolUserId}/permissions`);
+  revalidatePath(`/admin/staff/${schoolUserId}/permissions`);
   return ok(undefined, "অনুমতি প্রত্যাহার করা হয়েছে।");
 }

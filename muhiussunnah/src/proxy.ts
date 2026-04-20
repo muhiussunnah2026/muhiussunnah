@@ -29,6 +29,9 @@ const PUBLIC_PATHS = new Set([
   "/refund-policy",
   "/terms",
   "/privacy",
+  "/pay/success",
+  "/pay/fail",
+  "/pay/cancel",
 ]);
 
 /**
@@ -55,6 +58,7 @@ function isPublicPath(pathname: string): boolean {
   if (AUTH_PATHS.has(pathname)) return true;
   if (pathname.startsWith("/s/")) return true;                // public school pages
   if (pathname.startsWith("/pricing/")) return true;          // pricing detail pages
+  if (pathname.startsWith("/pay/")) return true;              // public payment callbacks
   if (pathname.startsWith("/api/public")) return true;
   if (pathname.startsWith("/api/auth/callback")) return true;
   if (pathname.startsWith("/api/payment/")) return true;      // gateway webhooks
@@ -121,7 +125,7 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // --- Tenant slug header -----------------------------------------------
+  // --- Tenant slug header (legacy, for /school/[slug] backwards-compat) -
   const schoolMatch = pathname.match(/^\/school\/([^/]+)/);
   if (schoolMatch) {
     response.headers.set("x-school-slug", schoolMatch[1]);
@@ -129,10 +133,12 @@ export async function proxy(request: NextRequest) {
 
   // --- Fast path: no auth work for truly public, non-auth routes --------
   // Marketing pages, public school pages, webhooks, etc. don't need us to
-  // hit Supabase to validate the session on every navigation — skipping
-  // getUser() here is the biggest latency win available to us.
+  // hit Supabase to validate the session on every navigation.
   const requiresAuth =
-    pathname.startsWith("/school/") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/teacher") ||
+    pathname.startsWith("/portal") ||
+    pathname.startsWith("/school/") ||       // legacy URLs still auth-gated
     pathname.startsWith("/super-admin") ||
     (pathname.startsWith("/api/") && !isPublicPath(pathname));
   const isAuthPage = AUTH_PATHS.has(pathname);

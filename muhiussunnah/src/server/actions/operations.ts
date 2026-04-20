@@ -50,7 +50,7 @@ export async function addBookAction(
   });
 
   if (error) return fail(error.message);
-  revalidatePath(`/school/${schoolSlug}/admin/library`);
+  revalidatePath(`/admin/library`);
   return ok(null, "বই যোগ হয়েছে।");
 }
 
@@ -88,7 +88,7 @@ export async function issueBookAction(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (supabase as any).rpc("decrement_book_copies", { p_book_id: data.book_id }).maybeSingle();
 
-  revalidatePath(`/school/${schoolSlug}/admin/library`);
+  revalidatePath(`/admin/library`);
   return ok(null, "বই ইস্যু হয়েছে।");
 }
 
@@ -117,7 +117,7 @@ export async function returnBookAction(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (supabase as any).rpc("increment_book_copies", { p_book_id: bookId }).maybeSingle();
 
-  revalidatePath(`/school/${schoolSlug}/admin/library`);
+  revalidatePath(`/admin/library`);
   return ok(null, "বই ফেরত নেওয়া হয়েছে।");
 }
 
@@ -154,7 +154,7 @@ export async function addTransportRouteAction(
   });
 
   if (error) return fail(error.message);
-  revalidatePath(`/school/${schoolSlug}/admin/transport`);
+  revalidatePath(`/admin/transport`);
   return ok(null, "রুট যোগ হয়েছে।");
 }
 
@@ -190,7 +190,7 @@ export async function addVehicleAction(
   });
 
   if (error) return fail(error.message);
-  revalidatePath(`/school/${schoolSlug}/admin/transport`);
+  revalidatePath(`/admin/transport`);
   return ok(null, "গাড়ি যোগ হয়েছে।");
 }
 
@@ -216,7 +216,7 @@ export async function assignStudentToRouteAction(
   );
 
   if (error) return fail(error.message);
-  revalidatePath(`/school/${schoolSlug}/admin/transport`);
+  revalidatePath(`/admin/transport`);
   return ok(null, "ছাত্র রুটে যোগ হয়েছে।");
 }
 
@@ -255,7 +255,7 @@ export async function addHostelAction(
   });
 
   if (error) return fail(error.message);
-  revalidatePath(`/school/${schoolSlug}/admin/hostel`);
+  revalidatePath(`/admin/hostel`);
   return ok(null, "হোস্টেল যোগ হয়েছে।");
 }
 
@@ -287,7 +287,7 @@ export async function addRoomAction(
   });
 
   if (error) return fail(error.message);
-  revalidatePath(`/school/${schoolSlug}/admin/hostel`);
+  revalidatePath(`/admin/hostel`);
   return ok(null, "রুম যোগ হয়েছে।");
 }
 
@@ -316,7 +316,7 @@ export async function allocateHostelAction(
   });
 
   if (error) return fail(error.message);
-  revalidatePath(`/school/${schoolSlug}/admin/hostel`);
+  revalidatePath(`/admin/hostel`);
   return ok(null, "ছাত্র হোস্টেলে বরাদ্দ হয়েছে।");
 }
 
@@ -358,7 +358,7 @@ export async function addInventoryItemAction(
   });
 
   if (error) return fail(error.message);
-  revalidatePath(`/school/${schoolSlug}/admin/inventory`);
+  revalidatePath(`/admin/inventory`);
   return ok(null, "আইটেম যোগ হয়েছে।");
 }
 
@@ -412,6 +412,6 @@ export async function addInventoryMovementAction(
     .update({ stock: Math.max(0, newStock) })
     .eq("id", data.item_id);
 
-  revalidatePath(`/school/${schoolSlug}/admin/inventory`);
+  revalidatePath(`/admin/inventory`);
   return ok(null, "স্টক আপডেট হয়েছে।");
 }

@@ -50,7 +50,7 @@ export async function addExpenseHeadAction(
   });
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/expenses`);
+  revalidatePath(`/admin/expenses`);
   return ok(undefined, "খরচ হেড যোগ হয়েছে।");
 }
 
@@ -106,6 +106,6 @@ export async function addExpenseAction(
     resourceType: "expense",
     meta: { amount: parsed.amount, head_id: parsed.head_id },
   });
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/expenses`);
+  revalidatePath(`/admin/expenses`);
   return ok(undefined, "খরচ রেকর্ড করা হয়েছে।");
 }

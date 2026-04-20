@@ -58,7 +58,7 @@ export async function addKitabAction(
     resourceType: "kitab",
     meta: { stage: parsed.stage, kitab_name: parsed.kitab_name },
   });
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/madrasa/kitab`);
+  revalidatePath(`/admin/madrasa/kitab`);
   return ok(undefined, "কিতাব যোগ হয়েছে।");
 }
 
@@ -107,6 +107,6 @@ export async function updateKitabProgressAction(
     );
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/madrasa/kitab`);
+  revalidatePath(`/admin/madrasa/kitab`);
   return ok(undefined, "অগ্রগতি আপডেট হয়েছে।");
 }

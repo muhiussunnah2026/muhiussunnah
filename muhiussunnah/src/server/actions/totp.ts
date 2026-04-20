@@ -74,7 +74,7 @@ export async function verifyTotpAction(
     .update({ verified_at: new Date().toISOString() })
     .eq("user_id", auth.session.userId);
 
-  revalidatePath(`/school/${schoolSlug}/admin/settings/2fa`);
+  revalidatePath(`/admin/settings/2fa`);
   return ok(null, "2FA সফলভাবে চালু হয়েছে।");
 }
 
@@ -97,6 +97,6 @@ export async function disableTotpAction(
     .eq("user_id", auth.session.userId);
 
   if (error) return fail(error.message);
-  revalidatePath(`/school/${schoolSlug}/admin/settings/2fa`);
+  revalidatePath(`/admin/settings/2fa`);
   return ok(null, "2FA বন্ধ করা হয়েছে।");
 }

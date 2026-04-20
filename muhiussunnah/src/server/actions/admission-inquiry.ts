@@ -66,7 +66,7 @@ export async function addInquiryAction(
     resourceType: "admission_inquiry",
     meta: { student_name: parsed.student_name, source: parsed.source },
   });
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/admission-inquiry`);
+  revalidatePath(`/admin/admission-inquiry`);
   return ok(undefined, "নতুন ভর্তি জিজ্ঞাসা যোগ হয়েছে।");
 }
 
@@ -105,6 +105,6 @@ export async function updateInquiryStatusAction(
     .eq("school_id", auth.active.school_id);
   if (error) return fail(error.message);
 
-  revalidatePath(`/school/${parsed.schoolSlug}/admin/admission-inquiry`);
+  revalidatePath(`/admin/admission-inquiry`);
   return ok(undefined, "স্ট্যাটাস আপডেট হয়েছে।");
 }
