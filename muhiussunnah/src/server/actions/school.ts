@@ -24,6 +24,7 @@ const updateSchoolSchema = z.object({
   schoolSlug: z.string().min(1),
   name_bn: z.string().trim().min(2).max(200),
   name_en: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
+  name_ar: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
   eiin: z.string().trim().max(20).optional().or(z.literal("").transform(() => undefined)),
   type: z.enum(["school", "madrasa", "both"]),
   address: z.string().trim().max(500).optional().or(z.literal("").transform(() => undefined)),
@@ -37,7 +38,15 @@ const updateSchoolSchema = z.object({
     .optional()
     .transform((raw) => {
       if (!raw) return undefined;
-      const allowed = new Set(["name_bn", "name_en", "address", "phone", "email", "website"]);
+      const allowed = new Set([
+        "name_bn",
+        "name_en",
+        "name_ar",
+        "address",
+        "phone",
+        "email",
+        "website",
+      ]);
       const parts = raw
         .split(",")
         .map((s) => s.trim())
@@ -68,6 +77,7 @@ export async function updateSchoolAction(
   const baseUpdate: Record<string, unknown> = {
     name_bn: parsed.name_bn,
     name_en: parsed.name_en ?? null,
+    name_ar: parsed.name_ar ?? null,
     eiin: parsed.eiin ?? null,
     type: parsed.type,
     address: parsed.address ?? null,
@@ -98,12 +108,14 @@ export async function updateSchoolAction(
     .update({ ...baseUpdate, ...brandingUpdate })
     .eq("id", auth.active.school_id);
 
-  // If any of the branding migrations (0018 / 0020) haven't been applied
-  // yet, retry without the extra columns so the core form still saves.
+  // If any of the branding migrations (0018 / 0020 / 0021) haven't been
+  // applied yet, retry without the extra columns so the core form still saves.
   if (
     error &&
-    /column .*(logo_url|display_name_locale|header_display_fields)/i.test(error.message ?? "")
+    /column .*(logo_url|display_name_locale|header_display_fields|name_ar)/i.test(error.message ?? "")
   ) {
+    // Drop the brand-new fields from baseUpdate too if needed
+    delete baseUpdate.name_ar;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const retry = await (supabase as any)
       .from("schools")

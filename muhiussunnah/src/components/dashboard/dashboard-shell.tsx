@@ -81,11 +81,15 @@ export async function DashboardShell({
 
       {/* Header — institution identity is the hero. Lightweight
           backdrop-blur-sm is plenty visually; backdrop-blur-xl was a
-          noticeable scroll-cost on phones. */}
+          noticeable scroll-cost on phones.
+
+          Layout: 3 equal-width columns so the center content truly lives
+          in the geometric middle regardless of how much lives on the two
+          sides. Side columns justify to their edges. */}
       <header className="sticky top-0 z-30 border-b border-border/50 bg-background/90 backdrop-blur-sm shadow-sm shadow-primary/5">
-        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3.5 md:px-6">
+        <div className="grid grid-cols-3 items-center gap-4 px-4 py-3.5 md:px-6">
           {/* Left — institution logo */}
-          <Link href="/" className="group/brand flex items-center gap-3">
+          <Link href="/" className="group/brand flex items-center gap-3 justify-self-start">
             <span className="relative inline-flex size-12 items-center justify-center overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-primary/10 to-accent/10 shadow-lg shadow-primary/10 transition-transform group-hover/brand:scale-105">
               {logoUrl ? (
                 <Image
@@ -105,7 +109,7 @@ export async function DashboardShell({
           </Link>
 
           {/* Center — composed institution identity */}
-          <div className="min-w-0 text-center">
+          <div className="min-w-0 text-center justify-self-center w-full">
             {visibleFields.length > 0 ? (
               <>
                 {primary ? (
@@ -134,7 +138,7 @@ export async function DashboardShell({
           </div>
 
           {/* Right — theme + language + live indicator + user + logout */}
-          <div className="flex items-center gap-1.5 justify-end">
+          <div className="flex items-center gap-1.5 justify-self-end">
             <div className="hidden md:inline-flex items-center gap-1.5">
               <LanguageSwitcher current={locale} compact />
               <ThemeToggle />

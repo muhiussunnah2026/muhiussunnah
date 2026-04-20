@@ -12,24 +12,34 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { updateSchoolAction } from "@/server/actions/school";
 import type { ActionResult } from "@/server/actions/_helpers";
 
-type HeaderFieldKey = "name_bn" | "name_en" | "address" | "phone" | "email" | "website";
+type HeaderFieldKey = "name_bn" | "name_en" | "name_ar" | "address" | "phone" | "email" | "website";
 
 const HEADER_FIELD_LABELS: Record<HeaderFieldKey, string> = {
   name_bn: "বাংলা নাম",
   name_en: "English নাম",
+  name_ar: "العربية (আরবি নাম)",
   address: "ঠিকানা",
   phone: "ফোন",
   email: "ইমেইল",
   website: "ওয়েবসাইট",
 };
 
-const ALL_KEYS: HeaderFieldKey[] = ["name_bn", "name_en", "address", "phone", "email", "website"];
+const ALL_KEYS: HeaderFieldKey[] = [
+  "name_bn",
+  "name_en",
+  "name_ar",
+  "address",
+  "phone",
+  "email",
+  "website",
+];
 
 type Props = {
   schoolSlug: string;
   initial: {
     name_bn: string;
     name_en: string | null;
+    name_ar?: string | null;
     eiin: string | null;
     type: "school" | "madrasa" | "both";
     address: string | null;
@@ -44,10 +54,11 @@ type Props = {
 
 function parseHeaderFields(raw: string | null | undefined): HeaderFieldKey[] {
   if (!raw) return ["name_bn"];
+  const allowed = new Set<string>(ALL_KEYS);
   const parts = raw
     .split(",")
     .map((s) => s.trim())
-    .filter((s): s is HeaderFieldKey => (ALL_KEYS as string[]).includes(s));
+    .filter((s): s is HeaderFieldKey => allowed.has(s));
   return parts.length ? parts : ["name_bn"];
 }
 
@@ -170,6 +181,20 @@ export function SchoolSettingsForm({ schoolSlug, initial }: Props) {
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="name_en">Institution name (English)</Label>
         <Input id="name_en" name="name_en" defaultValue={initial.name_en ?? ""} />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="name_ar">
+          اسم المؤسسة (العربية) <span className="text-xs text-muted-foreground ms-1">আরবি নাম · ঐচ্ছিক</span>
+        </Label>
+        <Input
+          id="name_ar"
+          name="name_ar"
+          dir="rtl"
+          lang="ar"
+          defaultValue={initial.name_ar ?? ""}
+          placeholder="اسم المؤسسة بالعربية"
+        />
       </div>
 
       {/* Display name in header — multi-checkbox composition */}

@@ -56,13 +56,14 @@ export default async function SchoolAdminLayout({ children, params }: Props) {
   const fieldValueMap: Record<string, string | null | undefined> = {
     name_bn: membership.school_name_bn,
     name_en: membership.school_name_en,
+    name_ar: schoolRow?.name_ar ?? null,
     address: schoolRow?.address ?? null,
     phone: schoolRow?.phone ?? null,
     email: schoolRow?.email ?? null,
     website: schoolRow?.website ?? null,
   };
 
-  const allowed = new Set(["name_bn", "name_en", "address", "phone", "email", "website"]);
+  const allowed = new Set(["name_bn", "name_en", "name_ar", "address", "phone", "email", "website"]);
   const parts = rawHeaderFields
     .split(",")
     .map((s) => s.trim())

@@ -12,7 +12,7 @@ export const getSchoolBranding = cache(async (schoolId: string) => {
   const { data } = await (supabase as any)
     .from("schools")
     .select(
-      "id, name_bn, name_en, address, phone, email, website, logo_url, display_name_locale, header_display_fields",
+      "id, name_bn, name_en, name_ar, address, phone, email, website, logo_url, display_name_locale, header_display_fields",
     )
     .eq("id", schoolId)
     .maybeSingle();
@@ -21,6 +21,7 @@ export const getSchoolBranding = cache(async (schoolId: string) => {
     id: string;
     name_bn: string;
     name_en: string | null;
+    name_ar: string | null;
     address: string | null;
     phone: string | null;
     email: string | null;

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Shield } from "lucide-react";
+import { Shield, User } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth/session";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { SchoolSettingsForm } from "./settings-form";
+import { ProfileForm } from "./profile-form";
 
 type PageProps = { params: Promise<{ schoolSlug: string }> };
 
@@ -25,14 +26,22 @@ export default async function SchoolSettingsPage({ params }: PageProps) {
     .single();
 
   const school = data as {
-    slug: string; name_bn: string; name_en: string | null; eiin: string | null;
+    slug: string; name_bn: string; name_en: string | null; name_ar?: string | null;
+    eiin: string | null;
     type: "school" | "madrasa" | "both"; address: string | null; phone: string | null;
     email: string | null; website: string | null;
     subscription_status: string; trial_ends_at: string | null;
     logo_url?: string | null; display_name_locale?: "bn" | "en" | null;
+    header_display_fields?: string | null;
   } | null;
 
   if (!school) return null;
+
+  // Current user's auth record + their school_users row for the profile card.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  const currentEmail = authUser?.email ?? "";
+  const currentFullName = membership.full_name_bn ?? membership.full_name_en ?? "";
 
   return (
     <>
@@ -49,6 +58,25 @@ export default async function SchoolSettingsPage({ params }: PageProps) {
           <CardContent className="p-5">
             <h2 className="mb-4 text-lg font-semibold">মৌলিক তথ্য</h2>
             <SchoolSettingsForm schoolSlug={schoolSlug} initial={school} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="flex flex-col gap-4 p-5">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex size-9 items-center justify-center rounded-xl bg-gradient-primary text-white shadow-lg shadow-primary/25">
+                <User className="size-4" />
+              </span>
+              <div>
+                <h2 className="text-lg font-semibold leading-tight">আমার প্রোফাইল</h2>
+                <p className="text-xs text-muted-foreground">নাম, ইমেইল, পাসওয়ার্ড পরিবর্তন</p>
+              </div>
+            </div>
+            <ProfileForm
+              schoolSlug={schoolSlug}
+              currentEmail={currentEmail}
+              currentFullName={currentFullName}
+            />
           </CardContent>
         </Card>
 
