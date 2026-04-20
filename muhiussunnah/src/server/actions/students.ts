@@ -38,9 +38,12 @@ const studentSchema = z.object({
   guardian_phone: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
   guardian_name: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
   guardian_relation: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
+  mother_name: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
+  mother_phone: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
   address_present: z.string().trim().max(500).optional().or(z.literal("").transform(() => undefined)),
   address_permanent: z.string().trim().max(500).optional().or(z.literal("").transform(() => undefined)),
   previous_school: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
+  photo_data_url: z.string().optional(),
 });
 
 /** Generate a unique student code: STU-YYYYMM-XXXX. */
@@ -75,6 +78,12 @@ export async function addStudentAction(
   const supabase = await supabaseServer();
   const code = parsed.student_code ?? (await nextStudentCode(auth.active.school_id));
 
+  // Persist photo if the form captured one (data URL from camera/file upload).
+  const photoUrl =
+    parsed.photo_data_url && parsed.photo_data_url.startsWith("data:")
+      ? parsed.photo_data_url
+      : null;
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: studentRow, error } = await (supabase as any)
     .from("students")
@@ -93,7 +102,8 @@ export async function addStudentAction(
       blood_group: parsed.blood_group ?? null,
       religion: parsed.religion ?? null,
       nid_birth_cert: parsed.nid_birth_cert ?? null,
-      guardian_phone: parsed.guardian_phone ?? null,
+      guardian_phone: parsed.guardian_phone ?? parsed.mother_phone ?? null,
+      photo_url: photoUrl,
       address_present: parsed.address_present ?? null,
       address_permanent: parsed.address_permanent ?? null,
       previous_school: parsed.previous_school ?? null,
@@ -103,15 +113,28 @@ export async function addStudentAction(
     .single();
   if (error || !studentRow) return fail(error?.message ?? "শিক্ষার্থী যোগ করা যায়নি।");
 
-  // Optional guardian record in the same transaction
+  // Father / primary guardian record
   if (parsed.guardian_name || parsed.guardian_phone) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase as any).from("student_guardians").insert({
       student_id: studentRow.id,
       name_bn: parsed.guardian_name ?? "অভিভাবক",
       phone: parsed.guardian_phone ?? null,
-      relation: parsed.guardian_relation ?? "guardian",
-      is_primary: true,
+      relation: parsed.guardian_relation === "mother" ? "mother" : "father",
+      is_primary: parsed.guardian_relation !== "mother",
+    });
+  }
+
+  // Mother record — separate from the primary guardian so SMS/contact can
+  // resolve per role even when only one parent is the primary contact.
+  if (parsed.mother_name || parsed.mother_phone) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from("student_guardians").insert({
+      student_id: studentRow.id,
+      name_bn: parsed.mother_name ?? "মা",
+      phone: parsed.mother_phone ?? null,
+      relation: "mother",
+      is_primary: parsed.guardian_relation === "mother",
     });
   }
 

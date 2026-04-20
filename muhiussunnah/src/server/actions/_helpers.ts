@@ -45,7 +45,7 @@ export function parseForm<S extends ZodSchema>(schema: S, formData: FormData): z
     for (const [k, v] of Object.entries(rawFields)) {
       if (v && v.length > 0) fields[k] = v;
     }
-    return { error: fail("ফর্মে ত্রুটি আছে। ফিল্ডগুল ো চেক করুন।", fields) };
+    return { error: fail("ফর্মে ত্রুটি আছে। লাল চিহ্নিত ফিল্ডগুলো ঠিক করুন।", fields) };
   }
   return parsed.data;
 }

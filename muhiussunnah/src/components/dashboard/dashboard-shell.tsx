@@ -5,6 +5,7 @@ import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrustBadge } from "@/components/ui/trust-badge";
 import { LiveIndicator } from "@/components/ui/live-indicator";
+import { SidebarNav } from "./sidebar-nav";
 import { signOutAction } from "@/server/actions/auth";
 
 type NavItem = {
@@ -96,20 +97,7 @@ export function DashboardShell({ title, subtitle, nav, userLabel, logoUrl, child
       <div className="relative flex flex-1">
         {/* Sidebar */}
         <aside className="sticky top-[74px] hidden h-[calc(100vh-74px)] w-60 shrink-0 flex-col overflow-y-auto border-e border-border/50 bg-sidebar/60 backdrop-blur-sm px-3 py-5 md:flex">
-          <nav className="flex flex-col gap-1">
-            {nav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="group/nav relative flex items-center gap-2.5 rounded-xl border border-transparent px-3.5 py-2.5 text-sm font-medium text-sidebar-foreground/80 transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary hover:shadow-sm hover:shadow-primary/5"
-              >
-                <span className="flex size-5 items-center justify-center text-muted-foreground transition-colors group-hover/nav:text-primary [&_svg]:size-4">
-                  {item.icon}
-                </span>
-                <span className="truncate">{item.label}</span>
-              </Link>
-            ))}
-          </nav>
+          <SidebarNav items={nav} />
 
           {/* Muhius Sunnah wordmark — small sidebar footer watermark */}
           <div className="mt-auto pt-4 border-t border-border/50 flex items-center gap-2 px-1 text-xs text-muted-foreground/70">
