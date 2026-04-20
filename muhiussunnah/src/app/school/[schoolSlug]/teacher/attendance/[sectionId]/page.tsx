@@ -21,31 +21,35 @@ export default async function AttendanceEntryPage({ params, searchParams }: Page
   const membership = await requireRole(schoolSlug, TEACHER_ROLES);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: section } = await (supabase as any)
-    .from("sections")
-    .select("id, name, classes!inner(name_bn, school_id)")
-    .eq("id", sectionId)
-    .eq("classes.school_id", membership.school_id)
-    .single();
+  // Independent queries — section meta, roster, existing attendance all keyed off sectionId.
+  const [sectionRes, studentsRes, existingRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("sections")
+      .select("id, name, classes!inner(name_bn, school_id)")
+      .eq("id", sectionId)
+      .eq("classes.school_id", membership.school_id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, name_bn, name_en, roll, photo_url, gender")
+      .eq("section_id", sectionId)
+      .eq("status", "active")
+      .order("roll", { ascending: true, nullsFirst: false })
+      .order("name_bn"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("attendance")
+      .select("student_id, status, remarks")
+      .eq("section_id", sectionId)
+      .eq("date", date),
+  ]);
+  const { data: section } = sectionRes;
+  const { data: students } = studentsRes;
+  const { data: existing } = existingRes;
 
   if (!section) notFound();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: students } = await (supabase as any)
-    .from("students")
-    .select("id, name_bn, name_en, roll, photo_url, gender")
-    .eq("section_id", sectionId)
-    .eq("status", "active")
-    .order("roll", { ascending: true, nullsFirst: false })
-    .order("name_bn");
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: existing } = await (supabase as any)
-    .from("attendance")
-    .select("student_id, status, remarks")
-    .eq("section_id", sectionId)
-    .eq("date", date);
 
   const studentList = (students ?? []) as Array<{ id: string; name_bn: string; name_en: string | null; roll: number | null; photo_url: string | null; gender: string | null }>;
   const existingMap: Record<string, { status: string; remarks: string | null }> = {};

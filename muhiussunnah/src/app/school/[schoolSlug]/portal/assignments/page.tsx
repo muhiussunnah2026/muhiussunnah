@@ -41,32 +41,34 @@ export default async function PortalAssignmentsPage({ params }: PageProps) {
     );
   }
 
-  // Find active sections of linked students
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: studentsData } = await (supabase as any)
-    .from("students")
-    .select("id, name_bn, name_en, section_id")
-    .in("id", childrenIds)
-    .eq("is_active", true);
+  // Independent — both keyed off childrenIds only.
+  const [studentsRes, submissionsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, name_bn, name_en, section_id")
+      .in("id", childrenIds)
+      .eq("is_active", true),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("assignment_submissions")
+      .select("id, assignment_id, student_id, body, file_url, marks, feedback, submitted_at, graded_at")
+      .in("student_id", childrenIds),
+  ]);
+  const { data: studentsData } = studentsRes;
+  const { data: submissions } = submissionsRes;
 
   type Student = { id: string; name_bn: string | null; name_en: string | null; section_id: string | null };
   const students = (studentsData ?? []) as Student[];
   const sectionIds = [...new Set(students.map((s) => s.section_id).filter(Boolean))] as string[];
 
-  // Fetch assignments for those sections
+  // Fetch assignments for those sections — depends on sectionIds.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: assignments } = await (supabase as any)
     .from("assignments")
     .select("id, title, description, due_date, max_marks, section_id, subjects ( name_bn )")
     .in("section_id", sectionIds)
     .order("due_date", { ascending: true, nullsFirst: false });
-
-  // Fetch existing submissions
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: submissions } = await (supabase as any)
-    .from("assignment_submissions")
-    .select("id, assignment_id, student_id, body, file_url, marks, feedback, submitted_at, graded_at")
-    .in("student_id", childrenIds);
 
   type Assignment = { id: string; title: string; description: string | null; due_date: string | null; max_marks: number | null; section_id: string; subjects: { name_bn: string } | null };
   type Submission = { id: string; assignment_id: string; student_id: string; body: string | null; file_url: string | null; marks: number | null; feedback: string | null; submitted_at: string | null; graded_at: string | null };

@@ -59,20 +59,24 @@ export default async function InvoicesListPage({ params, searchParams }: PagePro
 
   if (search.status) q = q.eq("status", search.status);
 
-  const { data } = await q;
+  // Independent queries — invoice rows + class reference list for the generate panel.
+  const [dataRes, classesRes] = await Promise.all([
+    q,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("classes")
+      .select("id, name_bn")
+      .eq("school_id", membership.school_id)
+      .order("display_order"),
+  ]);
+  const { data } = dataRes;
+  const { data: classes } = classesRes;
   const invoices = (data ?? []) as Array<{
     id: string; invoice_no: string; month: number; year: number; issue_date: string | null; due_date: string | null;
     total_amount: number; paid_amount: number; due_amount: number; status: string;
     students: { id: string; name_bn: string; roll: number | null; student_code: string;
       sections: { name: string; classes: { name_bn: string } } | null } | null;
   }>;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: classes } = await (supabase as any)
-    .from("classes")
-    .select("id, name_bn")
-    .eq("school_id", membership.school_id)
-    .order("display_order");
 
   const totalDue = invoices.reduce((sum, i) => sum + Number(i.due_amount ?? 0), 0);
   const totalCollected = invoices.reduce((sum, i) => sum + Number(i.paid_amount ?? 0), 0);

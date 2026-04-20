@@ -24,35 +24,39 @@ export default async function StaffPermissionsPage({ params }: PageProps) {
   const membership = await requireRole(schoolSlug, ADMIN_ROLES);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: staff } = await (supabase as any)
-    .from("school_users")
-    .select("id, full_name_bn, full_name_en, email, role, status")
-    .eq("id", id)
-    .eq("school_id", membership.school_id)
-    .single();
+  // Independent queries — staff, permissions, classes, sections all keyed off id/school_id.
+  const [staffRes, permissionsRes, classesRes, sectionsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("school_users")
+      .select("id, full_name_bn, full_name_en, email, role, status")
+      .eq("id", id)
+      .eq("school_id", membership.school_id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("user_permissions")
+      .select("id, action, resource, scope_type, scope_id, granted_at, expires_at")
+      .eq("school_user_id", id)
+      .order("granted_at", { ascending: false }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("classes")
+      .select("id, name_bn")
+      .eq("school_id", membership.school_id)
+      .order("display_order"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("sections")
+      .select("id, name, class_id, classes!inner(name_bn, school_id)")
+      .eq("classes.school_id", membership.school_id),
+  ]);
+  const { data: staff } = staffRes;
+  const { data: permissions } = permissionsRes;
+  const { data: classes } = classesRes;
+  const { data: sections } = sectionsRes;
 
   if (!staff) notFound();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: permissions } = await (supabase as any)
-    .from("user_permissions")
-    .select("id, action, resource, scope_type, scope_id, granted_at, expires_at")
-    .eq("school_user_id", id)
-    .order("granted_at", { ascending: false });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: classes } = await (supabase as any)
-    .from("classes")
-    .select("id, name_bn")
-    .eq("school_id", membership.school_id)
-    .order("display_order");
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: sections } = await (supabase as any)
-    .from("sections")
-    .select("id, name, class_id, classes!inner(name_bn, school_id)")
-    .eq("classes.school_id", membership.school_id);
 
   const perms = (permissions ?? []) as Array<{
     id: string; action: string; resource: string; scope_type: string; scope_id: string | null;

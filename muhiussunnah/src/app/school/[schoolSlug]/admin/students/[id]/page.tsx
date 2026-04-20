@@ -20,43 +20,48 @@ export default async function StudentDetailPage({ params }: PageProps) {
   const membership = await requireRole(schoolSlug, [...ADMIN_ROLES, "ACCOUNTANT"]);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: s } = await (supabase as any)
-    .from("students")
-    .select(`
-      id, student_code, name_bn, name_en, name_ar, roll, gender, photo_url,
-      blood_group, religion, date_of_birth, admission_date, guardian_phone,
-      address_present, address_permanent, previous_school, status,
-      section_id, sections ( id, name, classes ( id, name_bn ) ),
-      student_guardians ( id, name_bn, phone, relation, is_primary )
-    `)
-    .eq("id", id)
-    .eq("school_id", membership.school_id)
-    .single();
+  // Independent queries — student, attendance, ledger all keyed off the same student id;
+  // sections are keyed off school_id. All can run in parallel.
+  const [sRes, attendanceRes, ledgerRes, sectionsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select(`
+        id, student_code, name_bn, name_en, name_ar, roll, gender, photo_url,
+        blood_group, religion, date_of_birth, admission_date, guardian_phone,
+        address_present, address_permanent, previous_school, status,
+        section_id, sections ( id, name, classes ( id, name_bn ) ),
+        student_guardians ( id, name_bn, phone, relation, is_primary )
+      `)
+      .eq("id", id)
+      .eq("school_id", membership.school_id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("attendance")
+      .select("date, status")
+      .eq("student_id", id)
+      .order("date", { ascending: false })
+      .limit(30),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("student_ledger_entries")
+      .select("id, date, ref_type, debit, credit, running_balance, note")
+      .eq("student_id", id)
+      .order("date", { ascending: false })
+      .limit(50),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("sections")
+      .select("id, name, class_id, classes!inner(name_bn, school_id)")
+      .eq("classes.school_id", membership.school_id),
+  ]);
+  const { data: s } = sRes;
+  const { data: attendance } = attendanceRes;
+  const { data: ledger } = ledgerRes;
+  const { data: sections } = sectionsRes;
 
   if (!s) notFound();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: attendance } = await (supabase as any)
-    .from("attendance")
-    .select("date, status")
-    .eq("student_id", id)
-    .order("date", { ascending: false })
-    .limit(30);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: ledger } = await (supabase as any)
-    .from("student_ledger_entries")
-    .select("id, date, ref_type, debit, credit, running_balance, note")
-    .eq("student_id", id)
-    .order("date", { ascending: false })
-    .limit(50);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: sections } = await (supabase as any)
-    .from("sections")
-    .select("id, name, class_id, classes!inner(name_bn, school_id)")
-    .eq("classes.school_id", membership.school_id);
 
   const student = s as {
     id: string; student_code: string; name_bn: string; name_en: string | null; name_ar: string | null;

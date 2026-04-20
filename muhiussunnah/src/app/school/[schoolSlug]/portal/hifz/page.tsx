@@ -51,17 +51,21 @@ export default async function PortalHifzPage({ params }: PageProps) {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: students } = await (supabase as any)
-    .from("students")
-    .select("id, name_bn")
-    .in("id", childIds);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: progress } = await (supabase as any)
-    .from("hifz_progress")
-    .select("student_id, para_no, status, mark, tested_on")
-    .in("student_id", childIds);
+  // Independent queries — both keyed off childIds only.
+  const [studentsRes, progressRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, name_bn")
+      .in("id", childIds),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("hifz_progress")
+      .select("student_id, para_no, status, mark, tested_on")
+      .in("student_id", childIds),
+  ]);
+  const { data: students } = studentsRes;
+  const { data: progress } = progressRes;
 
   const byStudent = new Map<string, Map<number, { status: string; mark: number | null; tested_on: string | null }>>();
   for (const p of (progress ?? []) as Array<{ student_id: string; para_no: number; status: string; mark: number | null; tested_on: string | null }>) {

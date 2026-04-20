@@ -62,31 +62,31 @@ export default async function PortalHomePage({ params }: PageProps) {
     .limit(5);
   const notices = (noticesData ?? []) as { id: string; title: string; body: string; sent_at: string | null; created_at: string }[];
 
-  // Today's attendance for first child
+  // Today's attendance + pending fees for first child — independent, both keyed off firstChild.id.
   let todayAtt: { status: string } | null = null;
   let recentAttendance: { date: string; status: string }[] = [];
-  if (firstChild) {
-    const d = new Date().toISOString().slice(0, 10);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: att } = await (supabase as any)
-      .from("attendance")
-      .select("date, status")
-      .eq("student_id", firstChild.id)
-      .order("date", { ascending: false })
-      .limit(30);
-    recentAttendance = (att ?? []) as { date: string; status: string }[];
-    todayAtt = recentAttendance.find((a) => a.date === d) ?? null;
-  }
-
-  // Pending fees
   let dueTotal = 0;
   if (firstChild) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: invs } = await (supabase as any)
-      .from("fee_invoices")
-      .select("due_amount")
-      .eq("student_id", firstChild.id)
-      .in("status", ["unpaid", "partial", "overdue"]);
+    const d = new Date().toISOString().slice(0, 10);
+    const [attRes, invsRes] = await Promise.all([
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase as any)
+        .from("attendance")
+        .select("date, status")
+        .eq("student_id", firstChild.id)
+        .order("date", { ascending: false })
+        .limit(30),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase as any)
+        .from("fee_invoices")
+        .select("due_amount")
+        .eq("student_id", firstChild.id)
+        .in("status", ["unpaid", "partial", "overdue"]),
+    ]);
+    const { data: att } = attRes;
+    const { data: invs } = invsRes;
+    recentAttendance = (att ?? []) as { date: string; status: string }[];
+    todayAtt = recentAttendance.find((a) => a.date === d) ?? null;
     dueTotal = ((invs ?? []) as { due_amount: number }[]).reduce((sum, i) => sum + Number(i.due_amount ?? 0), 0);
   }
 

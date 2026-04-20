@@ -63,14 +63,18 @@ export default async function StudentsListPage({ params, searchParams }: PagePro
   }
   if (search.q) query = query.ilike("name_bn", `%${search.q}%`);
 
-  const { data } = await query;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: classes } = await (supabase as any)
-    .from("classes")
-    .select("id, name_bn, sections(id, name)")
-    .eq("school_id", membership.school_id)
-    .order("display_order");
+  // Independent queries — built student query + class/section reference list for filter.
+  const [dataRes, classesRes] = await Promise.all([
+    query,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("classes")
+      .select("id, name_bn, sections(id, name)")
+      .eq("school_id", membership.school_id)
+      .order("display_order"),
+  ]);
+  const { data } = dataRes;
+  const { data: classes } = classesRes;
 
   const students = (data ?? []) as Array<{
     id: string; student_code: string; name_bn: string; name_en: string | null;

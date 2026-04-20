@@ -18,12 +18,17 @@ export default async function SchoolSettingsPage({ params }: PageProps) {
   const supabase = await supabaseServer();
   // Select the * so new columns (logo_url, display_name_locale from migration
   // 0018) are included if present; unmigrated projects fall back gracefully.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data } = await (supabase as any)
-    .from("schools")
-    .select("*")
-    .eq("id", membership.school_id)
-    .single();
+  // Independent queries — school row + current auth user.
+  const [schoolRes, authRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("schools")
+      .select("*")
+      .eq("id", membership.school_id)
+      .single(),
+    supabase.auth.getUser(),
+  ]);
+  const { data } = schoolRes;
 
   const school = data as {
     slug: string; name_bn: string; name_en: string | null; name_ar?: string | null;
@@ -38,8 +43,7 @@ export default async function SchoolSettingsPage({ params }: PageProps) {
   if (!school) return null;
 
   // Current user's auth record + their school_users row for the profile card.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: { user: authUser } } = await supabase.auth.getUser();
+  const { data: { user: authUser } } = authRes;
   const currentEmail = authUser?.email ?? "";
   const currentFullName = membership.full_name_bn ?? membership.full_name_en ?? "";
 

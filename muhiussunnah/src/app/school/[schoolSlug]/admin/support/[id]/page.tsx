@@ -18,21 +18,25 @@ export default async function TicketDetailPage({ params }: PageProps) {
   const membership = await requireRole(schoolSlug, [...ADMIN_ROLES, "ACCOUNTANT"]);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: ticket } = await (supabase as any)
-    .from("support_tickets")
-    .select("id, subject, body, priority, status, category, created_at, created_by, school_id")
-    .eq("id", id)
-    .single();
+  // Independent queries — ticket + its messages both keyed off the ticket id.
+  const [ticketRes, messagesRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("support_tickets")
+      .select("id, subject, body, priority, status, category, created_at, created_by, school_id")
+      .eq("id", id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("support_messages")
+      .select("id, user_id, body, created_at")
+      .eq("ticket_id", id)
+      .order("created_at", { ascending: true }),
+  ]);
+  const { data: ticket } = ticketRes;
+  const { data: messages } = messagesRes;
 
   if (!ticket || ticket.school_id !== membership.school_id) notFound();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: messages } = await (supabase as any)
-    .from("support_messages")
-    .select("id, user_id, body, created_at")
-    .eq("ticket_id", id)
-    .order("created_at", { ascending: true });
 
   const msgs = (messages ?? []) as { id: string; user_id: string; body: string; created_at: string }[];
 

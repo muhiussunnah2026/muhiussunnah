@@ -16,20 +16,23 @@ export default async function TeacherAttendanceIndexPage({ params }: PageProps) 
 
   const supabase = await supabaseServer();
 
-  // Find sections this teacher is assigned to, either as class_teacher or via teacher_assignments
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: sectionsAsClassTeacher } = await (supabase as any)
-    .from("sections")
-    .select("id, name, classes!inner(name_bn, school_id)")
-    .eq("classes.school_id", membership.school_id)
-    .eq("class_teacher_id", membership.school_user_id);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: assignments } = await (supabase as any)
-    .from("teacher_assignments")
-    .select("section_id, sections!inner(id, name, classes!inner(name_bn, school_id))")
-    .eq("school_user_id", membership.school_user_id)
-    .eq("sections.classes.school_id", membership.school_id);
+  // Independent queries — both keyed off the same user_id / school_id.
+  const [sectionsAsClassTeacherRes, assignmentsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("sections")
+      .select("id, name, classes!inner(name_bn, school_id)")
+      .eq("classes.school_id", membership.school_id)
+      .eq("class_teacher_id", membership.school_user_id),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("teacher_assignments")
+      .select("section_id, sections!inner(id, name, classes!inner(name_bn, school_id))")
+      .eq("school_user_id", membership.school_user_id)
+      .eq("sections.classes.school_id", membership.school_id),
+  ]);
+  const { data: sectionsAsClassTeacher } = sectionsAsClassTeacherRes;
+  const { data: assignments } = assignmentsRes;
 
   const sectionMap = new Map<string, { id: string; name: string; class_name: string }>();
   for (const s of (sectionsAsClassTeacher ?? []) as Array<{ id: string; name: string; classes: { name_bn: string } }>) {

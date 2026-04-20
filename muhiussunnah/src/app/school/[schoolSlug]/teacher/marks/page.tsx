@@ -16,22 +16,24 @@ export default async function TeacherMarksIndexPage({ params }: PageProps) {
 
   const supabase = await supabaseServer();
 
-  // Get teacher's assigned subject-section combos
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: assignments } = await (supabase as any)
-    .from("teacher_assignments")
-    .select("section_id, subject_id")
-    .eq("school_user_id", membership.school_user_id);
+  // Independent queries — both keyed off the same user_id.
+  const [assignmentsRes, classTeacherSectionsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("teacher_assignments")
+      .select("section_id, subject_id")
+      .eq("school_user_id", membership.school_user_id),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("sections")
+      .select("id")
+      .eq("class_teacher_id", membership.school_user_id),
+  ]);
+  const { data: assignments } = assignmentsRes;
+  const { data: classTeacherSections } = classTeacherSectionsRes;
 
   const subjectIds = new Set(((assignments ?? []) as { subject_id: string | null }[]).map((a) => a.subject_id).filter(Boolean));
   const sectionIds = new Set(((assignments ?? []) as { section_id: string }[]).map((a) => a.section_id));
-
-  // Also look at class_teacher_id sections (class teacher marks their own class)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: classTeacherSections } = await (supabase as any)
-    .from("sections")
-    .select("id")
-    .eq("class_teacher_id", membership.school_user_id);
   for (const s of ((classTeacherSections ?? []) as { id: string }[])) sectionIds.add(s.id);
 
   // Find exam_subjects matching the teacher's scope (active exams)

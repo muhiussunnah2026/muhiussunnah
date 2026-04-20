@@ -27,49 +27,54 @@ export default async function PortalMarksheetPage({ params }: PageProps) {
     if (!link) redirect(`/school/${schoolSlug}/portal/results`);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: exam } = await (supabase as any)
-    .from("exams")
-    .select("id, name, start_date, end_date, is_published, published_at, school_id")
-    .eq("id", examId)
-    .single();
+  // Independent queries — all keyed off examId / studentId / school_id directly.
+  const [examRes, studentRes, schoolRes, marksRes, reportCardRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("exams")
+      .select("id, name, start_date, end_date, is_published, published_at, school_id")
+      .eq("id", examId)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, name_bn, name_en, student_code, roll, photo_url, date_of_birth, sections(name, classes(name_bn))")
+      .eq("id", studentId)
+      .eq("school_id", membership.school_id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("schools")
+      .select("name_bn, name_en, eiin, address, phone, logo_url")
+      .eq("id", membership.school_id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("marks")
+      .select(`
+        marks_obtained, is_absent, grade,
+        exam_subjects!inner(full_marks, pass_marks, exam_id, subjects(name_bn, code))
+      `)
+      .eq("student_id", studentId)
+      .eq("exam_subjects.exam_id", examId),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("report_cards")
+      .select("overall_gpa, overall_grade, total_marks_obtained, total_full_marks, position_in_class, attendance_pct, teacher_comment, ai_generated_comment, principal_remark")
+      .eq("student_id", studentId)
+      .eq("exam_id", examId)
+      .maybeSingle(),
+  ]);
+  const { data: exam } = examRes;
+  const { data: student } = studentRes;
+  const { data: school } = schoolRes;
+  const { data: marks } = marksRes;
+  const { data: reportCard } = reportCardRes;
+
   if (!exam || !exam.is_published || exam.school_id !== membership.school_id) {
     redirect(`/school/${schoolSlug}/portal/results`);
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: student } = await (supabase as any)
-    .from("students")
-    .select("id, name_bn, name_en, student_code, roll, photo_url, date_of_birth, sections(name, classes(name_bn))")
-    .eq("id", studentId)
-    .eq("school_id", membership.school_id)
-    .single();
   if (!student) notFound();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: school } = await (supabase as any)
-    .from("schools")
-    .select("name_bn, name_en, eiin, address, phone, logo_url")
-    .eq("id", membership.school_id)
-    .single();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: marks } = await (supabase as any)
-    .from("marks")
-    .select(`
-      marks_obtained, is_absent, grade,
-      exam_subjects!inner(full_marks, pass_marks, exam_id, subjects(name_bn, code))
-    `)
-    .eq("student_id", studentId)
-    .eq("exam_subjects.exam_id", examId);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: reportCard } = await (supabase as any)
-    .from("report_cards")
-    .select("overall_gpa, overall_grade, total_marks_obtained, total_full_marks, position_in_class, attendance_pct, teacher_comment, ai_generated_comment, principal_remark")
-    .eq("student_id", studentId)
-    .eq("exam_id", examId)
-    .maybeSingle();
 
   const marksList = (marks ?? []) as Array<{
     marks_obtained: number | null; is_absent: boolean; grade: string | null;
