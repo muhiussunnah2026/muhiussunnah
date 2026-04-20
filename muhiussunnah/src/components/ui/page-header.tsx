@@ -42,9 +42,13 @@ export function PageHeader({
 }: Props) {
   return (
     <header className={cn("relative flex flex-col gap-4 pb-6 mb-6", className)}>
-      {/* Soft accent glow behind the title */}
+      {/* Soft accent glow behind the title — twin orbs for a more dimensional feel */}
       <div
-        className="pointer-events-none absolute -top-8 -start-4 size-40 rounded-full bg-primary/10 blur-3xl opacity-70"
+        className="pointer-events-none absolute -top-8 -start-4 size-40 rounded-full bg-primary/15 blur-3xl opacity-70"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -top-4 start-32 size-32 rounded-full bg-accent/10 blur-3xl opacity-60"
         aria-hidden
       />
 
@@ -56,7 +60,7 @@ export function PageHeader({
       ) : null}
 
       <div className="relative flex flex-col gap-1.5">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl lg:text-4xl">
+        <h1 className="text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl bg-gradient-to-br from-foreground via-foreground to-primary/80 bg-clip-text text-transparent">
           {title}
         </h1>
         {subtitle ? (
@@ -70,7 +74,7 @@ export function PageHeader({
             <span
               key={i}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium shadow-sm backdrop-blur-sm",
+                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium shadow-sm backdrop-blur-sm transition-transform hover:-translate-y-0.5",
                 toneClasses[chip.tone ?? "default"],
               )}
             >
@@ -81,8 +85,11 @@ export function PageHeader({
         </div>
       ) : null}
 
-      {/* Gradient underline instead of hard separator */}
-      <div className="relative h-px bg-gradient-to-r from-border/0 via-border/70 to-border/0" aria-hidden />
+      {/* Gradient underline — accent colored to match brand */}
+      <div
+        className="relative h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent"
+        aria-hidden
+      />
     </header>
   );
 }

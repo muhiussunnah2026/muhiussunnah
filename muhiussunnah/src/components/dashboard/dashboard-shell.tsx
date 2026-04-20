@@ -70,50 +70,64 @@ export async function DashboardShell({
 
   return (
     <div className="relative flex min-h-screen flex-col bg-background">
-      {/* Subtle static gradient wash — cheaper than the double-blur aurora
-          we used earlier. Heavy blur() on huge elements hits the GPU on
-          every scroll/navigation and is the single biggest cost for low-end
-          devices. */}
+      {/* Ambient gradient wash behind the whole dashboard — gives a "branded"
+          feel without costing GPU on scroll (no animation, no blur on big
+          surfaces). A second soft orb at bottom completes the composition. */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary/5 via-accent/5 to-transparent"
+        className="pointer-events-none fixed inset-x-0 top-0 h-72 bg-gradient-to-b from-primary/[0.06] via-accent/[0.04] to-transparent"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none fixed -bottom-40 -end-40 size-96 rounded-full bg-accent/[0.05] blur-3xl"
         aria-hidden
       />
 
-      {/* Header — institution identity is the hero. Lightweight
-          backdrop-blur-sm is plenty visually; backdrop-blur-xl was a
-          noticeable scroll-cost on phones.
-
-          Layout: 3 equal-width columns so the center content truly lives
-          in the geometric middle regardless of how much lives on the two
-          sides. Side columns justify to their edges. */}
-      <header className="sticky top-0 z-30 border-b border-border/50 bg-background/90 backdrop-blur-sm shadow-sm shadow-primary/5">
-        <div className="grid grid-cols-3 items-center gap-4 px-4 py-3.5 md:px-6">
-          {/* Left — institution logo */}
+      {/* Header — institution identity is the hero. Ambient gradient glow
+          behind center content, gradient underline (not a flat border),
+          glass-morphism backdrop. */}
+      <header className="sticky top-0 z-30 bg-background/85 backdrop-blur-md shadow-sm shadow-primary/[0.06]">
+        {/* Aurora glow behind center content */}
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-full bg-gradient-to-b from-primary/[0.04] via-accent/[0.02] to-transparent"
+          aria-hidden
+        />
+        {/* Gradient underline — more premium than a flat border */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"
+          aria-hidden
+        />
+        <div className="relative grid grid-cols-3 items-center gap-4 px-4 py-3.5 md:px-6">
+          {/* Left — institution logo with animated gradient ring */}
           <Link href="/" className="group/brand flex items-center gap-3 justify-self-start">
-            <span className="relative inline-flex size-12 items-center justify-center overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-primary/10 to-accent/10 shadow-lg shadow-primary/10 transition-transform group-hover/brand:scale-105">
+            <span className="relative inline-flex size-12 items-center justify-center overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-background to-accent/15 shadow-lg shadow-primary/15 transition-all group-hover/brand:scale-105 group-hover/brand:shadow-primary/25">
+              {/* Rotating gradient halo on hover */}
+              <span
+                className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-tr from-primary/0 via-primary/20 to-accent/0 opacity-0 transition-opacity duration-500 group-hover/brand:opacity-100"
+                aria-hidden
+              />
               {logoUrl ? (
                 <Image
                   src={logoUrl}
                   alt="Institution logo"
                   width={48}
                   height={48}
-                  className="size-full object-contain"
+                  className="relative size-full object-contain"
                   unoptimized
                 />
               ) : (
-                <span className="text-2xl font-extrabold bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent">
+                <span className="relative text-2xl font-extrabold bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent">
                   م
                 </span>
               )}
             </span>
           </Link>
 
-          {/* Center — composed institution identity */}
+          {/* Center — institution identity with gradient accent */}
           <div className="min-w-0 text-center justify-self-center w-full">
             {visibleFields.length > 0 ? (
               <>
                 {primary ? (
-                  <h1 className="truncate text-lg font-extrabold tracking-tight leading-tight md:text-2xl lg:text-3xl">
+                  <h1 className="truncate text-lg font-extrabold tracking-tight leading-tight md:text-2xl lg:text-3xl bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent">
                     {primary.value}
                   </h1>
                 ) : null}
@@ -125,7 +139,7 @@ export async function DashboardShell({
               </>
             ) : (
               <>
-                <h1 className="truncate text-lg font-extrabold tracking-tight leading-tight md:text-2xl lg:text-3xl">
+                <h1 className="truncate text-lg font-extrabold tracking-tight leading-tight md:text-2xl lg:text-3xl bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent">
                   {title}
                 </h1>
                 {subtitle ? (
@@ -165,18 +179,40 @@ export async function DashboardShell({
       </header>
 
       <div className="relative flex flex-1">
-        {/* Sidebar */}
-        <aside className="sticky top-[74px] hidden h-[calc(100vh-74px)] w-60 shrink-0 flex-col overflow-y-auto border-e border-border/50 bg-sidebar/60 backdrop-blur-sm px-3 py-5 md:flex">
-          <SidebarNav items={nav} />
+        {/* Sidebar — glass panel with gradient accents top + bottom */}
+        <aside className="relative sticky top-[74px] hidden h-[calc(100vh-74px)] w-60 shrink-0 flex-col overflow-y-auto bg-sidebar/70 backdrop-blur-md px-3 py-5 md:flex">
+          {/* Left edge gradient border — subtle brand rail */}
+          <div
+            className="pointer-events-none absolute end-0 inset-y-0 w-px bg-gradient-to-b from-primary/20 via-primary/40 to-accent/20"
+            aria-hidden
+          />
+          {/* Top-corner glow to match marketing aesthetic */}
+          <div
+            className="pointer-events-none absolute -top-8 -start-8 size-40 rounded-full bg-primary/10 blur-3xl"
+            aria-hidden
+          />
 
-          {/* Muhius Sunnah wordmark — small sidebar footer watermark */}
-          <div className="mt-auto pt-4 border-t border-border/50 flex items-center gap-2 px-1 text-xs text-muted-foreground/70">
-            <span className="inline-flex size-5 items-center justify-center rounded-md bg-gradient-primary text-white font-bold text-[10px]">
-              م
-            </span>
-            <span className="font-medium">
-              Powered by <span className="text-foreground/80">Muhius Sunnah</span>
-            </span>
+          <div className="relative">
+            <SidebarNav items={nav} />
+          </div>
+
+          {/* Muhius Sunnah wordmark — premium gradient footer */}
+          <div className="relative mt-auto pt-4">
+            <div
+              className="pointer-events-none mb-3 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"
+              aria-hidden
+            />
+            <div className="flex items-center gap-2 px-1 text-xs text-muted-foreground/80">
+              <span className="inline-flex size-6 items-center justify-center rounded-md bg-gradient-primary animate-gradient text-white font-bold text-[11px] shadow-sm shadow-primary/30">
+                م
+              </span>
+              <span className="font-medium">
+                Powered by{" "}
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-semibold">
+                  Muhius Sunnah
+                </span>
+              </span>
+            </div>
           </div>
         </aside>
 
