@@ -49,6 +49,7 @@ const studentSchema = z.object({
   previous_school: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
   photo_data_url: z.string().optional(),
   session_id: z.string().uuid().optional().or(z.literal("").transform(() => undefined)),
+  session_name_new: z.string().trim().max(60).optional().or(z.literal("").transform(() => undefined)),
   rf_id_card: z.string().trim().max(100).optional().or(z.literal("").transform(() => undefined)),
   admission_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),
   tuition_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),
@@ -86,6 +87,44 @@ export async function addStudentAction(
 
   const supabase = await supabaseServer();
   const code = parsed.student_code ?? (await nextStudentCode(auth.active.school_id));
+
+  // Resolve session_id. If the form typed a brand-new session name (not in
+  // academic_years yet) we create that row first and use the resulting id.
+  let resolvedSessionId: string | null = parsed.session_id ?? null;
+  if (!resolvedSessionId && parsed.session_name_new) {
+    // Match an existing year by name first (case-insensitive) so we never
+    // duplicate sessions like "2026-2027" / "2026-2027".
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: existingYear } = await (supabase as any)
+      .from("academic_years")
+      .select("id")
+      .eq("school_id", auth.active.school_id)
+      .ilike("name", parsed.session_name_new)
+      .maybeSingle();
+    if (existingYear?.id) {
+      resolvedSessionId = existingYear.id as string;
+    } else {
+      // Create the new year. Use today as start_date and +365 days as
+      // end_date so RLS/constraints are satisfied; admins can refine the
+      // exact dates later in the Academic Years page.
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setFullYear(endDate.getFullYear() + 1);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: newYear } = await (supabase as any)
+        .from("academic_years")
+        .insert({
+          school_id: auth.active.school_id,
+          name: parsed.session_name_new,
+          start_date: startDate.toISOString().slice(0, 10),
+          end_date: endDate.toISOString().slice(0, 10),
+          is_active: false,
+        })
+        .select("id")
+        .single();
+      if (newYear?.id) resolvedSessionId = newYear.id as string;
+    }
+  }
 
   // Resolve section_id. If the form didn't pick one explicitly, fall back to
   // the first section of the chosen class. If the class somehow has no
@@ -148,7 +187,7 @@ export async function addStudentAction(
     status: "active" as const,
   };
   const extended: Record<string, unknown> = {};
-  if (parsed.session_id) extended.session_id = parsed.session_id;
+  if (resolvedSessionId) extended.session_id = resolvedSessionId;
   if (parsed.rf_id_card) extended.rf_id_card = parsed.rf_id_card;
   if (parsed.admission_fee !== undefined) extended.admission_fee = parsed.admission_fee;
   if (parsed.tuition_fee !== undefined) extended.tuition_fee = parsed.tuition_fee;

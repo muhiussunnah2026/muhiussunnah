@@ -128,9 +128,22 @@ export function NewStudentForm({
   const [values, setValues] = useState<FormValues>(makeEmpty());
   const [classId, setClassId] = useState<string>("");
   const [sectionId, setSectionId] = useState<string>("");
-  const [sessionId, setSessionId] = useState<string>(
-    () => years.find((y) => y.is_active)?.id ?? years[0]?.id ?? "",
-  );
+  // Session is captured as a name-string. We convert it into an existing
+  // academic_year id on submit (server side) — or ask the server to create
+  // one if the name is new.
+  const initialYear = years.find((y) => y.is_active) ?? years[0];
+  const [sessionName, setSessionName] = useState<string>(initialYear?.name ?? "");
+
+  const resolvedSession = useMemo(() => {
+    const typed = sessionName.trim();
+    if (!typed) return { id: "", name: "" };
+    const existing = years.find(
+      (y) => y.name.trim().toLowerCase() === typed.toLowerCase(),
+    );
+    return existing
+      ? { id: existing.id, name: existing.name }
+      : { id: "", name: typed };
+  }, [sessionName, years]);
   const [photoDataUrl, setPhotoDataUrl] = useState<string>("");
 
   const fieldErrors: Record<string, string[]> =
@@ -221,7 +234,7 @@ export function NewStudentForm({
   }
   function exportJson() {
     const blob = new Blob(
-      [JSON.stringify({ ...values, classId, sectionId: resolvedSectionId, sessionId }, null, 2)],
+      [JSON.stringify({ ...values, classId, sectionId: resolvedSectionId, session: resolvedSession }, null, 2)],
       { type: "application/json" },
     );
     const url = URL.createObjectURL(blob);
@@ -294,7 +307,8 @@ export function NewStudentForm({
         <input type="hidden" name="schoolSlug" value={schoolSlug} />
         <input type="hidden" name="class_id" value={classId} />
         <input type="hidden" name="section_id" value={resolvedSectionId} />
-        <input type="hidden" name="session_id" value={sessionId} />
+        <input type="hidden" name="session_id" value={resolvedSession.id} />
+        <input type="hidden" name="session_name_new" value={resolvedSession.id ? "" : resolvedSession.name} />
         <input type="hidden" name="photo_data_url" value={photoDataUrl} />
 
         {/* ========== Photo ========== */}
@@ -372,36 +386,54 @@ export function NewStudentForm({
           ) : null}
         </div>
 
-        {/* ========== Session (Academic year) ========== */}
-        {years.length > 0 ? (
-          <div className="rounded-2xl border border-border/60 bg-card p-4">
-            <h3 className="mb-3 text-sm font-semibold text-muted-foreground">📅 শিক্ষাবর্ষ</h3>
-            <div className="max-w-sm">
-              <FieldLabel htmlFor="session_picker" required>
-                ভর্তির সেশন
-              </FieldLabel>
-              <Select value={sessionId} onValueChange={(v) => setSessionId(v ?? "")}>
-                <SelectTrigger id="session_picker">
-                  <SelectValue placeholder="সেশন বাছাই করুন">
-                    {(v: unknown) => {
-                      const id = typeof v === "string" ? v : "";
-                      const y = years.find((x) => x.id === id);
-                      return y ? `${y.name}${y.is_active ? " · সক্রিয়" : ""}` : "সেশন বাছাই করুন";
-                    }}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map((y) => (
-                    <SelectItem key={y.id} value={y.id}>
-                      {y.name}
-                      {y.is_active ? " · সক্রিয়" : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        {/* ========== Session (Academic year) ==========
+            Combo of existing years + a few sensible BD defaults. Admins can
+            also type any custom year ("2026-2027") and the server will
+            create the academic_year record on the fly. */}
+        <div className="rounded-2xl border border-border/60 bg-card p-4">
+          <h3 className="mb-3 text-sm font-semibold text-muted-foreground">📅 শিক্ষাবর্ষ</h3>
+          <div className="max-w-sm">
+            <FieldLabel htmlFor="session_picker">
+              ভর্তির সেশন
+            </FieldLabel>
+            <Input
+              id="session_picker"
+              list="datalist-sessions"
+              placeholder="যেমন: ২০২৬-২০২৭"
+              value={sessionName}
+              onChange={(e) => setSessionName(e.target.value)}
+              autoComplete="off"
+            />
+            <datalist id="datalist-sessions">
+              {/* Existing years take priority — marked with "সক্রিয়" for active */}
+              {years.map((y) => (
+                <option key={y.id} value={y.name}>
+                  {y.is_active ? "সক্রিয় সেশন" : "সংরক্ষিত সেশন"}
+                </option>
+              ))}
+              {/* Common next-year suggestions in BD format */}
+              {(() => {
+                const now = new Date().getFullYear();
+                const existing = new Set(years.map((y) => y.name));
+                const suggestions = [
+                  `${now}-${now + 1}`,
+                  `${now + 1}-${now + 2}`,
+                  `${now - 1}-${now}`,
+                ];
+                return suggestions
+                  .filter((s) => !existing.has(s))
+                  .map((s) => <option key={s} value={s} />);
+              })()}
+            </datalist>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {resolvedSession.id
+                ? "💡 বিদ্যমান সেশন বাছাই করা হয়েছে।"
+                : sessionName.trim()
+                  ? "✨ নতুন সেশন হিসেবে তৈরি হবে।"
+                  : "সাজেশন থেকে বাছাই বা নিজে লিখুন (যেমন 2026-2027)।"}
+            </p>
           </div>
-        ) : null}
+        </div>
 
         {/* ========== Student info ========== */}
         <fieldset className="grid gap-4 md:grid-cols-2">
