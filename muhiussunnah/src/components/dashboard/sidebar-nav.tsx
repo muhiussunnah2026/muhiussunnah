@@ -18,19 +18,46 @@ type NavItem = {
 export function SidebarNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
-  const isActive = (href: string): boolean => {
-    if (!pathname) return false;
-    // Dashboard home URLs (/admin, /teacher, /portal) must match
-    // exactly — otherwise any descendant would also "activate" them.
-    const rootHomes = new Set(["/admin", "/teacher", "/portal"]);
-    if (rootHomes.has(href)) return pathname === href;
-    return pathname === href || pathname.startsWith(href + "/");
-  };
+  /**
+   * Pick exactly ONE "active" item — the one whose href best matches the
+   * current pathname.
+   *
+   * Previous buggy logic used prefix-matching on every item, so visiting
+   * /fees/payments lit up BOTH the "ফি" (/fees) and "পেমেন্ট" (/fees/
+   * payments) sidebar items because /fees is a prefix of /fees/payments.
+   *
+   * Correct logic: among all items whose href either exactly equals the
+   * pathname OR is a proper path-segment prefix of it, pick the one with
+   * the longest href. That's always the most specific menu item and the
+   * one we want highlighted.
+   *
+   * Exception: dashboard root URLs (/admin, /teacher, /portal) only
+   * count as matches when the pathname equals them exactly — they must
+   * never activate for any descendant page.
+   */
+  const rootHomes = new Set(["/admin", "/teacher", "/portal"]);
+  let activeHref: string | null = null;
+  if (pathname) {
+    let bestLen = -1;
+    for (const item of items) {
+      const href = item.href;
+      let matches: boolean;
+      if (rootHomes.has(href)) {
+        matches = pathname === href;
+      } else {
+        matches = pathname === href || pathname.startsWith(href + "/");
+      }
+      if (matches && href.length > bestLen) {
+        bestLen = href.length;
+        activeHref = href;
+      }
+    }
+  }
 
   return (
     <nav className="flex flex-col gap-1">
       {items.map((item) => {
-        const active = isActive(item.href);
+        const active = item.href === activeHref;
         return (
           <Link
             key={item.href}
