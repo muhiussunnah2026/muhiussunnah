@@ -59,19 +59,34 @@ export default async function SchoolAdminLayout({ children, params }: Props) {
     .maybeSingle();
 
   const logoUrl = (schoolRow?.logo_url as string | null) ?? null;
-  const displayLocale = (schoolRow?.display_name_locale as "bn" | "en" | null) ?? "bn";
+  const rawHeaderFields = (schoolRow?.header_display_fields as string | null) ?? "name_bn";
 
-  // Pick the one name the admin chose to display. We intentionally do NOT
-  // render the other locale as a subtitle — admins who set the preference
-  // expect to see that one name only, not both.
-  const heroName =
-    displayLocale === "en" && membership.school_name_en
-      ? membership.school_name_en
-      : membership.school_name_bn;
+  const fieldValueMap: Record<string, string | null | undefined> = {
+    name_bn: membership.school_name_bn,
+    name_en: membership.school_name_en,
+    address: schoolRow?.address ?? null,
+    phone: schoolRow?.phone ?? null,
+    email: schoolRow?.email ?? null,
+    website: schoolRow?.website ?? null,
+  };
+
+  const allowed = new Set(["name_bn", "name_en", "address", "phone", "email", "website"]);
+  const parts = rawHeaderFields
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => allowed.has(s));
+  const keys = parts.length > 0 ? parts : ["name_bn"];
+
+  const headerFields = keys.map((k, idx) => ({
+    key: k,
+    value: fieldValueMap[k],
+    emphasis: idx === 0 ? ("primary" as const) : ("secondary" as const),
+  }));
 
   return (
     <DashboardShell
-      title={heroName}
+      headerFields={headerFields}
+      title={membership.school_name_bn}
       logoUrl={logoUrl}
       nav={nav}
       userLabel={membership.full_name_bn ?? membership.full_name_en ?? undefined}

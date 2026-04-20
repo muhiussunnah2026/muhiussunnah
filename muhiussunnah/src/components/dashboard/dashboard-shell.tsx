@@ -1,10 +1,14 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { cookies } from "next/headers";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrustBadge } from "@/components/ui/trust-badge";
 import { LiveIndicator } from "@/components/ui/live-indicator";
+import { LanguageSwitcher } from "@/components/marketing/language-switcher";
+import { ThemeToggle } from "@/components/marketing/theme-toggle";
+import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i18n/config";
 import { SidebarNav } from "./sidebar-nav";
 import { signOutAction } from "@/server/actions/auth";
 
@@ -14,9 +18,23 @@ type NavItem = {
   icon?: ReactNode;
 };
 
+/**
+ * One composable line of header text. Admins choose which fields appear
+ * (via settings) — we render the ones that have content, separated by
+ * a subtle middle-dot.
+ */
+export type HeaderField = {
+  key: string;
+  value: string | null | undefined;
+  emphasis?: "primary" | "secondary";
+};
+
 type Props = {
-  title: ReactNode;
+  /** @deprecated use headerFields instead. Kept for back-compat. */
+  title?: ReactNode;
   subtitle?: ReactNode;
+  /** Multi-part header composition. If omitted falls back to title/subtitle. */
+  headerFields?: HeaderField[];
   nav: NavItem[];
   userLabel?: ReactNode;
   /** Optional institution logo URL (from settings). Falls back to the م mark. */
@@ -29,7 +47,27 @@ type Props = {
  * big, centered, with the institution logo on the left. The Muhius Sunnah
  * wordmark lives only in the sidebar as a small watermark, as requested.
  */
-export function DashboardShell({ title, subtitle, nav, userLabel, logoUrl, children }: Props) {
+export async function DashboardShell({
+  title,
+  subtitle,
+  headerFields,
+  nav,
+  userLabel,
+  logoUrl,
+  children,
+}: Props) {
+  const jar = await cookies();
+  const cookieLocale = jar.get(localeCookieName)?.value;
+  const locale: Locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+
+  // Build the visible header lines. Each field gets its own row so
+  // address/phone/website don't turn into one cramped string.
+  const visibleFields = (headerFields ?? []).filter(
+    (f) => typeof f.value === "string" && f.value.trim().length > 0,
+  );
+  const primary = visibleFields.find((f) => f.emphasis !== "secondary");
+  const secondary = visibleFields.filter((f) => f !== primary);
+
   return (
     <div className="relative flex min-h-screen flex-col bg-background">
       {/* Aurora background wash */}
@@ -61,18 +99,41 @@ export function DashboardShell({ title, subtitle, nav, userLabel, logoUrl, child
             </span>
           </Link>
 
-          {/* Center — institution name (big, centered) */}
+          {/* Center — composed institution identity */}
           <div className="min-w-0 text-center">
-            <h1 className="truncate text-lg font-extrabold tracking-tight leading-tight md:text-2xl lg:text-3xl">
-              {title}
-            </h1>
-            {subtitle ? (
-              <p className="truncate text-xs md:text-sm text-muted-foreground leading-tight">{subtitle}</p>
-            ) : null}
+            {visibleFields.length > 0 ? (
+              <>
+                {primary ? (
+                  <h1 className="truncate text-lg font-extrabold tracking-tight leading-tight md:text-2xl lg:text-3xl">
+                    {primary.value}
+                  </h1>
+                ) : null}
+                {secondary.length > 0 ? (
+                  <p className="truncate text-xs md:text-sm text-muted-foreground leading-snug mt-0.5">
+                    {secondary.map((f) => f.value).join(" · ")}
+                  </p>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <h1 className="truncate text-lg font-extrabold tracking-tight leading-tight md:text-2xl lg:text-3xl">
+                  {title}
+                </h1>
+                {subtitle ? (
+                  <p className="truncate text-xs md:text-sm text-muted-foreground leading-tight">
+                    {subtitle}
+                  </p>
+                ) : null}
+              </>
+            )}
           </div>
 
-          {/* Right — live indicator + user + logout */}
-          <div className="flex items-center gap-2 justify-end">
+          {/* Right — theme + language + live indicator + user + logout */}
+          <div className="flex items-center gap-1.5 justify-end">
+            <div className="hidden md:inline-flex items-center gap-1.5">
+              <LanguageSwitcher current={locale} compact />
+              <ThemeToggle />
+            </div>
             <LiveIndicator />
             {userLabel ? (
               <span className="hidden rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium text-foreground/80 backdrop-blur md:inline">

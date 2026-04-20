@@ -12,6 +12,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { updateSchoolAction } from "@/server/actions/school";
 import type { ActionResult } from "@/server/actions/_helpers";
 
+type HeaderFieldKey = "name_bn" | "name_en" | "address" | "phone" | "email" | "website";
+
+const HEADER_FIELD_LABELS: Record<HeaderFieldKey, string> = {
+  name_bn: "বাংলা নাম",
+  name_en: "English নাম",
+  address: "ঠিকানা",
+  phone: "ফোন",
+  email: "ইমেইল",
+  website: "ওয়েবসাইট",
+};
+
+const ALL_KEYS: HeaderFieldKey[] = ["name_bn", "name_en", "address", "phone", "email", "website"];
+
 type Props = {
   schoolSlug: string;
   initial: {
@@ -25,14 +38,26 @@ type Props = {
     website: string | null;
     logo_url?: string | null;
     display_name_locale?: "bn" | "en" | null;
+    header_display_fields?: string | null;
   };
 };
+
+function parseHeaderFields(raw: string | null | undefined): HeaderFieldKey[] {
+  if (!raw) return ["name_bn"];
+  const parts = raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s): s is HeaderFieldKey => (ALL_KEYS as string[]).includes(s));
+  return parts.length ? parts : ["name_bn"];
+}
 
 export function SchoolSettingsForm({ schoolSlug, initial }: Props) {
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(updateSchoolAction, null);
   const [logoPreview, setLogoPreview] = useState<string | null>(initial.logo_url ?? null);
   const [logoDataUrl, setLogoDataUrl] = useState<string>("");
-  const [displayLocale, setDisplayLocale] = useState<"bn" | "en">(initial.display_name_locale ?? "bn");
+  const [headerFields, setHeaderFields] = useState<HeaderFieldKey[]>(() =>
+    parseHeaderFields(initial.header_display_fields),
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -40,6 +65,18 @@ export function SchoolSettingsForm({ schoolSlug, initial }: Props) {
     if (state.ok) toast.success(state.message ?? "আপডেট হয়েছে");
     else toast.error(state.error);
   }, [state]);
+
+  function toggleHeaderField(k: HeaderFieldKey) {
+    setHeaderFields((prev) => {
+      if (prev.includes(k)) {
+        // Don't let the admin end up with zero fields — keep at least one.
+        const next = prev.filter((x) => x !== k);
+        return next.length === 0 ? prev : next;
+      }
+      // Preserve the canonical field order so the header reads naturally.
+      return ALL_KEYS.filter((key) => prev.includes(key) || key === k);
+    });
+  }
 
   function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -67,7 +104,7 @@ export function SchoolSettingsForm({ schoolSlug, initial }: Props) {
     <form action={action} className="flex flex-col gap-4">
       <input type="hidden" name="schoolSlug" value={schoolSlug} />
       <input type="hidden" name="logo_data_url" value={logoDataUrl} />
-      <input type="hidden" name="display_name_locale" value={displayLocale} />
+      <input type="hidden" name="header_display_fields" value={headerFields.join(",")} />
 
       {/* Logo uploader */}
       <div className="rounded-xl border border-border/60 bg-card/50 p-4">
@@ -127,39 +164,52 @@ export function SchoolSettingsForm({ schoolSlug, initial }: Props) {
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="name_bn">প্রতিষ্ঠানের নাম (বাংলা)</Label>
-        <div className="flex items-center gap-2">
-          <Input id="name_bn" name="name_bn" required defaultValue={initial.name_bn} className="flex-1" />
-          <label className="inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-card/50 px-3 h-11 text-xs cursor-pointer hover:border-primary/50 transition">
-            <input
-              type="radio"
-              name="_display_locale_radio"
-              checked={displayLocale === "bn"}
-              onChange={() => setDisplayLocale("bn")}
-              className="accent-primary"
-            />
-            <span>Display name</span>
-          </label>
-        </div>
+        <Input id="name_bn" name="name_bn" required defaultValue={initial.name_bn} />
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="name_en">Institution name (English)</Label>
-        <div className="flex items-center gap-2">
-          <Input id="name_en" name="name_en" defaultValue={initial.name_en ?? ""} className="flex-1" />
-          <label className="inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-card/50 px-3 h-11 text-xs cursor-pointer hover:border-primary/50 transition">
-            <input
-              type="radio"
-              name="_display_locale_radio"
-              checked={displayLocale === "en"}
-              onChange={() => setDisplayLocale("en")}
-              className="accent-primary"
-            />
-            <span>Display name</span>
-          </label>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          💡 কোনটি বড় করে header-এ দেখাবে (certificate, invoice-এও একই) সেটি বাছাই করুন।
+        <Input id="name_en" name="name_en" defaultValue={initial.name_en ?? ""} />
+      </div>
+
+      {/* Display name in header — multi-checkbox composition */}
+      <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
+        <Label className="mb-1 block text-sm font-semibold">
+          Display name in header
+        </Label>
+        <p className="mb-3 text-xs text-muted-foreground">
+          💡 যেগুলো বাছাই করবেন, সেগুলোই admin হেডারে দেখাবে। প্রথমে বাছাই করা ফিল্ডটি বড় করে আসবে, বাকিগুলো নিচে subtitle হিসেবে।
         </p>
+        <div className="grid gap-2 md:grid-cols-2">
+          {ALL_KEYS.map((k) => {
+            const checked = headerFields.includes(k);
+            const order = headerFields.indexOf(k);
+            return (
+              <label
+                key={k}
+                className={
+                  "flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition " +
+                  (checked
+                    ? "border-primary/50 bg-primary/10 text-foreground"
+                    : "border-border bg-background hover:border-primary/30 hover:bg-primary/5")
+                }
+              >
+                <input
+                  type="checkbox"
+                  className="accent-primary"
+                  checked={checked}
+                  onChange={() => toggleHeaderField(k)}
+                />
+                <span className="flex-1">{HEADER_FIELD_LABELS[k]}</span>
+                {checked ? (
+                  <span className="inline-flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+                    {order + 1}
+                  </span>
+                ) : null}
+              </label>
+            );
+          })}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">

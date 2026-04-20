@@ -32,6 +32,18 @@ const updateSchoolSchema = z.object({
   website: z.string().trim().url().optional().or(z.literal("").transform(() => undefined)),
   logo_data_url: z.string().optional(),
   display_name_locale: z.enum(["bn", "en"]).optional(),
+  header_display_fields: z
+    .string()
+    .optional()
+    .transform((raw) => {
+      if (!raw) return undefined;
+      const allowed = new Set(["name_bn", "name_en", "address", "phone", "email", "website"]);
+      const parts = raw
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => allowed.has(s));
+      return parts.length ? parts.join(",") : undefined;
+    }),
 });
 
 export async function updateSchoolAction(
@@ -76,6 +88,9 @@ export async function updateSchoolAction(
   if (parsed.display_name_locale) {
     brandingUpdate.display_name_locale = parsed.display_name_locale;
   }
+  if (parsed.header_display_fields) {
+    brandingUpdate.header_display_fields = parsed.header_display_fields;
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let { error } = await (supabase as any)
@@ -83,8 +98,12 @@ export async function updateSchoolAction(
     .update({ ...baseUpdate, ...brandingUpdate })
     .eq("id", auth.active.school_id);
 
-  // Migration 0018 not yet applied → retry without the branding fields.
-  if (error && /column .*logo_url|display_name_locale/i.test(error.message ?? "")) {
+  // If any of the branding migrations (0018 / 0020) haven't been applied
+  // yet, retry without the extra columns so the core form still saves.
+  if (
+    error &&
+    /column .*(logo_url|display_name_locale|header_display_fields)/i.test(error.message ?? "")
+  ) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const retry = await (supabase as any)
       .from("schools")
