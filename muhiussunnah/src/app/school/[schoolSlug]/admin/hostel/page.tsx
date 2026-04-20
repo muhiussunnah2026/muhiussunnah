@@ -18,12 +18,24 @@ export default async function HostelPage({ params }: PageProps) {
 
   const supabase = await supabaseServer();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: hostels } = await (supabase as any)
-    .from("hostels")
-    .select("id, name, type, warden_name, capacity, hostel_rooms ( id, room_no, capacity )")
-    .eq("school_id", membership.school_id)
-    .order("name");
+  // Hostels + students are independent (both keyed off school_id). Allocations depend on hostels' room ids.
+  const [hostelsRes, studentsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("hostels")
+      .select("id, name, type, warden_name, capacity, hostel_rooms ( id, room_no, capacity )")
+      .eq("school_id", membership.school_id)
+      .order("name"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, name_bn, name_en")
+      .eq("school_id", membership.school_id)
+      .eq("is_active", true)
+      .order("name_bn"),
+  ]);
+  const { data: hostels } = hostelsRes;
+  const { data: students } = studentsRes;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: allocations } = await (supabase as any)
@@ -32,14 +44,6 @@ export default async function HostelPage({ params }: PageProps) {
     .in("room_id", (hostels ?? []).flatMap((h: { hostel_rooms: { id: string }[] }) => h.hostel_rooms.map((r) => r.id)))
     .is("to_date", null)
     .order("from_date", { ascending: false });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: students } = await (supabase as any)
-    .from("students")
-    .select("id, name_bn, name_en")
-    .eq("school_id", membership.school_id)
-    .eq("is_active", true)
-    .order("name_bn");
 
   type Room = { id: string; room_no: string; capacity: number };
   type Hostel = { id: string; name: string; type: string; warden_name: string | null; capacity: number | null; hostel_rooms: Room[] };

@@ -17,41 +17,45 @@ export default async function MessagingReportPage({ params }: PageProps) {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: smsLogs } = await (supabase as any)
-    .from("sms_logs")
-    .select("status, cost, provider, sent_at")
-    .eq("school_id", membership.school_id)
-    .gte("created_at", thirtyDaysAgo);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: whatsappLogs } = await (supabase as any)
-    .from("whatsapp_logs")
-    .select("status, cost, provider, sent_at")
-    .eq("school_id", membership.school_id)
-    .gte("created_at", thirtyDaysAgo);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: pushLogs } = await (supabase as any)
-    .from("push_logs")
-    .select("status, sent_at")
-    .eq("school_id", membership.school_id)
-    .gte("created_at", thirtyDaysAgo);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: school } = await (supabase as any)
-    .from("schools")
-    .select("sms_credit_balance_bdt")
-    .eq("id", membership.school_id)
-    .single();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: topups } = await (supabase as any)
-    .from("sms_credit_topups")
-    .select("amount_bdt, method, created_at, balance_after")
-    .eq("school_id", membership.school_id)
-    .order("created_at", { ascending: false })
-    .limit(10);
+  // All five independent — logs + topups by school_id, school by id.
+  const [smsLogsRes, whatsappLogsRes, pushLogsRes, schoolRes, topupsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("sms_logs")
+      .select("status, cost, provider, sent_at")
+      .eq("school_id", membership.school_id)
+      .gte("created_at", thirtyDaysAgo),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("whatsapp_logs")
+      .select("status, cost, provider, sent_at")
+      .eq("school_id", membership.school_id)
+      .gte("created_at", thirtyDaysAgo),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("push_logs")
+      .select("status, sent_at")
+      .eq("school_id", membership.school_id)
+      .gte("created_at", thirtyDaysAgo),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("schools")
+      .select("sms_credit_balance_bdt")
+      .eq("id", membership.school_id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("sms_credit_topups")
+      .select("amount_bdt, method, created_at, balance_after")
+      .eq("school_id", membership.school_id)
+      .order("created_at", { ascending: false })
+      .limit(10),
+  ]);
+  const { data: smsLogs } = smsLogsRes;
+  const { data: whatsappLogs } = whatsappLogsRes;
+  const { data: pushLogs } = pushLogsRes;
+  const { data: school } = schoolRes;
+  const { data: topups } = topupsRes;
 
   const sms = (smsLogs ?? []) as { status: string; cost: number; provider: string | null; sent_at: string | null }[];
   const wa = (whatsappLogs ?? []) as { status: string; cost: number; provider: string | null; sent_at: string | null }[];

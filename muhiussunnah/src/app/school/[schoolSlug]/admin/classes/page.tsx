@@ -20,22 +20,26 @@ export default async function ClassesPage({ params }: PageProps) {
   await ensureDefaultSections(membership.school_id);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: classes } = await (supabase as any)
-    .from("classes")
-    .select(`
-      id, name_bn, name_en, stream, display_order, branch_id,
-      sections ( id, name, capacity, room )
-    `)
-    .eq("school_id", membership.school_id)
-    .order("display_order", { ascending: true });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: branches } = await (supabase as any)
-    .from("school_branches")
-    .select("id, name")
-    .eq("school_id", membership.school_id)
-    .order("is_primary", { ascending: false });
+  // Independent — both keyed off school_id.
+  const [classesRes, branchesRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("classes")
+      .select(`
+        id, name_bn, name_en, stream, display_order, branch_id,
+        sections ( id, name, capacity, room )
+      `)
+      .eq("school_id", membership.school_id)
+      .order("display_order", { ascending: true }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("school_branches")
+      .select("id, name")
+      .eq("school_id", membership.school_id)
+      .order("is_primary", { ascending: false }),
+  ]);
+  const { data: classes } = classesRes;
+  const { data: branches } = branchesRes;
 
   const classList = (classes ?? []) as {
     id: string;

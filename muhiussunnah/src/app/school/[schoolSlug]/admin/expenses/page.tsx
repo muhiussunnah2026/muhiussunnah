@@ -18,21 +18,25 @@ export default async function ExpensesPage({ params }: PageProps) {
 
   const supabase = await supabaseServer();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: expenses } = await (supabase as any)
-    .from("expenses")
-    .select("id, date, amount, paid_to, payment_method, description, expense_heads ( name_bn, category )")
-    .eq("school_id", membership.school_id)
-    .order("date", { ascending: false })
-    .limit(200);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: heads } = await (supabase as any)
-    .from("expense_heads")
-    .select("id, name_bn, category")
-    .eq("school_id", membership.school_id)
-    .eq("is_active", true)
-    .order("display_order");
+  // Independent — both keyed off school_id.
+  const [expensesRes, headsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("expenses")
+      .select("id, date, amount, paid_to, payment_method, description, expense_heads ( name_bn, category )")
+      .eq("school_id", membership.school_id)
+      .order("date", { ascending: false })
+      .limit(200),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("expense_heads")
+      .select("id, name_bn, category")
+      .eq("school_id", membership.school_id)
+      .eq("is_active", true)
+      .order("display_order"),
+  ]);
+  const { data: expenses } = expensesRes;
+  const { data: heads } = headsRes;
 
   const list = (expenses ?? []) as Array<{
     id: string; date: string; amount: number; paid_to: string | null; payment_method: string;

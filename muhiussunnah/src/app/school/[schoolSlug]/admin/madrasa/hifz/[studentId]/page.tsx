@@ -23,22 +23,26 @@ export default async function HifzStudentPage({ params, searchParams }: PageProp
 
   const supabase = await supabaseServer();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: student } = await (supabase as any)
-    .from("students")
-    .select("id, name_bn, student_code, roll, photo_url, sections(name, classes(name_bn))")
-    .eq("id", studentId)
-    .eq("school_id", active.school_id)
-    .single();
+  // Independent — both keyed off studentId (from URL params).
+  const [studentRes, progressRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, name_bn, student_code, roll, photo_url, sections(name, classes(name_bn))")
+      .eq("id", studentId)
+      .eq("school_id", active.school_id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("hifz_progress")
+      .select("para_no, status, mark, grade, mistakes_count, tested_on, note")
+      .eq("student_id", studentId)
+      .order("para_no"),
+  ]);
+  const { data: student } = studentRes;
+  const { data: progress } = progressRes;
 
   if (!student) notFound();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: progress } = await (supabase as any)
-    .from("hifz_progress")
-    .select("para_no, status, mark, grade, mistakes_count, tested_on, note")
-    .eq("student_id", studentId)
-    .order("para_no");
 
   const progressMap = new Map<number, { status: string; mark: number | null; grade: string | null; mistakes_count: number; tested_on: string | null; note: string | null }>();
   for (const p of (progress ?? []) as Array<{ para_no: number; status: string; mark: number | null; grade: string | null; mistakes_count: number; tested_on: string | null; note: string | null }>) {

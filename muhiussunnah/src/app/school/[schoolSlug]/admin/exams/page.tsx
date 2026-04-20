@@ -23,19 +23,23 @@ export default async function ExamsListPage({ params }: PageProps) {
 
   const supabase = await supabaseServer();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: exams } = await (supabase as any)
-    .from("exams")
-    .select("id, name, type, start_date, end_date, is_published, published_at, academic_year_id, academic_years(name)")
-    .eq("school_id", membership.school_id)
-    .order("start_date", { ascending: false, nullsFirst: false });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: years } = await (supabase as any)
-    .from("academic_years")
-    .select("id, name, is_active")
-    .eq("school_id", membership.school_id)
-    .order("start_date", { ascending: false });
+  // Independent — both keyed off school_id.
+  const [examsRes, yearsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("exams")
+      .select("id, name, type, start_date, end_date, is_published, published_at, academic_year_id, academic_years(name)")
+      .eq("school_id", membership.school_id)
+      .order("start_date", { ascending: false, nullsFirst: false }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("academic_years")
+      .select("id, name, is_active")
+      .eq("school_id", membership.school_id)
+      .order("start_date", { ascending: false }),
+  ]);
+  const { data: exams } = examsRes;
+  const { data: years } = yearsRes;
 
   const list = (exams ?? []) as Array<{
     id: string; name: string; type: string; start_date: string | null; end_date: string | null;

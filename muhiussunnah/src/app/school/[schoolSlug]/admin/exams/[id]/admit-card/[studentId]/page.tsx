@@ -16,32 +16,43 @@ export default async function AdmitCardPage({ params }: PageProps) {
   const membership = await requireRole(schoolSlug, [...ADMIN_ROLES, "ACCOUNTANT"]);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: student } = await (supabase as any)
-    .from("students")
-    .select("id, name_bn, name_en, student_code, roll, photo_url, date_of_birth, section_id, sections(name, classes(name_bn))")
-    .eq("id", studentId)
-    .eq("school_id", membership.school_id)
-    .single();
+  // Four independent — student/exam/school/seat all keyed off known params. Schedule depends on student.section_id.
+  const [studentRes, examRes, schoolRes, seatRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, name_bn, name_en, student_code, roll, photo_url, date_of_birth, section_id, sections(name, classes(name_bn))")
+      .eq("id", studentId)
+      .eq("school_id", membership.school_id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("exams")
+      .select("id, name, start_date, end_date, type")
+      .eq("id", examId)
+      .eq("school_id", membership.school_id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("schools")
+      .select("name_bn, name_en, eiin, address, phone, logo_url")
+      .eq("id", membership.school_id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("exam_seating")
+      .select("seat_row, seat_col, exam_rooms(name)")
+      .eq("student_id", studentId)
+      .limit(1)
+      .maybeSingle(),
+  ]);
+  const { data: student } = studentRes;
+  const { data: exam } = examRes;
+  const { data: school } = schoolRes;
+  const { data: seat } = seatRes;
 
   if (!student) notFound();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: exam } = await (supabase as any)
-    .from("exams")
-    .select("id, name, start_date, end_date, type")
-    .eq("id", examId)
-    .eq("school_id", membership.school_id)
-    .single();
-
   if (!exam) notFound();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: school } = await (supabase as any)
-    .from("schools")
-    .select("name_bn, name_en, eiin, address, phone, logo_url")
-    .eq("id", membership.school_id)
-    .single();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: schedule } = await (supabase as any)
@@ -50,14 +61,6 @@ export default async function AdmitCardPage({ params }: PageProps) {
     .eq("exam_id", examId)
     .eq("section_id", student.section_id)
     .order("date", { ascending: true });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: seat } = await (supabase as any)
-    .from("exam_seating")
-    .select("seat_row, seat_col, exam_rooms(name)")
-    .eq("student_id", studentId)
-    .limit(1)
-    .maybeSingle();
 
   const schedList = (schedule ?? []) as Array<{
     id: string; date: string | null; start_time: string | null; duration_mins: number | null; full_marks: number;

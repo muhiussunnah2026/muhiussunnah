@@ -25,20 +25,24 @@ export default async function HifzIndexPage({ params }: PageProps) {
   const supabase = await supabaseServer();
 
   // Only hifz-stream students (or all active; filter light)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: students } = await (supabase as any)
-    .from("students")
-    .select("id, name_bn, student_code, roll, sections(name, classes(name_bn, stream))")
-    .eq("school_id", active.school_id)
-    .eq("status", "active")
-    .order("name_bn")
-    .limit(300);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: progress } = await (supabase as any)
-    .from("hifz_progress")
-    .select("student_id, para_no, status")
-    .eq("school_id", active.school_id);
+  // Independent — both keyed off school_id.
+  const [studentsRes, progressRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, name_bn, student_code, roll, sections(name, classes(name_bn, stream))")
+      .eq("school_id", active.school_id)
+      .eq("status", "active")
+      .order("name_bn")
+      .limit(300),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("hifz_progress")
+      .select("student_id, para_no, status")
+      .eq("school_id", active.school_id),
+  ]);
+  const { data: students } = studentsRes;
+  const { data: progress } = progressRes;
 
   const studentList = (students ?? []) as Array<{
     id: string; name_bn: string; student_code: string; roll: number | null;

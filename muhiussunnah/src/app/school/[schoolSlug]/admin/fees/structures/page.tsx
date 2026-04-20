@@ -15,27 +15,31 @@ export default async function FeeStructuresPage({ params }: PageProps) {
 
   const supabase = await supabaseServer();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: classes } = await (supabase as any)
-    .from("classes")
-    .select("id, name_bn")
-    .eq("school_id", membership.school_id)
-    .order("display_order");
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: heads } = await (supabase as any)
-    .from("fee_heads")
-    .select("id, name_bn, default_amount, frequency")
-    .eq("school_id", membership.school_id)
-    .eq("is_active", true)
-    .in("frequency", ["monthly", "quarterly", "annual"])
-    .order("display_order");
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: existingStructures } = await (supabase as any)
-    .from("fee_structures")
-    .select("id, class_id, fee_head_id, amount, frequency")
-    .eq("school_id", membership.school_id);
+  // Independent — all three keyed off school_id.
+  const [classesRes, headsRes, structuresRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("classes")
+      .select("id, name_bn")
+      .eq("school_id", membership.school_id)
+      .order("display_order"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("fee_heads")
+      .select("id, name_bn, default_amount, frequency")
+      .eq("school_id", membership.school_id)
+      .eq("is_active", true)
+      .in("frequency", ["monthly", "quarterly", "annual"])
+      .order("display_order"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("fee_structures")
+      .select("id, class_id, fee_head_id, amount, frequency")
+      .eq("school_id", membership.school_id),
+  ]);
+  const { data: classes } = classesRes;
+  const { data: heads } = headsRes;
+  const { data: existingStructures } = structuresRes;
 
   const classList = (classes ?? []) as { id: string; name_bn: string }[];
   const headList = (heads ?? []) as { id: string; name_bn: string; default_amount: number; frequency: string | null }[];

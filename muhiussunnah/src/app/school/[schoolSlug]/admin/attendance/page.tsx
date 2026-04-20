@@ -21,19 +21,23 @@ export default async function AdminAttendancePage({ params, searchParams }: Page
 
   const supabase = await supabaseServer();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: totalStudents } = await (supabase as any)
-    .from("students")
-    .select("id", { count: "exact" })
-    .eq("school_id", membership.school_id)
-    .eq("status", "active");
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: todayAttendance } = await (supabase as any)
-    .from("attendance")
-    .select("status, section_id, sections ( name, classes ( name_bn ) )")
-    .eq("school_id", membership.school_id)
-    .eq("date", date);
+  // Independent — both keyed off school_id.
+  const [totalStudentsRes, todayAttendanceRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id", { count: "exact" })
+      .eq("school_id", membership.school_id)
+      .eq("status", "active"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("attendance")
+      .select("status, section_id, sections ( name, classes ( name_bn ) )")
+      .eq("school_id", membership.school_id)
+      .eq("date", date),
+  ]);
+  const { data: totalStudents } = totalStudentsRes;
+  const { data: todayAttendance } = todayAttendanceRes;
 
   const attendance = (todayAttendance ?? []) as Array<{
     status: string; section_id: string | null;

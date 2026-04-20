@@ -22,23 +22,27 @@ export default async function SabaqGridPage({ params, searchParams }: PageProps)
 
   const supabase = await supabaseServer();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: section } = await (supabase as any)
-    .from("sections")
-    .select("id, name, classes!inner(name_bn, school_id)")
-    .eq("id", sectionId)
-    .eq("classes.school_id", active.school_id)
-    .single();
+  // Section + students are independent (both keyed off sectionId). Existing sabaq entries depend on students' ids.
+  const [sectionRes, studentsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("sections")
+      .select("id, name, classes!inner(name_bn, school_id)")
+      .eq("id", sectionId)
+      .eq("classes.school_id", active.school_id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, name_bn, roll, student_code")
+      .eq("section_id", sectionId)
+      .eq("status", "active")
+      .order("roll", { ascending: true, nullsFirst: false })
+      .order("name_bn"),
+  ]);
+  const { data: section } = sectionRes;
+  const { data: students } = studentsRes;
   if (!section) notFound();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: students } = await (supabase as any)
-    .from("students")
-    .select("id, name_bn, roll, student_code")
-    .eq("section_id", sectionId)
-    .eq("status", "active")
-    .order("roll", { ascending: true, nullsFirst: false })
-    .order("name_bn");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: existing } = await (supabase as any)

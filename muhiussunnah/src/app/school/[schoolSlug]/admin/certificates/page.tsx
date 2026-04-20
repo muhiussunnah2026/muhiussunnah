@@ -28,32 +28,36 @@ export default async function CertificatesPage({ params }: PageProps) {
   const membership = await requireRole(schoolSlug, ADMIN_ROLES);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: issued } = await (supabase as any)
-    .from("certificates_issued")
-    .select(`
-      id, serial_no, issued_on,
-      students ( id, name_bn, student_code ),
-      certificate_templates ( type, name )
-    `)
-    .eq("school_id", membership.school_id)
-    .order("issued_on", { ascending: false })
-    .limit(200);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: templates } = await (supabase as any)
-    .from("certificate_templates")
-    .select("id, name, type, is_active")
-    .eq("school_id", membership.school_id)
-    .eq("is_active", true);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: students } = await (supabase as any)
-    .from("students")
-    .select("id, name_bn, student_code")
-    .eq("school_id", membership.school_id)
-    .order("name_bn")
-    .limit(1000);
+  // Independent — all three keyed off school_id only.
+  const [issuedRes, templatesRes, studentsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("certificates_issued")
+      .select(`
+        id, serial_no, issued_on,
+        students ( id, name_bn, student_code ),
+        certificate_templates ( type, name )
+      `)
+      .eq("school_id", membership.school_id)
+      .order("issued_on", { ascending: false })
+      .limit(200),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("certificate_templates")
+      .select("id, name, type, is_active")
+      .eq("school_id", membership.school_id)
+      .eq("is_active", true),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, name_bn, student_code")
+      .eq("school_id", membership.school_id)
+      .order("name_bn")
+      .limit(1000),
+  ]);
+  const { data: issued } = issuedRes;
+  const { data: templates } = templatesRes;
+  const { data: students } = studentsRes;
 
   const list = (issued ?? []) as Array<{
     id: string; serial_no: string; issued_on: string;

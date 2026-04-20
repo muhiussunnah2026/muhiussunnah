@@ -18,20 +18,24 @@ export default async function DonationsPage({ params }: PageProps) {
 
   const supabase = await supabaseServer();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: campaigns } = await (supabase as any)
-    .from("donation_campaigns")
-    .select("id, title, description, target_amount, start_date, end_date, status")
-    .eq("school_id", membership.school_id)
-    .order("created_at", { ascending: false });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: donations } = await (supabase as any)
-    .from("donations")
-    .select("id, donor_name, donor_phone, amount, method, receipt_no, received_at, is_anonymous, campaign_id, donation_campaigns ( title )")
-    .eq("school_id", membership.school_id)
-    .order("received_at", { ascending: false })
-    .limit(200);
+  // Independent — both keyed off school_id.
+  const [campaignsRes, donationsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("donation_campaigns")
+      .select("id, title, description, target_amount, start_date, end_date, status")
+      .eq("school_id", membership.school_id)
+      .order("created_at", { ascending: false }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("donations")
+      .select("id, donor_name, donor_phone, amount, method, receipt_no, received_at, is_anonymous, campaign_id, donation_campaigns ( title )")
+      .eq("school_id", membership.school_id)
+      .order("received_at", { ascending: false })
+      .limit(200),
+  ]);
+  const { data: campaigns } = campaignsRes;
+  const { data: donations } = donationsRes;
 
   const campaignList = (campaigns ?? []) as { id: string; title: string; description: string | null; target_amount: number | null; start_date: string | null; end_date: string | null; status: string }[];
   const donationList = (donations ?? []) as { id: string; donor_name: string | null; donor_phone: string | null; amount: number; method: string; receipt_no: string | null; received_at: string; is_anonymous: boolean; campaign_id: string | null; donation_campaigns: { title: string } | null }[];

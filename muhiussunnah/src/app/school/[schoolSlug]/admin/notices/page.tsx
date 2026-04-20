@@ -23,20 +23,24 @@ export default async function NoticesListPage({ params }: PageProps) {
 
   const supabase = await supabaseServer();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: notices } = await (supabase as any)
-    .from("notices")
-    .select("id, title, body, audience, channels, scheduled_for, sent_at, created_at")
-    .eq("school_id", membership.school_id)
-    .order("created_at", { ascending: false })
-    .limit(200);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: school } = await (supabase as any)
-    .from("schools")
-    .select("sms_credit_balance_bdt")
-    .eq("id", membership.school_id)
-    .single();
+  // Independent — notices by school_id, school by membership.school_id (known pre-query).
+  const [noticesRes, schoolRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("notices")
+      .select("id, title, body, audience, channels, scheduled_for, sent_at, created_at")
+      .eq("school_id", membership.school_id)
+      .order("created_at", { ascending: false })
+      .limit(200),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("schools")
+      .select("sms_credit_balance_bdt")
+      .eq("id", membership.school_id)
+      .single(),
+  ]);
+  const { data: notices } = noticesRes;
+  const { data: school } = schoolRes;
 
   const list = (notices ?? []) as Array<{
     id: string; title: string; body: string; audience: string;

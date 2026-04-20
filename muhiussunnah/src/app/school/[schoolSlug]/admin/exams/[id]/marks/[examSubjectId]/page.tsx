@@ -37,20 +37,24 @@ export default async function MarksEntryPage({ params }: PageProps) {
     sections: { id: string; name: string; classes: { name_bn: string } };
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: students } = await (supabase as any)
-    .from("students")
-    .select("id, name_bn, roll, student_code, photo_url")
-    .eq("section_id", es.sections.id)
-    .eq("status", "active")
-    .order("roll", { ascending: true, nullsFirst: false })
-    .order("name_bn");
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: existing } = await (supabase as any)
-    .from("marks")
-    .select("student_id, marks_obtained, is_absent, grade, locked")
-    .eq("exam_subject_id", examSubjectId);
+  // Independent — students by section_id (from examSubject above), existing by examSubjectId (from URL).
+  const [studentsRes, existingRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, name_bn, roll, student_code, photo_url")
+      .eq("section_id", es.sections.id)
+      .eq("status", "active")
+      .order("roll", { ascending: true, nullsFirst: false })
+      .order("name_bn"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("marks")
+      .select("student_id, marks_obtained, is_absent, grade, locked")
+      .eq("exam_subject_id", examSubjectId),
+  ]);
+  const { data: students } = studentsRes;
+  const { data: existing } = existingRes;
 
   const studentList = (students ?? []) as { id: string; name_bn: string; roll: number | null; student_code: string; photo_url: string | null }[];
   const existingMap: Record<string, { marks: number | null; is_absent: boolean; grade: string | null }> = {};

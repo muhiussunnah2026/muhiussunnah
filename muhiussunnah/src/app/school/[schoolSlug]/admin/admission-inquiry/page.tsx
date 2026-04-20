@@ -33,20 +33,24 @@ export default async function AdmissionInquiryPage({ params }: PageProps) {
   const membership = await requireRole(schoolSlug, [...ADMIN_ROLES, "ACCOUNTANT"]);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: inquiries } = await (supabase as any)
-    .from("admission_inquiries")
-    .select("id, student_name, guardian_name, guardian_phone, source, status, followup_date, notes, created_at, class_interested, classes(name_bn)")
-    .eq("school_id", membership.school_id)
-    .order("created_at", { ascending: false })
-    .limit(200);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: classes } = await (supabase as any)
-    .from("classes")
-    .select("id, name_bn")
-    .eq("school_id", membership.school_id)
-    .order("display_order");
+  // Independent — both keyed off school_id.
+  const [inquiriesRes, classesRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("admission_inquiries")
+      .select("id, student_name, guardian_name, guardian_phone, source, status, followup_date, notes, created_at, class_interested, classes(name_bn)")
+      .eq("school_id", membership.school_id)
+      .order("created_at", { ascending: false })
+      .limit(200),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("classes")
+      .select("id, name_bn")
+      .eq("school_id", membership.school_id)
+      .order("display_order"),
+  ]);
+  const { data: inquiries } = inquiriesRes;
+  const { data: classes } = classesRes;
 
   const list = (inquiries ?? []) as Array<{
     id: string; student_name: string; guardian_name: string | null; guardian_phone: string;

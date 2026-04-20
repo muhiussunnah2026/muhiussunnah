@@ -26,19 +26,23 @@ export default async function KitabPage({ params }: PageProps) {
   const { active } = await requireMadrasaRole(schoolSlug, [...ADMIN_ROLES]);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data } = await (supabase as any)
-    .from("kitab_curriculum")
-    .select("id, stage, kitab_name, author, display_order")
-    .eq("school_id", active.school_id)
-    .order("display_order");
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: classes } = await (supabase as any)
-    .from("classes")
-    .select("id, name_bn")
-    .eq("school_id", active.school_id)
-    .order("display_order");
+  // Independent — both keyed off school_id.
+  const [kitabRes, classesRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("kitab_curriculum")
+      .select("id, stage, kitab_name, author, display_order")
+      .eq("school_id", active.school_id)
+      .order("display_order"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("classes")
+      .select("id, name_bn")
+      .eq("school_id", active.school_id)
+      .order("display_order"),
+  ]);
+  const { data } = kitabRes;
+  const { data: classes } = classesRes;
 
   const list = (data ?? []) as { id: string; stage: string; kitab_name: string; author: string | null; display_order: number }[];
   const byStage = new Map<string, typeof list>();

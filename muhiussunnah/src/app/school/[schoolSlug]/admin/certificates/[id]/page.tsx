@@ -21,26 +21,30 @@ export default async function CertificatePrintPage({ params }: PageProps) {
   const membership = await requireRole(schoolSlug, ADMIN_ROLES);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: cert } = await (supabase as any)
-    .from("certificates_issued")
-    .select(`
-      id, serial_no, issued_on, data,
-      school_id,
-      students ( id, name_bn, name_en, student_code, date_of_birth, sections(name, classes(name_bn)) ),
-      certificate_templates ( name, type, html_template, orientation, paper_size, variables )
-    `)
-    .eq("id", id)
-    .single();
+  // Independent — cert lookup by id, school lookup by membership.school_id (known pre-query).
+  const [certRes, schoolRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("certificates_issued")
+      .select(`
+        id, serial_no, issued_on, data,
+        school_id,
+        students ( id, name_bn, name_en, student_code, date_of_birth, sections(name, classes(name_bn)) ),
+        certificate_templates ( name, type, html_template, orientation, paper_size, variables )
+      `)
+      .eq("id", id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("schools")
+      .select("name_bn, name_en, eiin")
+      .eq("id", membership.school_id)
+      .single(),
+  ]);
+  const { data: cert } = certRes;
+  const { data: school } = schoolRes;
 
   if (!cert || cert.school_id !== membership.school_id) notFound();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: school } = await (supabase as any)
-    .from("schools")
-    .select("name_bn, name_en, eiin")
-    .eq("id", membership.school_id)
-    .single();
 
   const student = cert.students as { id: string; name_bn: string; name_en: string | null; student_code: string; date_of_birth: string | null; sections: { name: string; classes: { name_bn: string } } | null } | null;
   const template = cert.certificate_templates as { name: string; type: string; html_template: string; orientation: string; paper_size: string } | null;

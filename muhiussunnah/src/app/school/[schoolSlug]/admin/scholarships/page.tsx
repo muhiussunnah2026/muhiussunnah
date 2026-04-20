@@ -16,32 +16,36 @@ export default async function ScholarshipsPage({ params }: PageProps) {
   const membership = await requireRole(schoolSlug, ADMIN_ROLES);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: scholarships } = await (supabase as any)
-    .from("scholarships")
-    .select("id, name, description, amount_type, amount, student_scholarships(id)")
-    .eq("school_id", membership.school_id)
-    .order("name");
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: assignments } = await (supabase as any)
-    .from("student_scholarships")
-    .select(`
-      id, granted_at, valid_until, notes,
-      scholarships ( name, amount_type, amount ),
-      students ( id, name_bn, student_code, sections ( name, classes ( name_bn ) ) )
-    `)
-    .order("granted_at", { ascending: false })
-    .limit(100);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: students } = await (supabase as any)
-    .from("students")
-    .select("id, name_bn, student_code")
-    .eq("school_id", membership.school_id)
-    .eq("status", "active")
-    .order("name_bn")
-    .limit(500);
+  // All three independent — scholarships + students by school_id, assignments by granted_at ordering.
+  const [scholarshipsRes, assignmentsRes, studentsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("scholarships")
+      .select("id, name, description, amount_type, amount, student_scholarships(id)")
+      .eq("school_id", membership.school_id)
+      .order("name"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("student_scholarships")
+      .select(`
+        id, granted_at, valid_until, notes,
+        scholarships ( name, amount_type, amount ),
+        students ( id, name_bn, student_code, sections ( name, classes ( name_bn ) ) )
+      `)
+      .order("granted_at", { ascending: false })
+      .limit(100),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, name_bn, student_code")
+      .eq("school_id", membership.school_id)
+      .eq("status", "active")
+      .order("name_bn")
+      .limit(500),
+  ]);
+  const { data: scholarships } = scholarshipsRes;
+  const { data: assignments } = assignmentsRes;
+  const { data: students } = studentsRes;
 
   const schList = (scholarships ?? []) as { id: string; name: string; description: string | null; amount_type: string; amount: number; student_scholarships: { id: string }[] }[];
   const assignmentList = (assignments ?? []) as Array<{

@@ -20,12 +20,24 @@ export default async function LibraryPage({ params }: PageProps) {
 
   const supabase = await supabaseServer();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: books } = await (supabase as any)
-    .from("library_books")
-    .select("id, title, author, category, copies_total, copies_available, shelf")
-    .eq("school_id", membership.school_id)
-    .order("title");
+  // Books + students are independent (both keyed off school_id). Issues depends on books' ids.
+  const [booksRes, studentsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("library_books")
+      .select("id, title, author, category, copies_total, copies_available, shelf")
+      .eq("school_id", membership.school_id)
+      .order("title"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, name_bn, name_en")
+      .eq("school_id", membership.school_id)
+      .eq("is_active", true)
+      .order("name_bn"),
+  ]);
+  const { data: books } = booksRes;
+  const { data: students } = studentsRes;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: issues } = await (supabase as any)
@@ -34,14 +46,6 @@ export default async function LibraryPage({ params }: PageProps) {
     .in("book_id", (books ?? []).map((b: { id: string }) => b.id))
     .is("returned_on", null)
     .order("due_on");
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: students } = await (supabase as any)
-    .from("students")
-    .select("id, name_bn, name_en")
-    .eq("school_id", membership.school_id)
-    .eq("is_active", true)
-    .order("name_bn");
 
   const bookList = (books ?? []) as Array<{ id: string; title: string; author: string | null; category: string | null; copies_total: number; copies_available: number; shelf: string | null }>;
   const issueList = (issues ?? []) as Array<{ id: string; book_id: string; due_on: string; returned_on: string | null; fine: number; students: { name_bn: string | null; name_en: string | null } | null; library_books: { title: string } | null }>;

@@ -22,48 +22,52 @@ export default async function ExamDetailPage({ params }: PageProps) {
   const membership = await requireRole(schoolSlug, [...ADMIN_ROLES, "ACCOUNTANT"]);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: exam } = await (supabase as any)
-    .from("exams")
-    .select("id, name, type, start_date, end_date, is_published, published_at, academic_year_id, school_id")
-    .eq("id", id)
-    .single();
+  // All five independent — exam by id, routine/reportCards by exam_id, subjects/sections by school_id (all known pre-query).
+  const [examRes, routineRes, subjectsRes, sectionsRes, reportCardsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("exams")
+      .select("id, name, type, start_date, end_date, is_published, published_at, academic_year_id, school_id")
+      .eq("id", id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("exam_subjects")
+      .select(`
+        id, date, start_time, duration_mins, full_marks, pass_marks,
+        subjects ( id, name_bn, name_en ),
+        sections ( id, name, classes ( id, name_bn ) )
+      `)
+      .eq("exam_id", id)
+      .order("date", { ascending: true }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("subjects")
+      .select("id, name_bn, class_id, full_marks, pass_marks")
+      .eq("school_id", membership.school_id)
+      .order("display_order"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("sections")
+      .select("id, name, class_id, classes!inner(name_bn, school_id)")
+      .eq("classes.school_id", membership.school_id),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("report_cards")
+      .select(`
+        id, student_id, overall_gpa, overall_grade, total_marks_obtained, total_full_marks, position_in_class, attendance_pct,
+        students ( id, name_bn, student_code, roll, sections ( name, classes ( name_bn ) ) )
+      `)
+      .eq("exam_id", id)
+      .order("overall_gpa", { ascending: false }),
+  ]);
+  const { data: exam } = examRes;
+  const { data: routine } = routineRes;
+  const { data: subjects } = subjectsRes;
+  const { data: sections } = sectionsRes;
+  const { data: reportCards } = reportCardsRes;
 
   if (!exam || exam.school_id !== membership.school_id) notFound();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: routine } = await (supabase as any)
-    .from("exam_subjects")
-    .select(`
-      id, date, start_time, duration_mins, full_marks, pass_marks,
-      subjects ( id, name_bn, name_en ),
-      sections ( id, name, classes ( id, name_bn ) )
-    `)
-    .eq("exam_id", id)
-    .order("date", { ascending: true });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: subjects } = await (supabase as any)
-    .from("subjects")
-    .select("id, name_bn, class_id, full_marks, pass_marks")
-    .eq("school_id", membership.school_id)
-    .order("display_order");
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: sections } = await (supabase as any)
-    .from("sections")
-    .select("id, name, class_id, classes!inner(name_bn, school_id)")
-    .eq("classes.school_id", membership.school_id);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: reportCards } = await (supabase as any)
-    .from("report_cards")
-    .select(`
-      id, student_id, overall_gpa, overall_grade, total_marks_obtained, total_full_marks, position_in_class, attendance_pct,
-      students ( id, name_bn, student_code, roll, sections ( name, classes ( name_bn ) ) )
-    `)
-    .eq("exam_id", id)
-    .order("overall_gpa", { ascending: false });
 
   const routineRows = (routine ?? []) as Array<{
     id: string; date: string | null; start_time: string | null; duration_mins: number | null;

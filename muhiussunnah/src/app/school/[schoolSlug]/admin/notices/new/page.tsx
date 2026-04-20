@@ -16,19 +16,23 @@ export default async function NewNoticePage({ params }: PageProps) {
 
   const supabase = await supabaseServer();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: classes } = await (supabase as any)
-    .from("classes")
-    .select("id, name_bn, sections(id, name)")
-    .eq("school_id", membership.school_id)
-    .order("display_order");
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: school } = await (supabase as any)
-    .from("schools")
-    .select("sms_credit_balance_bdt, sms_per_msg_bdt_bn, sms_per_msg_bdt_en, whatsapp_per_msg_bdt")
-    .eq("id", membership.school_id)
-    .single();
+  // Independent — classes by school_id, school by id.
+  const [classesRes, schoolRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("classes")
+      .select("id, name_bn, sections(id, name)")
+      .eq("school_id", membership.school_id)
+      .order("display_order"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("schools")
+      .select("sms_credit_balance_bdt, sms_per_msg_bdt_bn, sms_per_msg_bdt_en, whatsapp_per_msg_bdt")
+      .eq("id", membership.school_id)
+      .single(),
+  ]);
+  const { data: classes } = classesRes;
+  const { data: school } = schoolRes;
 
   const available = channelsAvailable();
 

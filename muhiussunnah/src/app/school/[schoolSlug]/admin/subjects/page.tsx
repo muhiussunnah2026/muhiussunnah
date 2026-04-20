@@ -23,22 +23,26 @@ export default async function SubjectsPage({ params }: PageProps) {
   const membership = await requireRole(schoolSlug, [...ADMIN_ROLES, "ACCOUNTANT"]);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: subjects } = await (supabase as any)
-    .from("subjects")
-    .select(`
-      id, name_bn, name_en, name_ar, code, full_marks, pass_marks, is_optional, class_id,
-      classes ( name_bn, name_en )
-    `)
-    .eq("school_id", membership.school_id)
-    .order("display_order", { ascending: true });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: classes } = await (supabase as any)
-    .from("classes")
-    .select("id, name_bn, name_en")
-    .eq("school_id", membership.school_id)
-    .order("display_order");
+  // Independent — both keyed off school_id.
+  const [subjectsRes, classesRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("subjects")
+      .select(`
+        id, name_bn, name_en, name_ar, code, full_marks, pass_marks, is_optional, class_id,
+        classes ( name_bn, name_en )
+      `)
+      .eq("school_id", membership.school_id)
+      .order("display_order", { ascending: true }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("classes")
+      .select("id, name_bn, name_en")
+      .eq("school_id", membership.school_id)
+      .order("display_order"),
+  ]);
+  const { data: subjects } = subjectsRes;
+  const { data: classes } = classesRes;
 
   const subjectList = (subjects ?? []) as Array<{
     id: string; name_bn: string; name_en: string | null; name_ar: string | null;
