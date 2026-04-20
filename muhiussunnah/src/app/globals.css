@@ -235,12 +235,6 @@ html { scroll-behavior: smooth; }
 /* Firefox */
 html { scrollbar-width: thin; scrollbar-color: #7c5cff transparent; }
 
-/* ---- Custom cursor decoration (native cursor STAYS visible for usability) ---- */
-.cursor-active {
-  background: rgba(124, 92, 255, 0.35);
-  border-color: rgba(124, 92, 255, 0.8);
-}
-
 /* ---- Grain / noise overlay (subtle texture) ---- */
 .noise::before {
   content: "";

@@ -4,7 +4,6 @@ import { Shield, CheckCircle2, CalendarClock, CreditCard, MessageCircle, ArrowRi
 import { Badge } from "@/components/ui/badge";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
-import { CustomCursor } from "@/components/marketing/custom-cursor";
 import { ScrollProgress } from "@/components/marketing/scroll-progress";
 import { FloatingActions } from "@/components/marketing/floating-actions";
 import { Reveal } from "@/components/marketing/reveal";
@@ -35,9 +34,8 @@ export default async function RefundPolicyPage() {
   const r = getRefundPageCopy(locale);
 
   return (
-    <div data-custom-cursor="on">
+    <div>
       <ScrollProgress />
-      <CustomCursor />
       <MarketingNav />
       <main>
         <section className="relative overflow-hidden mesh-bg-1 pt-28 pb-16 md:pt-32 md:pb-20">

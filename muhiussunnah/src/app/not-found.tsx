@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { Home, ArrowRight, Search, LifeBuoy, Compass } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
-import { CustomCursor } from "@/components/marketing/custom-cursor";
 import { ScrollProgress } from "@/components/marketing/scroll-progress";
 import { FloatingActions } from "@/components/marketing/floating-actions";
 import { Reveal } from "@/components/marketing/reveal";
@@ -103,9 +102,8 @@ export default async function NotFound() {
   const c = copyByLocale[locale];
 
   return (
-    <div data-custom-cursor="on">
+    <div>
       <ScrollProgress />
-      <CustomCursor />
       <MarketingNav />
       <main>
         {/* Hero */}

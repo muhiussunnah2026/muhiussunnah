@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
-import { CustomCursor } from "@/components/marketing/custom-cursor";
 import { ScrollProgress } from "@/components/marketing/scroll-progress";
 import { FloatingActions } from "@/components/marketing/floating-actions";
 import { Reveal } from "@/components/marketing/reveal";
@@ -34,9 +33,8 @@ export default async function PricingPage() {
   const t = getMarketingCopy(locale);
 
   return (
-    <div data-custom-cursor="on">
+    <div>
       <ScrollProgress />
-      <CustomCursor />
       <MarketingNav />
       <main>
         {/* Header */}

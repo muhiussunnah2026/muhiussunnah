@@ -2,12 +2,10 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowLeft, Shield, Sparkles, Zap } from "lucide-react";
 import { Logo } from "@/components/marketing/logo";
-import { CustomCursor } from "@/components/marketing/custom-cursor";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
-      <CustomCursor />
 
       {/* Background — two halves: left brand pane + right form pane */}
       <div className="pointer-events-none absolute inset-0" aria-hidden>
