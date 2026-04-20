@@ -70,14 +70,19 @@ export async function DashboardShell({
 
   return (
     <div className="relative flex min-h-screen flex-col bg-background">
-      {/* Aurora background wash */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-        <div className="absolute -top-48 -start-48 size-[500px] rounded-full bg-primary/10 blur-[120px]" />
-        <div className="absolute -top-32 end-0 size-[400px] rounded-full bg-accent/10 blur-[120px]" />
-      </div>
+      {/* Subtle static gradient wash — cheaper than the double-blur aurora
+          we used earlier. Heavy blur() on huge elements hits the GPU on
+          every scroll/navigation and is the single biggest cost for low-end
+          devices. */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary/5 via-accent/5 to-transparent"
+        aria-hidden
+      />
 
-      {/* Header — institution identity is the hero */}
-      <header className="sticky top-0 z-30 border-b border-border/50 bg-background/75 backdrop-blur-xl shadow-sm shadow-primary/5">
+      {/* Header — institution identity is the hero. Lightweight
+          backdrop-blur-sm is plenty visually; backdrop-blur-xl was a
+          noticeable scroll-cost on phones. */}
+      <header className="sticky top-0 z-30 border-b border-border/50 bg-background/90 backdrop-blur-sm shadow-sm shadow-primary/5">
         <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3.5 md:px-6">
           {/* Left — institution logo */}
           <Link href="/" className="group/brand flex items-center gap-3">

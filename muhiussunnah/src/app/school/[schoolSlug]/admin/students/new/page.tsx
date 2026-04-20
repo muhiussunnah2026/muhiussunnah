@@ -3,41 +3,12 @@ import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabaseServer } from "@/lib/supabase/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth/session";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
+import { ensureDefaultSections } from "@/lib/schools/self-heal";
 import { NewStudentForm } from "./new-student-form";
 
 type PageProps = { params: Promise<{ schoolSlug: string }> };
-
-/**
- * Every class needs at least one section internally. Most small schools do
- * not actually use sections, so we silently seed a default "ক" section.
- */
-async function ensureDefaultSections(schoolId: string) {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const admin = supabaseAdmin() as any;
-    const { data: classes } = await admin
-      .from("classes")
-      .select("id, sections(id)")
-      .eq("school_id", schoolId);
-    const orphans = (classes ?? []).filter(
-      (c: { id: string; sections: unknown[] | null }) =>
-        !c.sections || c.sections.length === 0,
-    );
-    if (orphans.length === 0) return;
-    await admin.from("sections").insert(
-      orphans.map((c: { id: string }) => ({
-        class_id: c.id,
-        name: "ক",
-        capacity: null,
-      })),
-    );
-  } catch {
-    // non-fatal
-  }
-}
 
 export default async function NewStudentPage({ params }: PageProps) {
   const { schoolSlug } = await params;
@@ -47,50 +18,53 @@ export default async function NewStudentPage({ params }: PageProps) {
 
   const supabase = await supabaseServer();
 
-  // Classes + their sections
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: classes } = await (supabase as any)
-    .from("classes")
-    .select("id, name_bn, name_en, display_order, sections(id, name)")
-    .eq("school_id", membership.school_id)
-    .order("display_order", { ascending: true });
+  // Fetch classes + years in parallel — they're independent queries.
+  const [classesRes, yearsRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("classes")
+      .select("id, name_bn, name_en, display_order, sections(id, name)")
+      .eq("school_id", membership.school_id)
+      .order("display_order", { ascending: true }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("academic_years")
+      .select("id, name, is_active")
+      .eq("school_id", membership.school_id)
+      .order("start_date", { ascending: false }),
+  ]);
+  const classes = classesRes.data;
+  const years = yearsRes.data;
 
-  // Academic years for session picker (active one highlighted)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: years } = await (supabase as any)
-    .from("academic_years")
-    .select("id, name, is_active")
-    .eq("school_id", membership.school_id)
-    .order("start_date", { ascending: false });
+  // Existing student + guardian names — fuel for the autocomplete datalists.
+  // Run both queries in parallel and cap at 150 rows each; that's plenty of
+  // suggestions for any realistic school and keeps the page snappy.
+  const [existingRes, guardianRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("name_bn, name_en")
+      .eq("school_id", membership.school_id)
+      .order("created_at", { ascending: false })
+      .limit(150),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("student_guardians")
+      .select("name_bn, relation, students!inner(school_id)")
+      .eq("students.school_id", membership.school_id)
+      .limit(300),
+  ]);
 
-  // Existing student + guardian names — fuel for the autocomplete datalists
-  // so admins can reuse family names when enrolling siblings.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: existing } = await (supabase as any)
-    .from("students")
-    .select("name_bn, name_en")
-    .eq("school_id", membership.school_id)
-    .order("created_at", { ascending: false })
-    .limit(500);
-
-  // Deduplicate case-insensitively
   const nameSetBn = new Set<string>();
   const nameSetEn = new Set<string>();
-  for (const row of (existing ?? []) as { name_bn: string | null; name_en: string | null }[]) {
+  for (const row of (existingRes.data ?? []) as { name_bn: string | null; name_en: string | null }[]) {
     if (row.name_bn) nameSetBn.add(row.name_bn);
     if (row.name_en) nameSetEn.add(row.name_en);
   }
 
-  // Guardian names from student_guardians for a richer autocomplete
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: guardianRows } = await (supabase as any)
-    .from("student_guardians")
-    .select("name_bn, relation, students!inner(school_id)")
-    .eq("students.school_id", membership.school_id)
-    .limit(1000);
   const fatherNames = new Set<string>();
   const motherNames = new Set<string>();
-  for (const g of (guardianRows ?? []) as { name_bn: string | null; relation: string | null }[]) {
+  for (const g of (guardianRes.data ?? []) as { name_bn: string | null; relation: string | null }[]) {
     if (!g.name_bn) continue;
     if (g.relation === "mother") motherNames.add(g.name_bn);
     else fatherNames.add(g.name_bn);

@@ -8,39 +8,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { supabaseServer } from "@/lib/supabase/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth/session";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
+import { ensureDefaultSections } from "@/lib/schools/self-heal";
 import { StudentsFilters } from "./filters";
-
-/**
- * Heal any legacy classes that were created before the auto-default-section
- * feature so their sections show up in the filter + student-create dropdowns.
- */
-async function ensureDefaultSections(schoolId: string) {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const admin = supabaseAdmin() as any;
-    const { data: classes } = await admin
-      .from("classes")
-      .select("id, sections(id)")
-      .eq("school_id", schoolId);
-    const orphans = (classes ?? []).filter(
-      (c: { id: string; sections: unknown[] | null }) =>
-        !c.sections || c.sections.length === 0,
-    );
-    if (orphans.length === 0) return;
-    await admin.from("sections").insert(
-      orphans.map((c: { id: string }) => ({
-        class_id: c.id,
-        name: "ক",
-        capacity: null,
-      })),
-    );
-  } catch {
-    // non-fatal
-  }
-}
 
 type PageProps = {
   params: Promise<{ schoolSlug: string }>;

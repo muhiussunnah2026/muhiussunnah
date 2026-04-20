@@ -4,40 +4,11 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { supabaseServer } from "@/lib/supabase/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth/session";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
+import { ensureDefaultSections } from "@/lib/schools/self-heal";
 import { AddClassForm } from "./add-class-form";
 import { ClassSectionList } from "./class-section-list";
-
-/**
- * Heal any legacy classes that were created before the auto-default-section
- * feature. Idempotent — only inserts when a class has zero sections.
- */
-async function ensureDefaultSections(schoolId: string) {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const admin = supabaseAdmin() as any;
-    const { data: classes } = await admin
-      .from("classes")
-      .select("id, sections(id)")
-      .eq("school_id", schoolId);
-    const orphans = (classes ?? []).filter(
-      (c: { id: string; sections: unknown[] | null }) =>
-        !c.sections || c.sections.length === 0,
-    );
-    if (orphans.length === 0) return;
-    await admin.from("sections").insert(
-      orphans.map((c: { id: string }) => ({
-        class_id: c.id,
-        name: "ক",
-        capacity: null,
-      })),
-    );
-  } catch {
-    // non-fatal
-  }
-}
 
 type PageProps = { params: Promise<{ schoolSlug: string }> };
 

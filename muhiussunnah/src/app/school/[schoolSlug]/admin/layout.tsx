@@ -33,7 +33,7 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { OnlineStatus } from "@/components/pwa/online-status";
 import { requireRole, type ActiveSchoolMembership } from "@/lib/auth/session";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
-import { supabaseServer } from "@/lib/supabase/server";
+import { getSchoolBranding } from "@/lib/schools/branding";
 
 type Props = {
   children: ReactNode;
@@ -46,17 +46,9 @@ export default async function SchoolAdminLayout({ children, params }: Props) {
 
   const nav = adminNav(schoolSlug, membership);
 
-  // Pull branding (logo + display_name_locale) for the shell. `select("*")`
-  // tolerates projects where migration 0018 hasn't run yet — optional columns
-  // just come back as undefined.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: schoolRow } = await (supabase as any)
-    .from("schools")
-    .select("*")
-    .eq("id", membership.school_id)
-    .maybeSingle();
+  // Cached via React's cache() so other server components in this same
+  // request (e.g. page.tsx fetching the same row) re-use a single query.
+  const schoolRow = await getSchoolBranding(membership.school_id);
 
   const logoUrl = (schoolRow?.logo_url as string | null) ?? null;
   const rawHeaderFields = (schoolRow?.header_display_fields as string | null) ?? "name_bn";

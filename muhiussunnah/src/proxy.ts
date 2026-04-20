@@ -119,7 +119,28 @@ export async function proxy(request: NextRequest) {
     });
   }
 
-  // --- Supabase session refresh ------------------------------------------
+  const { pathname } = request.nextUrl;
+
+  // --- Tenant slug header -----------------------------------------------
+  const schoolMatch = pathname.match(/^\/school\/([^/]+)/);
+  if (schoolMatch) {
+    response.headers.set("x-school-slug", schoolMatch[1]);
+  }
+
+  // --- Fast path: no auth work for truly public, non-auth routes --------
+  // Marketing pages, public school pages, webhooks, etc. don't need us to
+  // hit Supabase to validate the session on every navigation — skipping
+  // getUser() here is the biggest latency win available to us.
+  const requiresAuth =
+    pathname.startsWith("/school/") ||
+    pathname.startsWith("/super-admin") ||
+    (pathname.startsWith("/api/") && !isPublicPath(pathname));
+  const isAuthPage = AUTH_PATHS.has(pathname);
+  if (!requiresAuth && !isAuthPage) {
+    return response;
+  }
+
+  // --- Supabase session refresh (only when we actually need it) ---------
   const supabase = createServerClient(
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -145,24 +166,7 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
-
-  // --- Tenant slug header -----------------------------------------------
-  const schoolMatch = pathname.match(/^\/school\/([^/]+)/);
-  if (schoolMatch) {
-    response.headers.set("x-school-slug", schoolMatch[1]);
-  }
-
   // --- Auth gating -------------------------------------------------------
-  // Use an explicit deny-list (not allow-list) so unknown routes fall through
-  // to Next.js routing, which renders the custom 404 page at src/app/not-found.tsx.
-  // Previously we redirected anything not in PUBLIC_PATHS to /login, which hid
-  // the 404 page behind the login screen.
-  const requiresAuth =
-    pathname.startsWith("/school/") ||
-    pathname.startsWith("/super-admin") ||
-    (pathname.startsWith("/api/") && !isPublicPath(pathname));
-
   if (!user && requiresAuth) {
     const redirect = request.nextUrl.clone();
     redirect.pathname = "/login";
@@ -170,7 +174,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirect);
   }
 
-  if (user && AUTH_PATHS.has(pathname)) {
+  if (user && isAuthPage) {
     // Already logged in — bounce away from the auth pages
     const redirect = request.nextUrl.clone();
     redirect.pathname = "/";
