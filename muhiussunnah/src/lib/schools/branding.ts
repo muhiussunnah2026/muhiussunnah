@@ -1,5 +1,4 @@
 import { cache } from "react";
-import { unstable_cache } from "next/cache";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export type SchoolBranding = {
@@ -20,10 +19,18 @@ const BRANDING_COLS =
   "id, name_bn, name_en, name_ar, address, phone, email, website, logo_url, display_name_locale, header_display_fields";
 
 /**
- * Internal: the actual Supabase query (no caching). Exposed through the
- * two wrappers below.
+ * School branding fetcher.
+ *
+ * NOTE: Previously this used `unstable_cache` for cross-request caching,
+ * but `unstable_cache` can't wrap functions that access `cookies()` —
+ * Next.js throws a "DynamicServerError: Route couldn't be rendered
+ * statically" and the page serves a 500. Our `supabaseServer()` helper
+ * reads cookies (it must — that's how auth context flows). So we fall
+ * back to React `cache()` alone, which deduplicates within a single
+ * request. Cross-request caching can be added later via a dedicated
+ * anon-key Supabase client that doesn't read cookies.
  */
-async function fetchBrandingById(schoolId: string): Promise<SchoolBranding | null> {
+export const getSchoolBranding = cache(async (schoolId: string): Promise<SchoolBranding | null> => {
   const supabase = await supabaseServer();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase as any)
@@ -32,9 +39,9 @@ async function fetchBrandingById(schoolId: string): Promise<SchoolBranding | nul
     .eq("id", schoolId)
     .maybeSingle();
   return (data ?? null) as SchoolBranding | null;
-}
+});
 
-async function fetchBrandingBySlug(slug: string): Promise<SchoolBranding | null> {
+export const getSchoolBrandingBySlug = cache(async (slug: string): Promise<SchoolBranding | null> => {
   const supabase = await supabaseServer();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase as any)
@@ -43,37 +50,4 @@ async function fetchBrandingBySlug(slug: string): Promise<SchoolBranding | null>
     .eq("slug", slug)
     .maybeSingle();
   return (data ?? null) as SchoolBranding | null;
-}
-
-/**
- * School branding — server-cached for 60s per schoolId.
- *
- * Two layers:
- *   1. React `cache()` — deduplicates within a single request tree.
- *   2. Next `unstable_cache` — caches across requests/users for 60s,
- *      so the dashboard layout doesn't hit Supabase on every click
- *      when the user is navigating sidebar links.
- *
- * Tagged with `school-branding-${schoolId}` so settings changes can
- * invalidate via `revalidateTag()` immediately.
- */
-export const getSchoolBranding = cache(async (schoolId: string): Promise<SchoolBranding | null> => {
-  const cached = unstable_cache(
-    () => fetchBrandingById(schoolId),
-    ["school-branding-by-id", schoolId],
-    { revalidate: 60, tags: [`school-branding-${schoolId}`] },
-  );
-  return cached();
-});
-
-/**
- * Slug-based variant. Same caching strategy.
- */
-export const getSchoolBrandingBySlug = cache(async (slug: string): Promise<SchoolBranding | null> => {
-  const cached = unstable_cache(
-    () => fetchBrandingBySlug(slug),
-    ["school-branding-by-slug", slug],
-    { revalidate: 60, tags: [`school-branding-slug-${slug}`] },
-  );
-  return cached();
 });
