@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { BreadcrumbJsonLd } from "@/components/marketing/breadcrumb-jsonld";
 import { PackageDetailPage, type PackageDetail } from "@/components/marketing/package-detail-page";
 import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i18n/config";
 import { getPackageDetailChrome, getPackageDetailCopy } from "@/lib/i18n/pages";
@@ -37,5 +38,16 @@ export default async function Page() {
     notIncluded: copy.notIncluded,
   };
 
-  return <PackageDetailPage pkg={pkg} chrome={chrome} />;
+  return (
+    <>
+      <BreadcrumbJsonLd
+        id="pricing-growth"
+        items={[
+          { label: "Pricing", href: "/pricing" },
+          { label: "Growth", href: "/pricing/growth" },
+        ]}
+      />
+      <PackageDetailPage pkg={pkg} chrome={chrome} />
+    </>
+  );
 }

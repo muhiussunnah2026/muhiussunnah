@@ -1,7 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /super-admin
-Disallow: /school/
-Disallow: /api/
-
-Sitemap: /sitemap.xml

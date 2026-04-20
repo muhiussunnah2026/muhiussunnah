@@ -12,6 +12,8 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { RegisterServiceWorker } from "@/components/pwa/register-sw";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { AnalyticsProvider } from "@/components/analytics/analytics-provider";
+import { WebVitalsReporter } from "@/components/analytics/web-vitals-reporter";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { defaultLocale, isLocale, localeCookieName, localeDirection, type Locale } from "@/lib/i18n/config";
 import "./globals.css";
@@ -238,7 +240,9 @@ export default async function RootLayout({
           <Toaster position="top-right" richColors closeButton />
           <InstallPrompt />
           <RegisterServiceWorker />
+          <WebVitalsReporter />
         </ThemeProvider>
+        <AnalyticsProvider />
       </body>
     </html>
   );
