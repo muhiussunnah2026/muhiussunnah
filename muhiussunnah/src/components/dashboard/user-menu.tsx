@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useTransition } from "react";
 import { ChevronDown, LifeBuoy, LogOut, UserCircle2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -17,11 +18,14 @@ import { signOutAction } from "@/server/actions/auth";
  * Avatar + name trigger that opens a dropdown with Profile, Support
  * Ticket, Logout — the "me menu" pattern every major SaaS uses.
  *
- * Implementation note: base-ui's Menu.Item MUST be rendered as its own
- * element (or via the `render` prop). Wrapping <DropdownMenuItem> in a
- * <Link> or <button> puts the Menu.Item inside someone else's DOM node,
- * which breaks focus management and throws at runtime. Use `render` to
- * swap the underlying element instead.
+ * Implementation notes for base-ui's Menu primitive:
+ *  - Menu.Item MUST be the focusable element itself. Wrapping it in
+ *    <Link> or <button> breaks focus management; use the `render`
+ *    prop to swap the underlying element instead.
+ *  - <form action={...}> nested inside <Menu.Popup> was crashing the
+ *    page on dropdown open (the form sits in a portal; Next's action
+ *    wiring and base-ui's focus logic fight there). Replaced the
+ *    form with an imperative server-action call via useTransition.
  */
 export function UserMenu({
   name,
@@ -32,6 +36,13 @@ export function UserMenu({
 }) {
   const displayName = name?.trim() || "প্রশাসক";
   const initials = buildInitials(displayName);
+  const [pending, startTransition] = useTransition();
+
+  const handleSignOut = () => {
+    startTransition(async () => {
+      await signOutAction();
+    });
+  };
 
   return (
     <DropdownMenu>
@@ -85,16 +96,15 @@ export function UserMenu({
 
         <DropdownMenuSeparator />
 
-        <form action={signOutAction}>
-          <DropdownMenuItem
-            variant="destructive"
-            className="cursor-pointer px-2 py-2 w-full"
-            render={<button type="submit" />}
-          >
-            <LogOut className="me-2 size-4" />
-            লগআউট
-          </DropdownMenuItem>
-        </form>
+        <DropdownMenuItem
+          variant="destructive"
+          className="cursor-pointer px-2 py-2"
+          onClick={handleSignOut}
+          disabled={pending}
+        >
+          <LogOut className="me-2 size-4" />
+          {pending ? "লগআউট হচ্ছে…" : "লগআউট"}
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
