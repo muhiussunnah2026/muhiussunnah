@@ -33,7 +33,7 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { OnlineStatus } from "@/components/pwa/online-status";
 import { requireRole, type ActiveSchoolMembership } from "@/lib/auth/session";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
-import { getSchoolBranding } from "@/lib/schools/branding";
+import { getSchoolBrandingBySlug } from "@/lib/schools/branding";
 
 type Props = {
   children: ReactNode;
@@ -42,13 +42,18 @@ type Props = {
 
 export default async function SchoolAdminLayout({ children, params }: Props) {
   const { schoolSlug } = await params;
-  const membership = await requireRole(schoolSlug, [...ADMIN_ROLES, "ACCOUNTANT"]);
+
+  // Fire both queries concurrently. `requireRole` resolves memberships
+  // (→ school_users + schools join), while `getSchoolBrandingBySlug`
+  // loads the schools row for the header. Running them in parallel
+  // collapses two sequential round-trips into one concurrent pair —
+  // meaningful because this layout runs on every dashboard navigation.
+  const [membership, schoolRow] = await Promise.all([
+    requireRole(schoolSlug, [...ADMIN_ROLES, "ACCOUNTANT"]),
+    getSchoolBrandingBySlug(schoolSlug),
+  ]);
 
   const nav = adminNav(schoolSlug, membership);
-
-  // Cached via React's cache() so other server components in this same
-  // request (e.g. page.tsx fetching the same row) re-use a single query.
-  const schoolRow = await getSchoolBranding(membership.school_id);
 
   const logoUrl = (schoolRow?.logo_url as string | null) ?? null;
   const rawHeaderFields = (schoolRow?.header_display_fields as string | null) ?? "name_bn";

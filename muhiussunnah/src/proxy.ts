@@ -140,7 +140,32 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
-  // --- Supabase session refresh (only when we actually need it) ---------
+  // --- Cheap cookie-existence short-circuit -----------------------------
+  // If there's no Supabase auth cookie AT ALL, we don't need to spin up
+  // a Supabase client or hit the network. Just redirect unauth'd users
+  // and let authed auth-pages pass through.
+  const hasAuthCookie = request.cookies
+    .getAll()
+    .some((c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token"));
+  if (!hasAuthCookie) {
+    if (requiresAuth) {
+      const redirect = request.nextUrl.clone();
+      redirect.pathname = "/login";
+      redirect.searchParams.set("next", pathname);
+      return NextResponse.redirect(redirect);
+    }
+    return response;
+  }
+
+  // --- Supabase session refresh ------------------------------------------
+  // We MUST use `getSession()` here, not `getUser()`. getUser() hits the
+  // Supabase Auth server on every request (adds 300–900ms of latency per
+  // dashboard navigation). getSession() reads the cookie locally and only
+  // makes a network request when the access token is expired and needs a
+  // refresh. Security-wise, permission enforcement still happens in the
+  // RSC layouts via `requireRole() → supabase.auth.getUser()` which DOES
+  // verify, so nothing is weakened — we just stop paying the auth roundtrip
+  // twice per click.
   const supabase = createServerClient(
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -163,18 +188,18 @@ export async function proxy(request: NextRequest) {
   );
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
   // --- Auth gating -------------------------------------------------------
-  if (!user && requiresAuth) {
+  if (!session && requiresAuth) {
     const redirect = request.nextUrl.clone();
     redirect.pathname = "/login";
     redirect.searchParams.set("next", pathname);
     return NextResponse.redirect(redirect);
   }
 
-  if (user && isAuthPage) {
+  if (session && isAuthPage) {
     // Already logged in — bounce away from the auth pages
     const redirect = request.nextUrl.clone();
     redirect.pathname = "/";
