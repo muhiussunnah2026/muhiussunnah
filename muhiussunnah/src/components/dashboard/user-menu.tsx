@@ -8,7 +8,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -73,10 +72,13 @@ export function UserMenu({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" sideOffset={8} className="w-56">
-        <DropdownMenuLabel className="flex flex-col gap-0.5 px-2 py-1.5">
+        {/* Plain label div — DropdownMenuLabel uses Menu.GroupLabel which
+            requires a surrounding <Menu.Group>, and without one base-ui
+            throws error #31 the moment the dropdown opens. */}
+        <div className="flex flex-col gap-0.5 px-2 py-1.5">
           <span className="text-xs text-muted-foreground">লগইন রয়েছেন</span>
           <span className="font-semibold truncate">{displayName}</span>
-        </DropdownMenuLabel>
+        </div>
         <DropdownMenuSeparator />
 
         <DropdownMenuItem
