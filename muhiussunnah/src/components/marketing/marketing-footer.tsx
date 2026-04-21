@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { Mail, Phone, MapPin, ShieldCheck, Send } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i18n/config";
 import { getMarketingCopy } from "@/lib/i18n/marketing";
 import { Logo } from "./logo";
@@ -48,6 +49,7 @@ export async function MarketingFooter() {
   const cookieLocale = jar.get(localeCookieName)?.value;
   const locale: Locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
   const t = getMarketingCopy(locale);
+  const tf = await getTranslations("footer");
 
   // Colorful by default — each icon keeps its brand color always visible
   const socials = [
@@ -98,7 +100,7 @@ export async function MarketingFooter() {
               </a>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="size-4 text-primary" />
-                <span>ঢাকা, বাংলাদেশ</span>
+                <span>{tf("location")}</span>
               </div>
             </div>
 
@@ -156,7 +158,7 @@ export async function MarketingFooter() {
                 <div>
                   <div className="text-xs uppercase tracking-wider text-success font-semibold">Guaranteed</div>
                   <div className="font-bold">Secure Payment</div>
-                  <p className="text-xs text-muted-foreground mt-1">256-bit SSL encryption · কোন লুকানো খরচ নেই</p>
+                  <p className="text-xs text-muted-foreground mt-1">{tf("no_hidden_fees")}</p>
                 </div>
               </div>
             </div>

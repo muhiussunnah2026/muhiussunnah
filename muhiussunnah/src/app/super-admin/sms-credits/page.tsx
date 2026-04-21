@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { MessageSquare } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -11,6 +12,7 @@ import { TopupForm } from "./topup-form";
 
 export default async function SmsCreditsPage() {
   await requireSuperAdmin();
+  const t = await getTranslations("superAdmin");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = supabaseAdmin() as any;
@@ -26,22 +28,22 @@ export default async function SmsCreditsPage() {
   return (
     <>
       <PageHeader
-        title="SMS ক্রেডিট ব্যবস্থাপনা"
-        subtitle="সব স্কুলের SMS ক্রেডিট এক জায়গায়। যাদের ব্যালেন্স কম তাদের topup করুন।"
+        title={t("sms_page_title")}
+        subtitle={t("sms_page_subtitle")}
         impact={[
-          { label: <>মোট ব্যালেন্স · ৳ <BanglaDigit value={totalBalance.toLocaleString("en-IN")} /></>, tone: "accent" },
-          { label: <>কম ব্যালেন্স · <BanglaDigit value={lowBalance.length} /> টি স্কুল</>, tone: lowBalance.length > 0 ? "warning" : "success" },
+          { label: <>{t("sms_tally_total")} · ৳ <BanglaDigit value={totalBalance.toLocaleString("en-IN")} /></>, tone: "accent" },
+          { label: t("sms_tally_low", { count: lowBalance.length }), tone: lowBalance.length > 0 ? "warning" : "success" },
         ]}
       />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <MetricCard label="মোট স্কুল" value={list.length} />
-        <MetricCard label="ক্রেডিট পুল" value={totalBalance.toFixed(2)} valuePrefix="৳ " tone="accent" />
-        <MetricCard label="কম ব্যালেন্স" value={lowBalance.length} tone={lowBalance.length > 0 ? "warning" : "default"} />
+        <MetricCard label={t("sms_metric_total_schools")} value={list.length} />
+        <MetricCard label={t("sms_metric_pool")} value={totalBalance.toFixed(2)} valuePrefix="৳ " tone="accent" />
+        <MetricCard label={t("sms_metric_low")} value={lowBalance.length} tone={lowBalance.length > 0 ? "warning" : "default"} />
       </div>
 
       {list.length === 0 ? (
-        <EmptyState icon={<MessageSquare className="size-8" />} title="কোন স্কুল নেই" body="প্রথম স্কুল রেজিস্টার হলে এখানে দেখাবে।" />
+        <EmptyState icon={<MessageSquare className="size-8" />} title={t("sms_empty_title")} body={t("sms_empty_body")} />
       ) : (
         <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
           <Card>
@@ -49,9 +51,9 @@ export default async function SmsCreditsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>স্কুল</TableHead>
-                    <TableHead className="hidden md:table-cell">সাবস্ক্রিপশন</TableHead>
-                    <TableHead className="text-right">ব্যালেন্স</TableHead>
+                    <TableHead>{t("sms_col_school")}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t("sms_col_sub")}</TableHead>
+                    <TableHead className="text-right">{t("sms_col_balance")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -78,7 +80,7 @@ export default async function SmsCreditsPage() {
 
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-lg font-semibold">Topup করুন</h2>
+              <h2 className="mb-4 text-lg font-semibold">{t("sms_topup_heading")}</h2>
               <TopupForm schools={list.map((s) => ({ id: s.id, name: s.name_bn, slug: s.slug }))} />
             </CardContent>
           </Card>

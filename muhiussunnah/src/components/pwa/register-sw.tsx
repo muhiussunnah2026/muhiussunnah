@@ -1,17 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-/**
- * Registers the service worker at /sw.js on the client.
- * Mounted once in the root layout.
- *
- * - Production-only; in development unregister to avoid stale cached assets.
- * - Listens for `online` event and asks SW to replay the queued offline mutations.
- * - Shows a toast when offline mutations are successfully flushed.
- */
 export function RegisterServiceWorker() {
+  const t = useTranslations("pwa");
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!("serviceWorker" in navigator)) return;
@@ -30,16 +24,14 @@ export function RegisterServiceWorker() {
         console.warn("SW registration failed:", err);
       });
 
-    // Replay queue when coming back online
     const onOnline = () => {
       navigator.serviceWorker.controller?.postMessage({ type: "REPLAY_QUEUE" });
     };
     window.addEventListener("online", onOnline);
 
-    // Listen for sync completion messages
     const onMessage = (e: MessageEvent) => {
       if (e.data?.type === "SYNC_COMPLETE" && e.data.count > 0) {
-        toast.success(`${e.data.count}টি অফলাইন রেকর্ড সিঙ্ক হয়েছে`);
+        toast.success(t("sync_toast", { count: e.data.count }));
       }
     };
     navigator.serviceWorker.addEventListener("message", onMessage);
@@ -48,6 +40,7 @@ export function RegisterServiceWorker() {
       window.removeEventListener("online", onOnline);
       navigator.serviceWorker.removeEventListener("message", onMessage);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return null;

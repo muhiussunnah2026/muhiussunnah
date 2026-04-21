@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { WifiOff, CloudUpload } from "lucide-react";
 
-/**
- * Shows a badge when device is offline, or while sync queue is flushing.
- * Mount in the dashboard shell / admin layout.
- */
 export function OnlineStatus() {
+  const t = useTranslations("pwa");
   const [online, setOnline] = useState(true);
   const [syncing, setSyncing] = useState(false);
 
@@ -38,13 +36,13 @@ export function OnlineStatus() {
       {!online && (
         <div className="flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning-foreground dark:text-warning shadow-sm">
           <WifiOff className="size-4" />
-          <span>অফলাইন — হাজিরা ও মার্কস সেভ হবে, অনলাইনে আসলে সিঙ্ক হবে</span>
+          <span>{t("offline_banner")}</span>
         </div>
       )}
       {online && syncing && (
         <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-primary shadow-sm">
           <CloudUpload className="size-4 animate-pulse" />
-          <span>অফলাইন ডেটা সিঙ্ক হচ্ছে...</span>
+          <span>{t("syncing_banner")}</span>
         </div>
       )}
     </div>

@@ -1,9 +1,6 @@
-/**
- * <TrustBadge> — "Data secure · Daily backup · 200+ institutions" chip.
- *
- * FRONTEND_UX_GUIDE §9: visible on every logged-in page to reinforce safety.
- */
+"use client";
 
+import { useTranslations } from "next-intl";
 import { Lock, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +10,7 @@ type Props = {
 };
 
 export function TrustBadge({ variant = "inline", className }: Props) {
+  const t = useTranslations("trustBadge");
   return (
     <div
       className={cn(
@@ -23,11 +21,11 @@ export function TrustBadge({ variant = "inline", className }: Props) {
     >
       <span className="inline-flex items-center gap-1.5">
         <Lock className="size-3.5" aria-hidden />
-        ডেটা নিরাপদ · SSL encryption
+        {t("data_secure")}
       </span>
       <span className="inline-flex items-center gap-1.5">
         <ShieldCheck className="size-3.5" aria-hidden />
-        দৈনিক backup
+        {t("daily_backup")}
       </span>
     </div>
   );

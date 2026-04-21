@@ -2,18 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { createClient } from "@supabase/supabase-js";
 import { LiveIndicator } from "@/components/ui/live-indicator";
 
-/**
- * Realtime dashboard indicator — subscribes to postgres_changes on key tenant
- * tables and triggers a router refresh when new rows arrive. This is the
- * Phase 6 realtime layer on the admin dashboard.
- *
- * Rate-limit refresh to once every 3s to avoid thrashing.
- */
 export function RealtimeDashboardIndicator({ schoolId }: { schoolId: string }) {
   const router = useRouter();
+  const t = useTranslations("realtime");
   const [connected, setConnected] = useState(false);
   const [lastEvent, setLastEvent] = useState<string | null>(null);
 
@@ -30,17 +25,17 @@ export function RealtimeDashboardIndicator({ schoolId }: { schoolId: string }) {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "payments", filter: `school_id=eq.${schoolId}` },
-        () => handleChange("ফি পেমেন্ট"),
+        () => handleChange(t("event_payment")),
       )
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "students", filter: `school_id=eq.${schoolId}` },
-        () => handleChange("নতুন ছাত্র"),
+        () => handleChange(t("event_new_student")),
       )
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "admission_inquiries", filter: `school_id=eq.${schoolId}` },
-        () => handleChange("ভর্তি জিজ্ঞাসা"),
+        () => handleChange(t("event_admission_inquiry")),
       )
       .subscribe((status) => {
         setConnected(status === "SUBSCRIBED");
@@ -58,13 +53,14 @@ export function RealtimeDashboardIndicator({ schoolId }: { schoolId: string }) {
     return () => {
       supabase.removeChannel(ch);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [schoolId, router]);
 
   return (
     <div className="flex items-center gap-2">
-      <LiveIndicator connected={connected} label={connected ? "লাইভ" : "অফলাইন"} />
+      <LiveIndicator connected={connected} label={connected ? t("live") : t("offline")} />
       {lastEvent && (
-        <span className="text-xs text-muted-foreground">· সর্বশেষ: {lastEvent}</span>
+        <span className="text-xs text-muted-foreground">{t("last_event")} {lastEvent}</span>
       )}
     </div>
   );

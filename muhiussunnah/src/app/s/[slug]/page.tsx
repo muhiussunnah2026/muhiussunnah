@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { MapPin, Phone, Mail, Globe, Megaphone } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,13 +10,9 @@ import { supabaseServer } from "@/lib/supabase/server";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
-/**
- * Public school website — each school gets a shareable page at /s/[slug].
- * Shows: school info, recent public notices, admissions contact.
- * No auth required.
- */
 export default async function PublicSchoolPage({ params }: PageProps) {
   const { slug } = await params;
+  const t = await getTranslations("publicSchool");
   const supabase = await supabaseServer();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,7 +25,6 @@ export default async function PublicSchoolPage({ params }: PageProps) {
 
   if (!school) return notFound();
 
-  // Public notices only (those marked public_web)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: notices } = await (supabase as any)
     .from("notices")
@@ -38,7 +34,6 @@ export default async function PublicSchoolPage({ params }: PageProps) {
     .order("created_at", { ascending: false })
     .limit(10);
 
-  // Student count (rough public stat)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { count: studentCount } = await (supabase as any)
     .from("students")
@@ -47,11 +42,10 @@ export default async function PublicSchoolPage({ params }: PageProps) {
     .eq("is_active", true);
 
   const noticeList = (notices ?? []) as Array<{ id: string; title_bn: string; body_bn: string; created_at: string; priority: string }>;
-  const typeLabel = { school: "স্কুল", madrasa: "মাদ্রাসা", both: "স্কুল ও মাদ্রাসা" }[school.type as string] ?? "প্রতিষ্ঠান";
+  const typeLabel = { school: t("type_school"), madrasa: t("type_madrasa"), both: t("type_both") }[school.type as string] ?? t("type_default");
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero */}
       <div className="bg-gradient-primary text-white">
         <div className="container max-w-6xl mx-auto px-4 py-12 md:py-16">
           <div className="flex items-start gap-4 flex-wrap">
@@ -68,21 +62,20 @@ export default async function PublicSchoolPage({ params }: PageProps) {
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href={`/school/${slug}/login`} className="rounded-md bg-white text-primary px-5 py-2.5 text-sm font-medium hover:bg-white/90">
-              অভিভাবক / ছাত্র পোর্টাল
+              {t("portal_cta")}
             </Link>
             <Link href={`/admission-inquiry`} className="rounded-md border border-white/30 px-5 py-2.5 text-sm font-medium hover:bg-white/10">
-              ভর্তি জিজ্ঞাসা
+              {t("admission_cta")}
             </Link>
           </div>
         </div>
       </div>
 
       <div className="container max-w-6xl mx-auto px-4 py-10 grid gap-8 md:grid-cols-3">
-        {/* Info sidebar */}
         <aside className="space-y-4">
           <Card>
             <CardContent className="p-5 space-y-3">
-              <h2 className="font-semibold">যোগাযোগ</h2>
+              <h2 className="font-semibold">{t("contact_heading")}</h2>
               {school.address && (
                 <div className="flex items-start gap-2 text-sm">
                   <MapPin className="size-4 mt-0.5 shrink-0 text-muted-foreground" />
@@ -114,24 +107,23 @@ export default async function PublicSchoolPage({ params }: PageProps) {
             <Card>
               <CardContent className="p-5 text-center">
                 <div className="text-3xl font-bold"><BanglaDigit value={studentCount ?? 0} /></div>
-                <div className="text-sm text-muted-foreground">সক্রিয় শিক্ষার্থী</div>
+                <div className="text-sm text-muted-foreground">{t("active_students")}</div>
               </CardContent>
             </Card>
           )}
         </aside>
 
-        {/* Notices */}
         <main className="md:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold flex items-center gap-2">
-              <Megaphone className="size-5" />সাম্প্রতিক নোটিশ
+              <Megaphone className="size-5" />{t("notices_heading")}
             </h2>
           </div>
 
           {noticeList.length === 0 ? (
             <Card>
               <CardContent className="p-6 text-center text-muted-foreground text-sm">
-                এখনো কোন প্রকাশিত নোটিশ নেই।
+                {t("no_notices")}
               </CardContent>
             </Card>
           ) : (
@@ -141,11 +133,11 @@ export default async function PublicSchoolPage({ params }: PageProps) {
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
                       <h3 className="font-semibold">{n.title_bn}</h3>
-                      {n.priority === "urgent" && <Badge variant="destructive">জরুরি</Badge>}
+                      {n.priority === "urgent" && <Badge variant="destructive">{t("priority_urgent")}</Badge>}
                     </div>
                     <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-3">{n.body_bn}</p>
                     <div className="text-xs text-muted-foreground mt-2">
-                      {new Date(n.created_at).toLocaleDateString("bn-BD")}
+                      {new Date(n.created_at).toLocaleDateString()}
                     </div>
                   </CardContent>
                 </Card>
@@ -156,7 +148,7 @@ export default async function PublicSchoolPage({ params }: PageProps) {
       </div>
 
       <footer className="border-t mt-10 py-6 text-center text-xs text-muted-foreground">
-        <p>এই ওয়েবসাইট <Link href="/" className={buttonVariants({ variant: "link", size: "sm" }) + " !p-0 !h-auto"}>Muhius Sunnah</Link>-এ তৈরি — বাংলাদেশের স্কুল ও মাদ্রাসার জন্য।</p>
+        <p>{t("footer_credit_before")}<Link href="/" className={buttonVariants({ variant: "link", size: "sm" }) + " !p-0 !h-auto"}>Muhius Sunnah</Link>{t("footer_credit_after")}</p>
       </footer>
     </div>
   );

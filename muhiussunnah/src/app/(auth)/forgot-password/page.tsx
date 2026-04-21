@@ -1,30 +1,33 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ForgotPasswordForm } from "./forgot-form";
 
-export const metadata: Metadata = {
-  title: "পাসওয়ার্ড ভুলে গেছেন?",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("forgotPassword");
+  return { title: t("title") };
+}
 
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage() {
+  const t = await getTranslations("forgotPassword");
   return (
     <Card className="border-border/60 shadow-hover">
       <CardHeader className="gap-1 pb-2">
-        <CardTitle className="text-2xl">পাসওয়ার্ড রিসেট</CardTitle>
+        <CardTitle className="text-2xl">{t("title")}</CardTitle>
         <p className="text-sm text-muted-foreground">
-          আপনার ইমেইলে একটি রিসেট লিংক পাঠানো হবে।
+          {t("subtitle")}
         </p>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         <ForgotPasswordForm />
         <div className="border-t border-border/60 pt-4 text-center text-sm text-muted-foreground">
-          মনে পড়ে গেছে?{" "}
+          {t("remembered")}{" "}
           <Link
             href="/login"
             className="font-medium text-primary underline-offset-4 hover:underline"
           >
-            লগইন করুন
+            {t("login_link")}
           </Link>
         </div>
       </CardContent>

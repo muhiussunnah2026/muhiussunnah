@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -12,6 +13,7 @@ type BeforeInstallPromptEvent = Event & {
 const DISMISS_KEY = "shikkha-pwa-dismissed";
 
 export function InstallPrompt() {
+  const t = useTranslations("pwa");
   const [event, setEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -34,9 +36,9 @@ export function InstallPrompt() {
   return (
     <div className="fixed inset-x-4 bottom-4 z-50 flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-background/95 p-4 shadow-hover backdrop-blur md:inset-x-auto md:right-6 md:max-w-sm">
       <div className="flex-1">
-        <p className="text-sm font-semibold">📱 হোম স্ক্রিনে যোগ করুন</p>
+        <p className="text-sm font-semibold">{t("install_title")}</p>
         <p className="text-xs text-muted-foreground">
-          অ্যাপের মতো দ্রুত খুলবে, অফলাইনেও কাজ করবে।
+          {t("install_body")}
         </p>
       </div>
       <div className="flex items-center gap-1">
@@ -53,7 +55,7 @@ export function InstallPrompt() {
           }}
         >
           <Download className="me-1 size-3.5" />
-          ইনস্টল
+          {t("install_cta")}
         </Button>
         <Button
           size="icon-sm"

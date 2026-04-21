@@ -1,20 +1,20 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { ArrowLeft, Shield, Sparkles, Zap } from "lucide-react";
 import { Logo } from "@/components/marketing/logo";
 
-export default function AuthLayout({ children }: { children: ReactNode }) {
+export default async function AuthLayout({ children }: { children: ReactNode }) {
+  const t = await getTranslations("authLayout");
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
 
-      {/* Background — two halves: left brand pane + right form pane */}
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div className="absolute -top-40 -start-40 size-[500px] rounded-full bg-primary/20 blur-[120px] animate-float-slow" />
         <div className="absolute -bottom-40 -end-40 size-[500px] rounded-full bg-accent/15 blur-[120px] animate-float" />
         <div className="absolute top-1/2 start-1/2 size-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-secondary/10 blur-[100px] animate-glow-pulse" />
       </div>
 
-      {/* Grid pattern */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.02]"
         aria-hidden
@@ -33,34 +33,32 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-background/60 px-4 py-1.5 text-sm font-medium backdrop-blur-md transition hover:border-primary/40 hover:bg-primary/5"
         >
           <ArrowLeft className="size-3.5 rtl:rotate-180" />
-          হোমে ফিরে যান
+          {t("back_home")}
         </Link>
       </header>
 
       <main className="relative flex min-h-[calc(100vh-140px)] items-center justify-center px-4 py-8">
         <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
-          {/* Left — brand/value pane (hidden on small screens) */}
           <div className="hidden lg:flex flex-col gap-8 p-8">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                 <Sparkles className="size-3" />
-                বাংলাদেশের #১ স্কুল সফটওয়্যার
+                {t("eyebrow")}
               </div>
               <h1 className="mt-6 text-4xl xl:text-5xl font-bold tracking-tight leading-tight">
-                স্কুল ও মাদ্রাসা{" "}
-                <span className="text-gradient-primary animate-gradient">ম্যানেজ করুন</span>{" "}
-                একদম সহজে
+                {t("title_a")}{" "}
+                <span className="text-gradient-primary animate-gradient">{t("title_b")}</span>
               </h1>
               <p className="mt-4 text-lg text-muted-foreground">
-                ভর্তি থেকে সার্টিফিকেট, ফি থেকে অভিভাবক যোগাযোগ — সব কিছু এক জায়গায়।
+                {t("tagline")}
               </p>
             </div>
 
             <div className="space-y-3">
               {[
-                { icon: Shield, title: "ব্যাংক-level সুরক্ষা", desc: "Row-Level Security + 2FA + encrypted backup" },
-                { icon: Zap, title: "২ মিনিটে setup", desc: "Excel import + guided onboarding" },
-                { icon: Sparkles, title: "AI-powered insights", desc: "Dropout risk + smart SMS templates" },
+                { icon: Shield, title: t("feat1_title"), desc: "Row-Level Security + 2FA + encrypted backup" },
+                { icon: Zap, title: t("feat2_title"), desc: "Excel import + guided onboarding" },
+                { icon: Sparkles, title: t("feat3_title"), desc: "Dropout risk + smart SMS templates" },
               ].map((f) => (
                 <div key={f.title} className="flex items-start gap-3 rounded-xl border border-border/40 bg-card/40 p-4 backdrop-blur-sm transition hover:border-primary/30">
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gradient-primary text-white shadow-lg shadow-primary/20">
@@ -81,13 +79,12 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
                 ))}
               </div>
               <div>
-                <div className="font-semibold text-foreground">১২০+ প্রতিষ্ঠানের</div>
-                <div>বিশ্বস্ত পছন্দ</div>
+                <div className="font-semibold text-foreground">{t("trust_count")}</div>
+                <div>{t("trust_count_suffix")}</div>
               </div>
             </div>
           </div>
 
-          {/* Right — form pane */}
           <div className="w-full max-w-md mx-auto lg:mx-0 lg:ms-auto">
             {children}
           </div>
@@ -96,7 +93,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
       <footer className="relative px-4 pb-6 md:px-8 text-center text-xs text-muted-foreground">
         <div className="flex items-center justify-center gap-4">
-          <span>© ২০২৬ Muhius Sunnah</span>
+          <span>{t("copyright")}</span>
           <span>·</span>
           <Link href="/privacy" className="hover:text-foreground transition">Privacy</Link>
           <span>·</span>
