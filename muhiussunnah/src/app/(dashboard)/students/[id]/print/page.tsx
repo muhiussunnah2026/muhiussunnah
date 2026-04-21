@@ -94,17 +94,19 @@ export default async function StudentPrintPage({ params, searchParams }: PagePro
               <p className="text-xs text-gray-600 mt-0.5">ফোন: {branding.phone}</p>
             ) : null}
           </div>
-          {student.photo_url ? (
+          {student.photo_url && student.photo_url.trim().length > 0 ? (
             <Image
               src={student.photo_url}
               alt={student.name_bn}
               width={96}
-              height={96}
-              className="size-24 shrink-0 rounded-md border border-black/40 object-cover"
+              height={120}
+              className="h-28 w-24 shrink-0 rounded border border-black/40 object-cover"
               unoptimized
             />
           ) : (
-            <div className="size-24 shrink-0 rounded-md border-2 border-dashed border-black/30 flex items-center justify-center text-xs text-gray-500">
+            // Competitor-style passport-photo placeholder: upright
+            // rectangle, thin border, "ছবি" label inside.
+            <div className="h-28 w-24 shrink-0 rounded border border-black/50 bg-white flex items-center justify-center text-sm text-gray-600">
               ছবি
             </div>
           )}

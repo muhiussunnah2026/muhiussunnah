@@ -1,17 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
+import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Printer, Receipt, Pencil, Trash2, Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2, Pencil, Printer, Receipt, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { deleteStudentAction } from "@/server/actions/students";
+import {
+  deleteStudentAction,
+  permanentDeleteStudentAction,
+} from "@/server/actions/students";
 import type { ActionResult } from "@/server/actions/_helpers";
 
 /**
  * Per-row action icons for the students table.
  * Matches the competitor layout: Print admission / Admission invoice /
  * Edit / Delete — all with tooltips on hover.
+ *
+ * Delete opens a modal (React portal → document.body so it escapes any
+ * transformed table ancestor) with TWO options:
+ *   • "বাদ দিন (পুনরুদ্ধারযোগ্য)" — soft delete (status = dropped)
+ *   • "স্থায়ীভাবে মুছুন" — hard delete from DB (admin-client, cascades
+ *     student_guardians)
  */
 export function StudentRowActions({
   schoolSlug,
@@ -23,21 +33,39 @@ export function StudentRowActions({
   studentName: string;
 }) {
   const [confirming, setConfirming] = useState(false);
-  const [state, action, pending] = useActionState<ActionResult | null, FormData>(
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const [softState, softAction, softPending] = useActionState<ActionResult | null, FormData>(
     deleteStudentAction,
     null,
   );
-  const formRef = useRef<HTMLFormElement>(null);
+  const [hardState, hardAction, hardPending] = useActionState<ActionResult | null, FormData>(
+    permanentDeleteStudentAction,
+    null,
+  );
 
   useEffect(() => {
-    if (!state) return;
-    if (state.ok) {
-      toast.success(state.message ?? "মুছে ফেলা হয়েছে");
+    if (!softState) return;
+    if (softState.ok) {
+      toast.success(softState.message ?? "বাদ দেওয়া হয়েছে");
       setConfirming(false);
     } else {
-      toast.error(state.error);
+      toast.error(softState.error);
     }
-  }, [state]);
+  }, [softState]);
+
+  useEffect(() => {
+    if (!hardState) return;
+    if (hardState.ok) {
+      toast.success(hardState.message ?? "স্থায়ীভাবে মুছে ফেলা হয়েছে");
+      setConfirming(false);
+    } else {
+      toast.error(hardState.error);
+    }
+  }, [hardState]);
+
+  const pending = softPending || hardPending;
 
   return (
     <div className="flex items-center justify-end gap-0.5">
@@ -71,64 +99,138 @@ export function StudentRowActions({
         <Tooltip label="মুছে ফেলুন" />
       </button>
 
-      {/* Confirm-delete modal */}
-      {confirming ? (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/30 backdrop-blur-sm"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && !pending) setConfirming(false);
-          }}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="w-full max-w-md rounded-2xl border border-destructive/30 bg-card p-6 shadow-2xl shadow-destructive/10">
-            <div className="flex items-start gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-                <Trash2 className="size-5" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-lg font-bold">এই শিক্ষার্থী মুছে ফেলবেন?</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  <strong className="text-foreground">{studentName}</strong> এর স্ট্যাটাস{" "}
-                  <span className="font-semibold text-destructive">বাদ</span> (dropped) করা হবে।
-                  ইতিহাস (উপস্থিতি, মার্ক, লেজার) সংরক্ষিত থাকবে — পরে status পরিবর্তন করে
-                  পুনরায় সক্রিয় করা যাবে।
-                </p>
-              </div>
-            </div>
+      {confirming && mounted
+        ? createPortal(
+            <ConfirmDeleteModal
+              studentName={studentName}
+              schoolSlug={schoolSlug}
+              studentId={studentId}
+              softAction={softAction}
+              hardAction={hardAction}
+              softPending={softPending}
+              hardPending={hardPending}
+              onCancel={() => !pending && setConfirming(false)}
+            />,
+            document.body,
+          )
+        : null}
+    </div>
+  );
+}
 
-            <form ref={formRef} action={action} className="mt-5 flex items-center justify-end gap-2">
+function ConfirmDeleteModal({
+  studentName,
+  schoolSlug,
+  studentId,
+  softAction,
+  hardAction,
+  softPending,
+  hardPending,
+  onCancel,
+}: {
+  studentName: string;
+  schoolSlug: string;
+  studentId: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  softAction: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  hardAction: any;
+  softPending: boolean;
+  hardPending: boolean;
+  onCancel: () => void;
+}) {
+  const pending = softPending || hardPending;
+
+  return (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-foreground/40 backdrop-blur-sm p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onCancel();
+      }}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="relative w-full max-w-lg rounded-2xl border border-destructive/30 bg-card shadow-2xl shadow-destructive/10">
+        <div className="p-6">
+          <div className="flex items-start gap-3">
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+              <AlertTriangle className="size-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg font-bold leading-tight break-words">
+                {studentName} কে কীভাবে মুছবেন?
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed break-words">
+                দুটো অপশন আছে। ইতিহাস (উপস্থিতি, মার্ক, লেজার) দুইটাই ক্ষেত্রে সংরক্ষিত থাকে।
+              </p>
+            </div>
+          </div>
+
+          {/* Options */}
+          <div className="mt-5 grid gap-3">
+            <form action={softAction}>
               <input type="hidden" name="schoolSlug" value={schoolSlug} />
               <input type="hidden" name="student_id" value={studentId} />
               <button
-                type="button"
-                onClick={() => !pending && setConfirming(false)}
+                type="submit"
                 disabled={pending}
-                className="rounded-md border border-border/60 bg-card px-4 py-2 text-sm font-medium hover:bg-muted disabled:opacity-50"
+                className="group/opt w-full rounded-xl border-2 border-warning/30 bg-warning/5 p-4 text-start transition hover:border-warning/50 hover:bg-warning/10 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                বাতিল
+                <div className="flex items-start gap-3">
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-warning/20 text-warning">
+                    {softPending ? <Loader2 className="size-4 animate-spin" /> : "1"}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold">
+                      বাদ দিন <span className="font-normal text-muted-foreground">(পুনরুদ্ধারযোগ্য)</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground leading-snug">
+                      স্ট্যাটাস <strong>dropped</strong> হবে। তালিকা থেকে সরে যাবে কিন্তু
+                      রেকর্ড থাকবে। পরে status পরিবর্তন করে আবার সক্রিয় করা যাবে।
+                    </p>
+                  </div>
+                </div>
               </button>
+            </form>
+
+            <form action={hardAction}>
+              <input type="hidden" name="schoolSlug" value={schoolSlug} />
+              <input type="hidden" name="student_id" value={studentId} />
               <button
                 type="submit"
                 disabled={pending}
-                className="inline-flex items-center gap-1.5 rounded-md bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground shadow-sm hover:bg-destructive/90 disabled:opacity-50"
+                className="group/opt w-full rounded-xl border-2 border-destructive/40 bg-destructive/5 p-4 text-start transition hover:border-destructive hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {pending ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" />
-                    মুছছে…
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="size-4" />
-                    হ্যাঁ, মুছে ফেলুন
-                  </>
-                )}
+                <div className="flex items-start gap-3">
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-destructive/20 text-destructive">
+                    {hardPending ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-destructive">
+                      স্থায়ীভাবে মুছুন <span className="font-normal text-destructive/70">(অপরিবর্তনীয়)</span>
+                    </div>
+                    <p className="mt-1 text-xs text-destructive/80 leading-snug">
+                      শিক্ষার্থীর মূল রেকর্ড ডেটাবেস থেকে একেবারে মুছে যাবে।
+                      ⚠️ এটি আর পুনরুদ্ধার করা যাবে না।
+                    </p>
+                  </div>
+                </div>
               </button>
             </form>
           </div>
+
+          <div className="mt-5 flex items-center justify-end">
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={pending}
+              className="rounded-md border border-border/60 bg-card px-4 py-2 text-sm font-medium hover:bg-muted disabled:opacity-50"
+            >
+              বাতিল
+            </button>
+          </div>
         </div>
-      ) : null}
+      </div>
     </div>
   );
 }

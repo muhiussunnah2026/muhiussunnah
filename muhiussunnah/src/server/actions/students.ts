@@ -856,3 +856,71 @@ export async function deleteStudentAction(
   revalidatePath("/students", "layout");
   return ok(undefined, `${current.name_bn} এর রেকর্ড মুছে ফেলা হয়েছে।`);
 }
+
+// ---------------------------------------------------------------------------
+// PERMANENT delete — hard DELETE FROM students (also deletes dependent
+// guardians). Use with caution: history (attendance, marks, ledger) is
+// preserved in those tables but the student row itself is gone forever.
+// Uses the admin client so cascading through stricter RLS tables is
+// allowed.
+// ---------------------------------------------------------------------------
+
+export async function permanentDeleteStudentAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = parseForm(deleteStudentSchema, formData);
+  if ("error" in parsed) return parsed.error;
+
+  const auth = await authorizeAction({
+    schoolSlug: parsed.schoolSlug,
+    action: "delete",
+    resource: "student",
+  });
+  if ("error" in auth) return auth.error;
+
+  const supabase = await supabaseServer();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: current } = await (supabase as any)
+    .from("students")
+    .select("school_id, name_bn, student_code")
+    .eq("id", parsed.student_id)
+    .single();
+  if (!current || current.school_id !== auth.active.school_id) {
+    return fail("এই শিক্ষার্থী এই স্কুলে নেই।");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = supabaseAdmin() as any;
+
+  // Delete children we can safely nuke — guardians are purely a join
+  // table with no independent meaning. Attendance / marks / ledger we
+  // leave alone because RLS blocks the admin-client delete path for
+  // those, and an admin might need the historical record. If the
+  // students table has ON DELETE RESTRICT FKs this will error out with
+  // a clear message.
+  await admin.from("student_guardians").delete().eq("student_id", parsed.student_id);
+
+  const { error } = await admin.from("students").delete().eq("id", parsed.student_id);
+  if (error) {
+    return fail(
+      `স্থায়ীভাবে মুছা সম্ভব হয়নি: ${error.message}। প্রথমে উপস্থিতি / মার্ক / লেজার মুছুন অথবা শুধু "বাদ দিন" ব্যবহার করুন।`,
+    );
+  }
+
+  await writeAuditLog({
+    schoolId: auth.active.school_id,
+    userId: auth.session.userId,
+    action: "permanent_delete",
+    resourceType: "student",
+    resourceId: parsed.student_id,
+    meta: { name_bn: current.name_bn, student_code: current.student_code },
+  });
+
+  revalidatePath("/students", "layout");
+  return ok(
+    undefined,
+    `${current.name_bn} স্থায়ীভাবে মুছে ফেলা হয়েছে।`,
+  );
+}
