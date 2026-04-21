@@ -26,12 +26,19 @@ import type { ActionResult } from "@/server/actions/_helpers";
 export function StudentRowActions({
   schoolSlug,
   studentId,
+  studentCode,
   studentName,
 }: {
   schoolSlug: string;
+  /** DB UUID — used in the form's hidden input for reliable server action lookup. */
   studentId: string;
+  /** Human-readable code (e.g. "202601") — used in URL paths so the address bar stays clean. Falls back to UUID if empty. */
+  studentCode?: string | null;
   studentName: string;
 }) {
+  // Prefer the short code in URLs; fall back to UUID for legacy rows
+  // whose code hasn't been backfilled yet.
+  const urlId = studentCode && studentCode.trim().length > 0 ? studentCode : studentId;
   const [confirming, setConfirming] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -70,21 +77,21 @@ export function StudentRowActions({
   return (
     <div className="flex items-center justify-end gap-0.5">
       <IconLink
-        href={`/students/${studentId}/print?type=admission`}
+        href={`/students/${urlId}/print?type=admission`}
         tooltip="ভর্তি প্রিন্ট"
         icon={<Printer className="size-4" />}
         tone="primary"
         target="_blank"
       />
       <IconLink
-        href={`/students/${studentId}/print?type=invoice`}
+        href={`/students/${urlId}/print?type=invoice`}
         tooltip="ভর্তি ইনভয়েস"
         icon={<Receipt className="size-4" />}
         tone="accent"
         target="_blank"
       />
       <IconLink
-        href={`/students/${studentId}/edit`}
+        href={`/students/${urlId}/edit`}
         tooltip="সম্পাদনা"
         icon={<Pencil className="size-4" />}
         tone="success"

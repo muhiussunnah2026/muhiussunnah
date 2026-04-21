@@ -209,30 +209,38 @@ export function StudentsTable({
           <TableBody>
             {visible.map((s) => (
               <TableRow key={s.id}>
-                <TableCell>
-                  <Link href={`/students/${s.id}`}>
-                    <Avatar className="size-10">
-                      {s.photo_url ? <AvatarImage src={s.photo_url} alt={s.name_bn} /> : null}
-                      <AvatarFallback className="bg-gradient-to-br from-primary/15 to-accent/15 text-sm text-primary">
-                        {s.name_bn.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Link>
-                </TableCell>
-                <TableCell className="hidden sm:table-cell font-mono text-xs text-muted-foreground">
-                  {s.student_code}
-                </TableCell>
-                <TableCell>
-                  <Link
-                    href={`/students/${s.id}`}
-                    className="font-medium hover:text-primary hover:underline underline-offset-4"
-                  >
-                    {s.name_bn}
-                  </Link>
-                  {s.name_en ? (
-                    <div className="text-[11px] text-muted-foreground">{s.name_en}</div>
-                  ) : null}
-                </TableCell>
+                {(() => {
+                  // Prefer the short human-readable code in URLs; fall
+                  // back to the DB UUID for legacy rows whose code
+                  // hasn't been backfilled.
+                  const urlId =
+                    s.student_code && s.student_code.trim().length > 0 ? s.student_code : s.id;
+                  return (
+                    <>
+                      <TableCell>
+                        <Link href={`/students/${urlId}`}>
+                          <Avatar className="size-10">
+                            {s.photo_url ? <AvatarImage src={s.photo_url} alt={s.name_bn} /> : null}
+                            <AvatarFallback className="bg-gradient-to-br from-primary/15 to-accent/15 text-sm text-primary">
+                              {s.name_bn.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                        </Link>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell font-mono text-xs text-muted-foreground">
+                        {s.student_code}
+                      </TableCell>
+                      <TableCell>
+                        <Link
+                          href={`/students/${urlId}`}
+                          className="font-medium hover:text-primary hover:underline underline-offset-4"
+                        >
+                          {s.name_bn}
+                        </Link>
+                        {s.name_en ? (
+                          <div className="text-[11px] text-muted-foreground">{s.name_en}</div>
+                        ) : null}
+                      </TableCell>
                 <TableCell className="hidden md:table-cell text-sm">
                   {s.sections ? (
                     <span>
@@ -262,9 +270,17 @@ export function StudentsTable({
                     {statusLabel[s.status] ?? s.status}
                   </span>
                 </TableCell>
-                <TableCell className="text-end">
-                  <StudentRowActions schoolSlug={schoolSlug} studentId={s.id} studentName={s.name_bn} />
-                </TableCell>
+                      <TableCell className="text-end">
+                        <StudentRowActions
+                          schoolSlug={schoolSlug}
+                          studentId={s.id}
+                          studentCode={s.student_code}
+                          studentName={s.name_bn}
+                        />
+                      </TableCell>
+                    </>
+                  );
+                })()}
               </TableRow>
             ))}
           </TableBody>

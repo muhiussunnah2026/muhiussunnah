@@ -6,16 +6,20 @@ import { Card, CardContent } from "@/components/ui/card";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
+import { resolveStudentId } from "@/lib/students/resolve";
 import { EditStudentForm } from "./edit-form";
 
 type PageProps = { params: Promise<{ id: string }> };
 
 export default async function EditStudentPage({ params }: PageProps) {
-  const { id } = await params;
+  const { id: idOrCode } = await params;
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
   const schoolSlug = membership.school_slug;
 
   const supabase = await supabaseServer();
+  // Accept either a UUID or a student_code in the URL segment.
+  const id = await resolveStudentId(idOrCode, membership.school_id);
+  if (!id) notFound();
   const [studentRes, classesRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)

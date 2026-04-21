@@ -3,6 +3,7 @@ import Image from "next/image";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
+import { resolveStudentId } from "@/lib/students/resolve";
 import { getSchoolBranding } from "@/lib/schools/branding";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { PrintActions } from "./print-actions";
@@ -13,10 +14,13 @@ type PageProps = {
 };
 
 export default async function StudentPrintPage({ params, searchParams }: PageProps) {
-  const [{ id }, sp] = await Promise.all([params, searchParams]);
+  const [{ id: idOrCode }, sp] = await Promise.all([params, searchParams]);
   const type = sp.type === "invoice" ? "invoice" : "admission";
 
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
+  // Resolve the URL segment to the real UUID (accepts either).
+  const id = await resolveStudentId(idOrCode, membership.school_id);
+  if (!id) notFound();
   const supabase = await supabaseServer();
 
   const [sRes, feesRes, brandingRow] = await Promise.all([

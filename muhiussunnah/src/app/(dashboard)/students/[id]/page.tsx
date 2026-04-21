@@ -11,16 +11,21 @@ import { buttonVariants } from "@/components/ui/button";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
+import { resolveStudentId } from "@/lib/students/resolve";
 import { ShiftForm } from "./shift-form";
 
 type PageProps = { params: Promise<{ id: string }> };
 
 export default async function StudentDetailPage({ params }: PageProps) {
-  const { id } = await params;
+  const { id: idOrCode } = await params;
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
+
+  // Accept either a UUID or a human-readable student_code in the URL.
+  const id = await resolveStudentId(idOrCode, membership.school_id);
+  if (!id) notFound();
   // Independent queries — student, attendance, ledger all keyed off the same student id;
   // sections are keyed off school_id. All can run in parallel.
   const [sRes, attendanceRes, ledgerRes, sectionsRes] = await Promise.all([
