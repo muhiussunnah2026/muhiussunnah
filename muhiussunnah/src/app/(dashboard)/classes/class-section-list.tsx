@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Trash2, Plus, X, Pencil, Check, Info, ChevronDown, ChevronUp, ArrowRight, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,10 +32,10 @@ type Props = {
   sectionStudentCounts?: Record<string, number>;
 };
 
-const streamLabel: Record<string, string> = {
-  general: "সাধারণ", science: "বিজ্ঞান", commerce: "ব্যবসায়", arts: "মানবিক",
-  hifz: "হিফজ", kitab: "কিতাব", nazera: "নাজেরা",
-};
+/** Map a stream enum → translation key under `classes.stream_*`. */
+function streamKey(stream: string): string {
+  return `stream_${stream}`;
+}
 
 export function ClassSectionList({
   schoolSlug,
@@ -42,15 +43,16 @@ export function ClassSectionList({
   classStudentCounts = {},
   sectionStudentCounts = {},
 }: Props) {
+  const t = useTranslations("classes");
   return (
     <div className="flex flex-col gap-4">
       {/* Helpful hint — 90% of institutes don't need sections */}
       <div className="flex items-start gap-2 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5 p-3.5 text-sm">
         <Info className="mt-0.5 size-4 shrink-0 text-primary" />
         <div className="flex-1">
-          <p className="font-medium text-foreground">সেকশন ঐচ্ছিক — শুধু ক্লাস দিলেই চলবে।</p>
+          <p className="font-medium text-foreground">{t("banner_title")}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            বেশিরভাগ প্রতিষ্ঠানে সেকশন লাগে না। আপনার প্রতিষ্ঠানে একাধিক সেকশন থাকলে (যেমন Class 7 - A, B, C) নিচে &ldquo;সেকশন ব্যবস্থাপনা&rdquo; বাটন থেকে যোগ করতে পারেন।
+            {t("banner_body")}
           </p>
         </div>
       </div>
@@ -81,6 +83,7 @@ function ClassCard({
   classStudentCount: number;
   sectionStudentCounts: Record<string, number>;
 }) {
+  const t = useTranslations("classes");
   const [showAddSection, setShowAddSection] = useState(false);
   const [editing, setEditing] = useState(false);
   // Default: show sections only if there are actually custom sections
@@ -107,7 +110,7 @@ function ClassCard({
                 <Link
                   href={`/students?class_id=${data.id}`}
                   className="group/cls inline-flex items-center gap-1.5 text-base font-semibold transition-colors hover:text-primary"
-                  title="এই ক্লাসের সব শিক্ষার্থী দেখুন"
+                  title={t("count_students_tooltip")}
                 >
                   <span className="underline-offset-4 group-hover/cls:underline">
                     {data.name_bn}
@@ -128,7 +131,7 @@ function ClassCard({
                       ? "group/count inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 px-3 py-1.5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/20"
                       : "inline-flex items-center gap-1.5 rounded-xl border border-dashed border-border/60 bg-muted/40 px-3 py-1.5"
                   }
-                  title="এই ক্লাসের সব শিক্ষার্থী দেখুন"
+                  title={t("count_students_tooltip")}
                 >
                   <Users
                     className={
@@ -153,15 +156,22 @@ function ClassCard({
                         : "text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
                     }
                   >
-                    ছাত্র/ছাত্রী
+                    {t("count_students")}
                   </span>
                 </Link>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                স্ট্রিম: {streamLabel[data.stream] ?? data.stream}
+                {t("stream_label")}{" "}
+                {(() => {
+                  try {
+                    return t(streamKey(data.stream));
+                  } catch {
+                    return data.stream;
+                  }
+                })()}
                 {hasMeaningfulSections ? (
                   <>
-                    {" "}· সেকশন: <BanglaDigit value={data.sections.length} />
+                    {" "}· {t("section_label")} <BanglaDigit value={data.sections.length} />
                   </>
                 ) : null}
               </p>
@@ -172,7 +182,7 @@ function ClassCard({
                 size="icon-sm"
                 variant="ghost"
                 onClick={() => setEditing(true)}
-                aria-label="Edit class"
+                aria-label={t("edit_class_aria")}
                 className="hover:bg-primary/10 hover:text-primary"
               >
                 <Pencil className="size-4" />
@@ -190,13 +200,13 @@ function ClassCard({
           className="flex items-center gap-1.5 self-start rounded-md px-2 py-1 text-xs text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
         >
           {showSections ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
-          সেকশন ব্যবস্থাপনা
+          {t("section_mgmt_toggle")}
           {hasMeaningfulSections ? (
             <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-[10px] font-semibold text-primary">
               <BanglaDigit value={data.sections.length} />
             </span>
           ) : (
-            <span className="ml-1 text-[10px] text-muted-foreground/70">(ঐচ্ছিক)</span>
+            <span className="ml-1 text-[10px] text-muted-foreground/70">{t("section_optional_badge")}</span>
           )}
         </button>
 
@@ -204,7 +214,7 @@ function ClassCard({
           <div className="flex flex-col gap-2 rounded-lg border border-dashed border-border/50 bg-muted/20 p-3">
             {data.sections.length === 0 ? (
               <p className="text-xs text-muted-foreground">
-                এই ক্লাসে এখনও কোন সেকশন যোগ করা হয়নি। নিচের বাটনে ক্লিক করে যোগ করুন।
+                {t("no_sections_yet")}
               </p>
             ) : (
               <div className="flex flex-wrap items-center gap-2">
@@ -215,11 +225,11 @@ function ClassCard({
                       key={s.id}
                       href={`/students?section_id=${s.id}`}
                       className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-3 py-1 text-xs transition hover:border-primary/40 hover:bg-primary/5"
-                      title="এই সেকশনের শিক্ষার্থী দেখুন"
+                      title={t("section_tooltip")}
                     >
                       <span className="font-medium">{s.name}</span>
                       <span className="text-muted-foreground">
-                        · <BanglaDigit value={n} /> জন
+                        · <BanglaDigit value={n} /> {t("section_students_suffix")}
                       </span>
                       {s.capacity !== null ? (
                         <span className="text-muted-foreground">
@@ -237,7 +247,7 @@ function ClassCard({
               className="inline-flex items-center gap-1 self-start rounded-full border border-dashed border-primary/40 px-3 py-1 text-xs text-primary transition hover:bg-primary/5"
             >
               {showAddSection ? <X className="size-3" /> : <Plus className="size-3" />}
-              {showAddSection ? "বাতিল" : "নতুন সেকশন যোগ"}
+              {showAddSection ? t("cancel_add") : t("add_section_button")}
             </button>
             {showAddSection ? <AddSectionInline classId={data.id} onDone={() => setShowAddSection(false)} schoolSlug={schoolSlug} /> : null}
           </div>
@@ -256,17 +266,18 @@ function EditClassInline({
   cls: ClassRow;
   onDone: () => void;
 }) {
+  const t = useTranslations("classes");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(updateClassAction, null);
 
   useEffect(() => {
     if (!state) return;
     if (state.ok) {
-      toast.success(state.message ?? "আপডেট হয়েছে");
+      toast.success(state.message ?? t("edit_success"));
       onDone();
     } else {
       toast.error(state.error);
     }
-  }, [state, onDone]);
+  }, [state, onDone, t]);
 
   return (
     <form action={action} className="grid gap-3 rounded-lg border border-primary/40 bg-primary/5 p-3">
@@ -275,38 +286,42 @@ function EditClassInline({
 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="flex flex-col gap-1">
-          <Label htmlFor={`edit-bn-${cls.id}`} className="text-xs">নাম (বাংলা) *</Label>
+          <Label htmlFor={`edit-bn-${cls.id}`} className="text-xs">{t("edit_bn")}</Label>
           <Input id={`edit-bn-${cls.id}`} name="name_bn" defaultValue={cls.name_bn} required className="h-9" />
         </div>
         <div className="flex flex-col gap-1">
-          <Label htmlFor={`edit-en-${cls.id}`} className="text-xs">Name (English)</Label>
+          <Label htmlFor={`edit-en-${cls.id}`} className="text-xs">{t("edit_en")}</Label>
           <Input id={`edit-en-${cls.id}`} name="name_en" defaultValue={cls.name_en ?? ""} className="h-9" />
         </div>
 
         <div className="flex flex-col gap-1">
-          <Label htmlFor={`edit-stream-${cls.id}`} className="text-xs">স্ট্রিম</Label>
+          <Label htmlFor={`edit-stream-${cls.id}`} className="text-xs">{t("edit_stream")}</Label>
           <Select name="stream" defaultValue={cls.stream}>
             <SelectTrigger id={`edit-stream-${cls.id}`} className="h-9">
               <SelectValue>
                 {(v: unknown) => {
                   const key = typeof v === "string" ? v : cls.stream;
-                  return streamLabel[key] ?? key;
+                  try {
+                    return t(streamKey(key));
+                  } catch {
+                    return key;
+                  }
                 }}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="general">সাধারণ</SelectItem>
-              <SelectItem value="science">বিজ্ঞান</SelectItem>
-              <SelectItem value="commerce">ব্যবসায়</SelectItem>
-              <SelectItem value="arts">মানবিক</SelectItem>
-              <SelectItem value="hifz">হিফজ</SelectItem>
-              <SelectItem value="kitab">কিতাব</SelectItem>
-              <SelectItem value="nazera">নাজেরা</SelectItem>
+              <SelectItem value="general">{t("stream_general")}</SelectItem>
+              <SelectItem value="science">{t("stream_science")}</SelectItem>
+              <SelectItem value="commerce">{t("stream_commerce")}</SelectItem>
+              <SelectItem value="arts">{t("stream_arts")}</SelectItem>
+              <SelectItem value="hifz">{t("stream_hifz")}</SelectItem>
+              <SelectItem value="kitab">{t("stream_kitab")}</SelectItem>
+              <SelectItem value="nazera">{t("stream_nazera")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="flex flex-col gap-1">
-          <Label htmlFor={`edit-order-${cls.id}`} className="text-xs">ক্রম</Label>
+          <Label htmlFor={`edit-order-${cls.id}`} className="text-xs">{t("edit_order")}</Label>
           <Input
             id={`edit-order-${cls.id}`}
             name="display_order"
@@ -321,10 +336,10 @@ function EditClassInline({
       <div className="flex items-center gap-2">
         <Button type="submit" size="sm" disabled={pending} className="gap-1">
           <Check className="size-3.5" />
-          {pending ? "সংরক্ষণ হচ্ছে..." : "সংরক্ষণ"}
+          {pending ? t("edit_saving") : t("edit_save")}
         </Button>
         <Button type="button" size="sm" variant="outline" onClick={onDone}>
-          বাতিল
+          {t("edit_cancel")}
         </Button>
       </div>
     </form>
@@ -332,51 +347,53 @@ function EditClassInline({
 }
 
 function AddSectionInline({ schoolSlug, classId, onDone }: { schoolSlug: string; classId: string; onDone: () => void }) {
+  const t = useTranslations("classes");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(addSectionAction, null);
 
   useEffect(() => {
     if (!state) return;
-    if (state.ok) { toast.success(state.message ?? "সেকশন যোগ হয়েছে"); onDone(); }
+    if (state.ok) { toast.success(state.message ?? t("section_add_success")); onDone(); }
     else toast.error(state.error);
-  }, [state, onDone]);
+  }, [state, onDone, t]);
 
   return (
     <form action={action} className="flex flex-wrap items-end gap-2 rounded-md border border-dashed border-border/60 bg-muted/30 p-3">
       <input type="hidden" name="schoolSlug" value={schoolSlug} />
       <input type="hidden" name="class_id" value={classId} />
       <div className="flex flex-col gap-1">
-        <Label htmlFor={`name-${classId}`} className="text-xs">সেকশনের নাম</Label>
-        <Input id={`name-${classId}`} name="name" required placeholder="যেমন: ক" className="h-8 w-24" />
+        <Label htmlFor={`name-${classId}`} className="text-xs">{t("section_name_label")}</Label>
+        <Input id={`name-${classId}`} name="name" required placeholder={t("section_name_placeholder")} className="h-8 w-24" />
       </div>
       <div className="flex flex-col gap-1">
-        <Label htmlFor={`cap-${classId}`} className="text-xs">ধারণক্ষমতা</Label>
-        <Input id={`cap-${classId}`} name="capacity" type="number" min={0} placeholder="৪০" className="h-8 w-24" />
+        <Label htmlFor={`cap-${classId}`} className="text-xs">{t("section_capacity_label")}</Label>
+        <Input id={`cap-${classId}`} name="capacity" type="number" min={0} placeholder={t("section_capacity_placeholder")} className="h-8 w-24" />
       </div>
       <div className="flex flex-col gap-1">
-        <Label htmlFor={`room-${classId}`} className="text-xs">রুম</Label>
-        <Input id={`room-${classId}`} name="room" placeholder="১০১" className="h-8 w-20" />
+        <Label htmlFor={`room-${classId}`} className="text-xs">{t("section_room_label")}</Label>
+        <Input id={`room-${classId}`} name="room" placeholder={t("section_room_placeholder")} className="h-8 w-20" />
       </div>
       <Button type="submit" size="sm" disabled={pending} className="bg-gradient-primary text-white">
-        {pending ? "..." : "যোগ"}
+        {pending ? t("section_add_submitting") : t("section_add_submit")}
       </Button>
     </form>
   );
 }
 
 function DeleteClassButton({ schoolSlug, classId }: { schoolSlug: string; classId: string }) {
+  const t = useTranslations("classes");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(deleteClassAction, null);
 
   useEffect(() => {
     if (!state) return;
-    if (state.ok) toast.success(state.message ?? "মুছে ফেলা হয়েছে");
+    if (state.ok) toast.success(state.message ?? t("delete_success"));
     else toast.error(state.error);
-  }, [state]);
+  }, [state, t]);
 
   return (
-    <form action={action} onSubmit={(e) => { if (!confirm("আপনি কি নিশ্চিত? সেকশন ও ছাত্রও মুছে যেতে পারে।")) e.preventDefault(); }}>
+    <form action={action} onSubmit={(e) => { if (!confirm(t("delete_class_confirm"))) e.preventDefault(); }}>
       <input type="hidden" name="schoolSlug" value={schoolSlug} />
       <input type="hidden" name="classId" value={classId} />
-      <Button type="submit" size="icon-sm" variant="ghost" disabled={pending} aria-label="Delete class" className="hover:bg-destructive/10">
+      <Button type="submit" size="icon-sm" variant="ghost" disabled={pending} aria-label={t("delete_class_aria")} className="hover:bg-destructive/10">
         <Trash2 className="size-4 text-destructive" />
       </Button>
     </form>

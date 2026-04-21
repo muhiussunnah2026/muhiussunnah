@@ -1,4 +1,5 @@
 import { BookOpen } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
@@ -82,13 +83,15 @@ export default async function ClassesPage() {
     classStudentCounts[c.id] = classTotal;
   }
 
+  const t = await getTranslations("classes");
+
   return (
     <>
       <PageHeader
-        title="শ্রেণি ব্যবস্থাপনা"
-        subtitle="আপনার স্কুলের একাডেমিক কাঠামো সেট করুন — ক্লাস, সেকশন, স্ট্রিম। শিক্ষার্থী ভর্তির আগে এগুলো তৈরি করতে হবে।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <>মোট ক্লাস · <BanglaDigit value={classList.length} /></>, tone: "accent" },
+          { label: <>{t("impact_total")} · <BanglaDigit value={classList.length} /></>, tone: "accent" },
         ]}
       />
 
@@ -97,9 +100,9 @@ export default async function ClassesPage() {
           {classList.length === 0 ? (
             <EmptyState
               icon={<BookOpen className="size-8" />}
-              title="এখনও কোন ক্লাস নেই"
-              body="আপনার স্কুলের যেকোন একটা ক্লাস দিয়ে শুরু করুন। পরে সহজেই সেকশন, বিষয় যোগ করতে পারবেন।"
-              proTip="Play / Nursery / KG থেকে শুরু করে Class 10 পর্যন্ত সব একসাথে যোগ করে ফেলুন, সময় বাঁচবে।"
+              title={t("empty_title")}
+              body={t("empty_body")}
+              proTip={t("empty_pro_tip")}
             />
           ) : (
             <ClassSectionList
@@ -114,7 +117,7 @@ export default async function ClassesPage() {
         <aside>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-lg font-semibold">নতুন ক্লাস</h2>
+              <h2 className="mb-4 text-lg font-semibold">{t("sidebar_new_class")}</h2>
               <AddClassForm branches={branches ?? []} schoolSlug={schoolSlug} />
             </CardContent>
           </Card>
