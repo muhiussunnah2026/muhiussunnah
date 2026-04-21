@@ -56,7 +56,7 @@ export function StudentRowActions({
         target="_blank"
       />
       <IconLink
-        href={`/students/${studentId}`}
+        href={`/students/${studentId}/edit`}
         tooltip="সম্পাদনা"
         icon={<Pencil className="size-4" />}
         tone="success"

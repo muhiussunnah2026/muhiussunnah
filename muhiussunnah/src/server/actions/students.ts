@@ -459,6 +459,107 @@ export async function shiftStudentAction(
 }
 
 // ---------------------------------------------------------------------------
+// Update student — core editable fields. Guardian + section changes go
+// through their own dedicated actions (transfer form, guardian card).
+// ---------------------------------------------------------------------------
+
+const updateStudentSchema = z.object({
+  schoolSlug: z.string().min(1),
+  student_id: z.string().uuid(),
+  name_bn: z.string().trim().min(2).max(200),
+  name_en: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
+  name_ar: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
+  roll: z.coerce.number().int().min(0).max(99999).optional().or(z.literal("").transform(() => undefined)),
+  gender: z.enum(["male", "female", "other"]).optional().or(z.literal("").transform(() => undefined)),
+  religion: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
+  blood_group: z.string().trim().max(10).optional().or(z.literal("").transform(() => undefined)),
+  date_of_birth: z.string().optional().or(z.literal("").transform(() => undefined)),
+  admission_date: z.string().optional().or(z.literal("").transform(() => undefined)),
+  guardian_phone: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
+  address_present: z.string().trim().max(500).optional().or(z.literal("").transform(() => undefined)),
+  address_permanent: z.string().trim().max(500).optional().or(z.literal("").transform(() => undefined)),
+  previous_school: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
+  admission_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),
+  tuition_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),
+  transport_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),
+  rf_id_card: z.string().trim().max(100).optional().or(z.literal("").transform(() => undefined)),
+  status: z.enum(["active", "transferred", "passed_out", "dropped", "suspended"]).optional(),
+});
+
+export async function updateStudentAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = parseForm(updateStudentSchema, formData);
+  if ("error" in parsed) return parsed.error;
+
+  const auth = await authorizeAction({
+    schoolSlug: parsed.schoolSlug,
+    action: "update",
+    resource: "student",
+  });
+  if ("error" in auth) return auth.error;
+
+  const supabase = await supabaseServer();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: current } = await (supabase as any)
+    .from("students")
+    .select("school_id")
+    .eq("id", parsed.student_id)
+    .single();
+  if (!current || current.school_id !== auth.active.school_id) {
+    return fail("এই শিক্ষার্থী এই স্কুলে নেই।");
+  }
+
+  const { schoolSlug: _ignoreSlug, student_id: _ignoreId, ...rawUpdate } = parsed;
+  // Drop undefined keys so we don't overwrite existing values with nulls.
+  const update: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(rawUpdate)) {
+    if (v !== undefined) update[k] = v;
+  }
+
+  // Some installs are on older migrations that lack the Tier-2 columns.
+  // If the update fails with "column ... does not exist" we retry without
+  // those optional fields so the core form still saves.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let { error } = await (supabase as any)
+    .from("students")
+    .update(update)
+    .eq("id", parsed.student_id);
+
+  if (error && /column .*(rf_id_card|admission_fee|tuition_fee|transport_fee|name_ar)/i.test(error.message ?? "")) {
+    const safe = { ...update };
+    delete safe.rf_id_card;
+    delete safe.admission_fee;
+    delete safe.tuition_fee;
+    delete safe.transport_fee;
+    delete safe.name_ar;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const retry = await (supabase as any)
+      .from("students")
+      .update(safe)
+      .eq("id", parsed.student_id);
+    error = retry.error;
+  }
+
+  if (error) return fail(error.message);
+
+  await writeAuditLog({
+    schoolId: auth.active.school_id,
+    userId: auth.session.userId,
+    action: "update",
+    resourceType: "student",
+    resourceId: parsed.student_id,
+    meta: { name_bn: parsed.name_bn },
+  });
+
+  revalidatePath(`/students/${parsed.student_id}`);
+  revalidatePath("/students");
+  return ok(undefined, "শিক্ষার্থী আপডেট হয়েছে।");
+}
+
+// ---------------------------------------------------------------------------
 // Delete student — soft delete via status = 'dropped'.
 // We never hard-delete because attendance, ledger, exam marks, etc. reference
 // the student by id; removing the row would orphan history.
