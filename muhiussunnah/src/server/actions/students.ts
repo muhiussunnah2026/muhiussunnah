@@ -927,3 +927,81 @@ export async function permanentDeleteStudentAction(
     `${current.name_bn} স্থায়ীভাবে মুছে ফেলা হয়েছে।`,
   );
 }
+
+// ---------------------------------------------------------------------------
+// BULK delete — accepts a CSV list of student IDs in the `student_ids` field.
+// Used by the multi-select checkbox bar on the students list. Supports both
+// soft (set status=dropped) and hard (DELETE) modes via the `mode` field.
+// ---------------------------------------------------------------------------
+
+const bulkDeleteSchema = z.object({
+  schoolSlug: z.string().min(1),
+  student_ids: z.string().min(1), // comma-separated UUIDs
+  mode: z.enum(["soft", "hard"]).default("soft"),
+});
+
+export async function bulkDeleteStudentsAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = parseForm(bulkDeleteSchema, formData);
+  if ("error" in parsed) return parsed.error;
+
+  const ids = parsed.student_ids
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => /^[0-9a-f-]{36}$/i.test(s));
+  if (ids.length === 0) return fail("কোন শিক্ষার্থী নির্বাচিত নেই।");
+
+  const auth = await authorizeAction({
+    schoolSlug: parsed.schoolSlug,
+    action: "delete",
+    resource: "student",
+  });
+  if ("error" in auth) return auth.error;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = supabaseAdmin() as any;
+
+  // Double-check every row belongs to the active school — catches any
+  // tampered form data before we touch the DB.
+  const { data: owned } = await admin
+    .from("students")
+    .select("id, name_bn")
+    .in("id", ids)
+    .eq("school_id", auth.active.school_id);
+  const ownedIds = ((owned ?? []) as { id: string; name_bn: string }[]).map((r) => r.id);
+  if (ownedIds.length === 0) {
+    return fail("নির্বাচিত শিক্ষার্থী এই স্কুলে নেই।");
+  }
+
+  if (parsed.mode === "soft") {
+    const { error } = await admin
+      .from("students")
+      .update({ status: "dropped" })
+      .in("id", ownedIds);
+    if (error) return fail(`বাদ দেওয়া যায়নি: ${error.message}`);
+  } else {
+    // Hard delete — nuke guardians first, then the rows themselves.
+    await admin.from("student_guardians").delete().in("student_id", ownedIds);
+    const { error } = await admin.from("students").delete().in("id", ownedIds);
+    if (error) {
+      return fail(
+        `স্থায়ীভাবে মুছা সম্ভব হয়নি: ${error.message}। প্রথমে উপস্থিতি / মার্ক / লেজার মুছুন অথবা "বাদ দিন" ব্যবহার করুন।`,
+      );
+    }
+  }
+
+  await writeAuditLog({
+    schoolId: auth.active.school_id,
+    userId: auth.session.userId,
+    action: parsed.mode === "soft" ? "bulk_soft_delete" : "bulk_permanent_delete",
+    resourceType: "student",
+    resourceId: null,
+    meta: { count: ownedIds.length, ids: ownedIds },
+  });
+
+  revalidatePath("/students", "layout");
+  const verb = parsed.mode === "soft" ? "বাদ দেওয়া" : "স্থায়ীভাবে মুছা";
+  return ok(undefined, `${ownedIds.length} জন শিক্ষার্থী ${verb} হয়েছে।`);
+}
