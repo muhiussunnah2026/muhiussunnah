@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
@@ -32,11 +33,15 @@ export default async function ExpenseCategoryPage({ searchParams }: PageProps) {
   type Expense = { amount: number; expense_heads: { name_bn: string; category: string } | null };
   const list = (expenses ?? []) as Expense[];
 
+  const t = await getTranslations("reports");
+  const defaultCat = t("ec_default_cat");
+  const unknownHead = t("ec_unknown_head");
+
   // Group by category first, then by head
   const catMap = new Map<string, Map<string, number>>();
   for (const e of list) {
-    const cat = e.expense_heads?.category ?? "অন্যান্য";
-    const head = e.expense_heads?.name_bn ?? "অজানা";
+    const cat = e.expense_heads?.category ?? defaultCat;
+    const head = e.expense_heads?.name_bn ?? unknownHead;
     if (!catMap.has(cat)) catMap.set(cat, new Map());
     const headMap = catMap.get(cat)!;
     headMap.set(head, (headMap.get(head) ?? 0) + Number(e.amount));
@@ -49,19 +54,19 @@ export default async function ExpenseCategoryPage({ searchParams }: PageProps) {
       <PageHeader
         breadcrumbs={
           <Link href={`/reports`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> রিপোর্ট
+            <ArrowLeft className="size-3.5" /> {t("index_title")}
           </Link>
         }
-        title={<>খরচ ক্যাটাগরি রিপোর্ট — <BanglaDigit value={year} /></>}
-        subtitle="হেড ও ক্যাটাগরি অনুযায়ী বার্ষিক খরচের ভাঙন।"
+        title={<>{t("ec_title")} <BanglaDigit value={year} /></>}
+        subtitle={t("ec_subtitle")}
         impact={[
-          { label: <>মোট · ৳ <BanglaDigit value={total.toLocaleString("en-IN")} /></>, tone: "warning" },
-          { label: <><BanglaDigit value={catMap.size} /> ক্যাটাগরি</>, tone: "default" },
+          { label: <>{t("ec_total")} · ৳ <BanglaDigit value={total.toLocaleString("en-IN")} /></>, tone: "warning" },
+          { label: <><BanglaDigit value={catMap.size} /> {t("ec_categories_suffix")}</>, tone: "default" },
         ]}
       />
 
       {catMap.size === 0 ? (
-        <p className="text-muted-foreground text-sm">এই বছরে কোন খরচ নেই।</p>
+        <p className="text-muted-foreground text-sm">{t("ec_empty")}</p>
       ) : (
         <div className="space-y-4">
           {Array.from(catMap.entries()).map(([cat, headMap]) => {

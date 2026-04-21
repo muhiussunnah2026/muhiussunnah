@@ -1,4 +1,5 @@
 import { CalendarCheck } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
@@ -65,32 +66,34 @@ export default async function AdminAttendancePage({ searchParams }: PageProps) {
   }
   const sectionStats = Array.from(sectionMap.values()).sort((a, b) => b.total - a.total);
 
+  const t = await getTranslations("attendance");
+
   return (
     <>
       <PageHeader
-        title="আজকের উপস্থিতি"
-        subtitle={`${formatDualDate(date, { withWeekday: true })} · পুর ো স্কুলের চিত্র এক নজরে`}
+        title={t("page_title")}
+        subtitle={t("page_subtitle", { date: formatDualDate(date, { withWeekday: true }) })}
         impact={[
-          { label: <>গড় উপস্থিতি · <BanglaDigit value={pct} />%</>, tone: pct >= 90 ? "success" : pct >= 70 ? "warning" : "accent" },
-          { label: <>উপস্থিত · <BanglaDigit value={present} /></>, tone: "success" },
-          { label: <>অনুপস্থিত · <BanglaDigit value={absent} /></>, tone: "warning" },
-          { label: <>দেরি · <BanglaDigit value={late} /></>, tone: "default" },
+          { label: <>{t("impact_avg")} · <BanglaDigit value={pct} />%</>, tone: pct >= 90 ? "success" : pct >= 70 ? "warning" : "accent" },
+          { label: <>{t("impact_present")} · <BanglaDigit value={present} /></>, tone: "success" },
+          { label: <>{t("impact_absent")} · <BanglaDigit value={absent} /></>, tone: "warning" },
+          { label: <>{t("impact_late")} · <BanglaDigit value={late} /></>, tone: "default" },
         ]}
       />
 
       {marked === 0 ? (
         <EmptyState
           icon={<CalendarCheck className="size-8" />}
-          title="আজ এখনও কোন attendance নেওয়া হয়নি"
-          body="শিক্ষকরা তাদের ক্লাসে attendance নিতে শুরু করলে এখানে real-time আপডেট আসবে।"
-          proTip="শিক্ষকদের teacher dashboard থেকে attendance নিতে বলুন। অফলাইনেও কাজ করবে, পরে sync হবে।"
+          title={t("empty_title")}
+          body={t("empty_body")}
+          proTip={t("empty_tip")}
         />
       ) : (
         <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
           <Card>
             <CardContent className="p-5">
               <h3 className="mb-4 text-sm font-semibold text-muted-foreground">
-                সেকশন অনুযায়ী (<BanglaDigit value={sectionStats.length} /> সেকশন)
+                {t("section_heading")} (<BanglaDigit value={sectionStats.length} /> {t("section_count_suffix")})
               </h3>
               <ul className="divide-y divide-border/60">
                 {sectionStats.map((s) => {
@@ -113,17 +116,17 @@ export default async function AdminAttendancePage({ searchParams }: PageProps) {
 
           <Card>
             <CardContent className="p-5">
-              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">সারাংশ</h3>
+              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("summary_heading")}</h3>
               <dl className="grid grid-cols-2 gap-3 text-sm">
-                <dt className="text-muted-foreground">মোট সক্রিয় ছাত্র</dt>
+                <dt className="text-muted-foreground">{t("summary_total")}</dt>
                 <dd className="text-right"><BanglaDigit value={total} /></dd>
-                <dt className="text-muted-foreground">Marked</dt>
+                <dt className="text-muted-foreground">{t("summary_marked")}</dt>
                 <dd className="text-right"><BanglaDigit value={marked} /></dd>
-                <dt className="text-muted-foreground">Marking pending</dt>
+                <dt className="text-muted-foreground">{t("summary_pending")}</dt>
                 <dd className="text-right text-warning"><BanglaDigit value={total - marked} /></dd>
               </dl>
               <p className="mt-4 rounded-md border border-primary/30 bg-primary/5 p-3 text-xs">
-                💡 Real-time ড্যাশবোর্ড — শিক্ষক attendance নিতেই এই সংখ্যা আপডেট হয়ে যাবে।
+                {t("realtime_hint")}
               </p>
             </CardContent>
           </Card>

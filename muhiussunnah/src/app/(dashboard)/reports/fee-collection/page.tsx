@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
@@ -11,8 +12,6 @@ import { ADMIN_ROLES } from "@/lib/auth/roles";
 type PageProps = {
   searchParams: Promise<{ year?: string }>;
 };
-
-const monthLabels = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
 
 export default async function FeeCollectionReportPage({ searchParams }: PageProps) {
   const search = await searchParams;
@@ -46,21 +45,23 @@ export default async function FeeCollectionReportPage({ searchParams }: PageProp
   const totalDue = totalBilled - totalCollected;
   const yearPct = totalBilled > 0 ? Math.round((totalCollected / totalBilled) * 100) : 0;
 
+  const t = await getTranslations("reports");
+
   return (
     <>
       <PageHeader
         breadcrumbs={
           <Link href={`/reports`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> রিপোর্ট
+            <ArrowLeft className="size-3.5" /> {t("index_title")}
           </Link>
         }
-        title={<>ফি কালেকশন রিপোর্ট — <BanglaDigit value={year} /></>}
-        subtitle="মাসিক collection summary — কোন মাসে কত billed হলো, কত collected হলো, বাকি কত।"
+        title={<>{t("fc_title")} <BanglaDigit value={year} /></>}
+        subtitle={t("fc_subtitle")}
         impact={[
-          { label: <>Billed · ৳ <BanglaDigit value={totalBilled.toLocaleString("en-IN")} /></>, tone: "default" },
-          { label: <>Collected · ৳ <BanglaDigit value={totalCollected.toLocaleString("en-IN")} /></>, tone: "success" },
-          { label: <>বাকি · ৳ <BanglaDigit value={totalDue.toLocaleString("en-IN")} /></>, tone: totalDue > 0 ? "warning" : "default" },
-          { label: <>কালেকশন · <BanglaDigit value={yearPct} />%</>, tone: "accent" },
+          { label: <>{t("fc_impact_billed")} · ৳ <BanglaDigit value={totalBilled.toLocaleString("en-IN")} /></>, tone: "default" },
+          { label: <>{t("fc_impact_collected")} · ৳ <BanglaDigit value={totalCollected.toLocaleString("en-IN")} /></>, tone: "success" },
+          { label: <>{t("fc_impact_due")} · ৳ <BanglaDigit value={totalDue.toLocaleString("en-IN")} /></>, tone: totalDue > 0 ? "warning" : "default" },
+          { label: <>{t("fc_impact_rate")} · <BanglaDigit value={yearPct} />%</>, tone: "accent" },
         ]}
       />
 
@@ -69,18 +70,18 @@ export default async function FeeCollectionReportPage({ searchParams }: PageProp
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>মাস</TableHead>
-                <TableHead className="text-right">ইনভয়েস</TableHead>
-                <TableHead className="text-right">Billed (৳)</TableHead>
-                <TableHead className="text-right">Collected (৳)</TableHead>
-                <TableHead className="text-right">বাকি (৳)</TableHead>
-                <TableHead className="text-right">% কালেকশন</TableHead>
+                <TableHead>{t("fc_col_month")}</TableHead>
+                <TableHead className="text-right">{t("fc_col_invoices")}</TableHead>
+                <TableHead className="text-right">{t("fc_col_billed")}</TableHead>
+                <TableHead className="text-right">{t("fc_col_collected")}</TableHead>
+                <TableHead className="text-right">{t("fc_col_due")}</TableHead>
+                <TableHead className="text-right">{t("fc_col_pct")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {monthlyStats.map((s) => (
                 <TableRow key={s.month}>
-                  <TableCell>{monthLabels[s.month - 1]}</TableCell>
+                  <TableCell>{t(`month_${s.month}`)}</TableCell>
                   <TableCell className="text-right"><BanglaDigit value={s.invoices} /></TableCell>
                   <TableCell className="text-right"><BanglaDigit value={s.billed.toLocaleString("en-IN")} /></TableCell>
                   <TableCell className="text-right text-success"><BanglaDigit value={s.collected.toLocaleString("en-IN")} /></TableCell>

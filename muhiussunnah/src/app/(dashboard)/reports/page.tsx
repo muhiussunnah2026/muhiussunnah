@@ -11,6 +11,7 @@ import {
   Users2,
   Wallet,
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireActiveRole } from "@/lib/auth/active-school";
@@ -18,31 +19,32 @@ import { ADMIN_ROLES } from "@/lib/auth/roles";
 
 export default async function ReportsIndexPage() {
   await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
+  const t = await getTranslations("reports");
 
   const reports = [
     {
-      group: "আর্থিক",
+      group: t("group_financial"),
       items: [
-        { href: `/reports/fee-collection`, title: "ফি কালেকশন", desc: "মাসিক/বার্ষিক collection summary, class-wise breakdown", icon: <Receipt className="size-5" /> },
-        { href: `/reports/dues-aging`, title: "বকেয়া Aging", desc: "০-৩০ / ৩১-৬০ / ৬১-৯০ / ৯০+ দিনের বকেয়া bucket", icon: <TrendingDown className="size-5" /> },
-        { href: `/reports/income-expense`, title: "আয়-ব্যয় বিবরণী", desc: "মাসিক ফি আয় + চাঁদা বনাম মোট খরচ — বার্ষিক P&L ভিউ", icon: <DollarSign className="size-5" /> },
-        { href: `/reports/expense-category`, title: "খরচ ক্যাটাগরি", desc: "হেড ও ক্যাটাগরি অনুযায়ী বার্ষিক খরচের ভাঙন", icon: <Wallet className="size-5" /> },
-        { href: `/reports/payroll-summary`, title: "বেতন সারসংক্ষেপ", desc: "মাসিক সকল কর্মীর বেতন তালিকা ও পরিশোধ অবস্থা", icon: <TrendingUp className="size-5" /> },
+        { href: `/reports/fee-collection`, title: t("card_fee_collection_title"), desc: t("card_fee_collection_desc"), icon: <Receipt className="size-5" /> },
+        { href: `/reports/dues-aging`, title: t("card_dues_aging_title"), desc: t("card_dues_aging_desc"), icon: <TrendingDown className="size-5" /> },
+        { href: `/reports/income-expense`, title: t("card_income_expense_title"), desc: t("card_income_expense_desc"), icon: <DollarSign className="size-5" /> },
+        { href: `/reports/expense-category`, title: t("card_expense_category_title"), desc: t("card_expense_category_desc"), icon: <Wallet className="size-5" /> },
+        { href: `/reports/payroll-summary`, title: t("card_payroll_summary_title"), desc: t("card_payroll_summary_desc"), icon: <TrendingUp className="size-5" /> },
       ],
     },
     {
-      group: "একাডেমিক",
+      group: t("group_academic"),
       items: [
-        { href: `/reports/student-enrollment`, title: "শিক্ষার্থী ভর্তি", desc: "শ্রেণি অনুযায়ী ছাত্র সংখ্যা — ছেলে/মেয়ে breakdown", icon: <Users2 className="size-5" /> },
-        { href: `/reports/attendance-summary`, title: "উপস্থিতি সারসংক্ষেপ", desc: "শ্রেণি ও সেকশন অনুযায়ী মাসিক উপস্থিতি হার", icon: <CalendarCheck className="size-5" /> },
+        { href: `/reports/student-enrollment`, title: t("card_student_enrollment_title"), desc: t("card_student_enrollment_desc"), icon: <Users2 className="size-5" /> },
+        { href: `/reports/attendance-summary`, title: t("card_attendance_summary_title"), desc: t("card_attendance_summary_desc"), icon: <CalendarCheck className="size-5" /> },
       ],
     },
     {
-      group: "অপারেশনাল",
+      group: t("group_operational"),
       items: [
-        { href: `/library`, title: "লাইব্রেরি", desc: "বইয়ের ক্যাটালগ, overdue ইস্যু — লাইব্রেরি মডিউলে যান", icon: <BookOpenText className="size-5" /> },
-        { href: `/transport`, title: "পরিবহন", desc: "রুট ও গাড়ির সারাংশ — পরিবহন মডিউলে যান", icon: <Building2 className="size-5" /> },
-        { href: `/inventory`, title: "ইনভেন্টরি", desc: "কম স্টক আইটেম ও মোট সম্পদ মূল্য", icon: <BarChart3 className="size-5" /> },
+        { href: `/library`, title: t("card_library_title"), desc: t("card_library_desc"), icon: <BookOpenText className="size-5" /> },
+        { href: `/transport`, title: t("card_transport_title"), desc: t("card_transport_desc"), icon: <Building2 className="size-5" /> },
+        { href: `/inventory`, title: t("card_inventory_title"), desc: t("card_inventory_desc"), icon: <BarChart3 className="size-5" /> },
       ],
     },
   ];
@@ -50,9 +52,9 @@ export default async function ReportsIndexPage() {
   return (
     <>
       <PageHeader
-        title="রিপোর্ট"
-        subtitle="আর্থিক, একাডেমিক ও অপারেশনাল রিপোর্ট — তথ্যভিত্তিক সিদ্ধান্ত গ্রহণের জন্য।"
-        impact={[{ label: <><BarChart3 className="me-1 inline size-3.5" /> Phase 6 · ১০+ রিপোর্ট টাইপ</>, tone: "accent" }]}
+        title={t("index_title")}
+        subtitle={t("index_subtitle")}
+        impact={[{ label: <><BarChart3 className="me-1 inline size-3.5" /> {t("index_impact")}</>, tone: "accent" }]}
       />
       <div className="space-y-6">
         {reports.map((group) => (

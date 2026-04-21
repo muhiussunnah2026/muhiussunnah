@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
@@ -57,19 +58,26 @@ export default async function DuesAgingReportPage() {
   };
   const grand = totals["0-30"] + totals["31-60"] + totals["61-90"] + totals["90+"];
 
+  const t = await getTranslations("reports");
+  const bucketKey = (b: "0-30" | "31-60" | "61-90" | "90+") =>
+    b === "0-30" ? "da_bucket_0_30"
+    : b === "31-60" ? "da_bucket_31_60"
+    : b === "61-90" ? "da_bucket_61_90"
+    : "da_bucket_90_plus";
+
   return (
     <>
       <PageHeader
         breadcrumbs={
           <Link href={`/reports`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> রিপোর্ট
+            <ArrowLeft className="size-3.5" /> {t("index_title")}
           </Link>
         }
-        title="বকেয়া Aging রিপোর্ট"
-        subtitle="বকেয়া কতদিনের পুরাত ো — 0-30, 31-60, 61-90, 90+ দিন ব্যাকেটে ভাগ করা। প্রতিটি সারিতে ক্লিক করে অভিভাবককে সরাসরি ফোন/SMS করতে পারবেন।"
+        title={t("da_title")}
+        subtitle={t("da_subtitle")}
         impact={[
-          { label: <>মোট বকেয়া · ৳ <BanglaDigit value={grand.toLocaleString("en-IN")} /></>, tone: grand > 0 ? "warning" : "success" },
-          { label: <>৯০+ দিন · ৳ <BanglaDigit value={totals["90+"].toLocaleString("en-IN")} /></>, tone: totals["90+"] > 0 ? "warning" : "default" },
+          { label: <>{t("da_col_amount")} · ৳ <BanglaDigit value={grand.toLocaleString("en-IN")} /></>, tone: grand > 0 ? "warning" : "success" },
+          { label: <>{t("da_bucket_90_plus")} · ৳ <BanglaDigit value={totals["90+"].toLocaleString("en-IN")} /></>, tone: totals["90+"] > 0 ? "warning" : "default" },
         ]}
       />
 
@@ -77,9 +85,9 @@ export default async function DuesAgingReportPage() {
         {(["0-30", "31-60", "61-90", "90+"] as const).map((b) => (
           <Card key={b} className={b === "90+" ? "border-destructive/30" : b === "61-90" ? "border-warning/30" : ""}>
             <CardContent className="p-4">
-              <div className="text-xs text-muted-foreground">{b} দিন</div>
+              <div className="text-xs text-muted-foreground">{t(bucketKey(b))}</div>
               <div className="mt-1 text-xl font-bold">৳ <BanglaDigit value={totals[b].toLocaleString("en-IN")} /></div>
-              <div className="text-xs text-muted-foreground"><BanglaDigit value={buckets[b].length} /> টি ইনভয়েস</div>
+              <div className="text-xs text-muted-foreground"><BanglaDigit value={buckets[b].length} /></div>
             </CardContent>
           </Card>
         ))}
@@ -88,15 +96,15 @@ export default async function DuesAgingReportPage() {
       {(["90+", "61-90", "31-60", "0-30"] as const).map((b) => buckets[b].length > 0 ? (
         <Card key={b} className="mt-4">
           <CardContent className="p-0">
-            <h3 className="p-5 pb-3 text-sm font-semibold">{b} দিনের বকেয়া · ৳ <BanglaDigit value={totals[b].toLocaleString("en-IN")} /></h3>
+            <h3 className="p-5 pb-3 text-sm font-semibold">{t(bucketKey(b))} · ৳ <BanglaDigit value={totals[b].toLocaleString("en-IN")} /></h3>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ইনভয়েস</TableHead>
-                  <TableHead>ছাত্র</TableHead>
-                  <TableHead>ক্লাস</TableHead>
-                  <TableHead>অভিভাবক</TableHead>
-                  <TableHead className="text-right">বাকি</TableHead>
+                  <TableHead>{t("da_col_invoice")}</TableHead>
+                  <TableHead>{t("da_col_student")}</TableHead>
+                  <TableHead>{t("da_col_class")}</TableHead>
+                  <TableHead>{t("da_col_guardian")}</TableHead>
+                  <TableHead className="text-right">{t("da_col_amount")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

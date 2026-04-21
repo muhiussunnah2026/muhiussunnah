@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
@@ -11,8 +12,6 @@ import { ADMIN_ROLES } from "@/lib/auth/roles";
 type PageProps = {
   searchParams: Promise<{ year?: string }>;
 };
-
-const monthLabels = ["জানু", "ফেব্রু", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টে", "অক্টো", "নভে", "ডিসে"];
 
 export default async function IncomeExpensePage({ searchParams }: PageProps) {
   const search = await searchParams;
@@ -48,20 +47,22 @@ export default async function IncomeExpensePage({ searchParams }: PageProps) {
   const totalExp = monthly.reduce((s, r) => s + r.exp, 0);
   const netBalance = totalIncome - totalExp;
 
+  const t = await getTranslations("reports");
+
   return (
     <>
       <PageHeader
         breadcrumbs={
           <Link href={`/reports`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> রিপোর্ট
+            <ArrowLeft className="size-3.5" /> {t("index_title")}
           </Link>
         }
-        title={<>আয়-ব্যয় বিবরণী — <BanglaDigit value={year} /></>}
-        subtitle="মাসিক ফি আয়, চাঁদা, বিনিয়োগ রিটার্ন বনাম মোট খরচ।"
+        title={<>{t("ie_title")} <BanglaDigit value={year} /></>}
+        subtitle={t("ie_subtitle_actual")}
         impact={[
-          { label: <>মোট আয় · ৳ <BanglaDigit value={totalIncome.toLocaleString("en-IN")} /></>, tone: "success" },
-          { label: <>মোট খরচ · ৳ <BanglaDigit value={totalExp.toLocaleString("en-IN")} /></>, tone: "warning" },
-          { label: <>উদ্বৃত্ত · ৳ <BanglaDigit value={Math.abs(netBalance).toLocaleString("en-IN")} /></>, tone: netBalance >= 0 ? "success" : "default" },
+          { label: <>{t("ie_impact_income_label")} · ৳ <BanglaDigit value={totalIncome.toLocaleString("en-IN")} /></>, tone: "success" },
+          { label: <>{t("ie_impact_expense_label")} · ৳ <BanglaDigit value={totalExp.toLocaleString("en-IN")} /></>, tone: "warning" },
+          { label: <>{t("ie_impact_surplus")} · ৳ <BanglaDigit value={Math.abs(netBalance).toLocaleString("en-IN")} /></>, tone: netBalance >= 0 ? "success" : "default" },
         ]}
       />
 
@@ -70,16 +71,16 @@ export default async function IncomeExpensePage({ searchParams }: PageProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>মাস</TableHead>
-                <TableHead className="text-right">আয় (৳)</TableHead>
-                <TableHead className="text-right">ব্যয় (৳)</TableHead>
-                <TableHead className="text-right">উদ্বৃত্ত (৳)</TableHead>
+                <TableHead>{t("ie_col_month")}</TableHead>
+                <TableHead className="text-right">{t("ie_col_income")}</TableHead>
+                <TableHead className="text-right">{t("ie_col_expense_amt")}</TableHead>
+                <TableHead className="text-right">{t("ie_col_surplus")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {monthly.map((r) => (
                 <TableRow key={r.m}>
-                  <TableCell>{monthLabels[r.m - 1]}</TableCell>
+                  <TableCell>{t(`month_short_${r.m}`)}</TableCell>
                   <TableCell className="text-right text-success"><BanglaDigit value={r.income.toLocaleString("en-IN")} /></TableCell>
                   <TableCell className="text-right text-warning-foreground dark:text-warning"><BanglaDigit value={r.exp.toLocaleString("en-IN")} /></TableCell>
                   <TableCell className={`text-right font-medium ${r.balance < 0 ? "text-destructive" : ""}`}>
@@ -88,7 +89,7 @@ export default async function IncomeExpensePage({ searchParams }: PageProps) {
                 </TableRow>
               ))}
               <TableRow className="font-semibold bg-muted/50">
-                <TableCell>মোট</TableCell>
+                <TableCell>{t("ie_row_total")}</TableCell>
                 <TableCell className="text-right text-success">৳ <BanglaDigit value={totalIncome.toLocaleString("en-IN")} /></TableCell>
                 <TableCell className="text-right">৳ <BanglaDigit value={totalExp.toLocaleString("en-IN")} /></TableCell>
                 <TableCell className={`text-right ${netBalance < 0 ? "text-destructive" : ""}`}>

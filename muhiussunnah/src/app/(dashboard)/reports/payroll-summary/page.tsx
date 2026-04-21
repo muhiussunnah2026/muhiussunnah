@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
@@ -12,8 +13,6 @@ import { ADMIN_ROLES } from "@/lib/auth/roles";
 type PageProps = {
   searchParams: Promise<{ month?: string; year?: string }>;
 };
-
-const monthLabels = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
 
 export default async function PayrollSummaryPage({ searchParams }: PageProps) {
   const search = await searchParams;
@@ -52,37 +51,39 @@ export default async function PayrollSummaryPage({ searchParams }: PageProps) {
   const totalNet = list.reduce((s, p) => s + Number(p.net_amount), 0);
   const paid = list.filter((p) => p.status === "paid").length;
 
+  const t = await getTranslations("reports");
+
   return (
     <>
       <PageHeader
         breadcrumbs={
           <Link href={`/reports`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> রিপোর্ট
+            <ArrowLeft className="size-3.5" /> {t("index_title")}
           </Link>
         }
-        title={<>বেতন সারসংক্ষেপ — {monthLabels[month - 1]} <BanglaDigit value={year} /></>}
-        subtitle="সকল কর্মীর বেতন তালিকা ও পরিশোধ অবস্থা।"
+        title={<>{t("ps_title")} {t(`month_${month}`)} <BanglaDigit value={year} /></>}
+        subtitle={t("ps_subtitle", { month, year })}
         impact={[
-          { label: <>মোট Gross · ৳ <BanglaDigit value={totalGross.toLocaleString("en-IN")} /></>, tone: "default" },
-          { label: <>Net পরিশোধ · ৳ <BanglaDigit value={totalNet.toLocaleString("en-IN")} /></>, tone: "success" },
-          { label: <><BanglaDigit value={paid} /> / <BanglaDigit value={list.length} /> পরিশোধ</>, tone: paid === list.length ? "success" : "warning" },
+          { label: <>{t("ps_impact_gross")} · ৳ <BanglaDigit value={totalGross.toLocaleString("en-IN")} /></>, tone: "default" },
+          { label: <>{t("ps_impact_net")} · ৳ <BanglaDigit value={totalNet.toLocaleString("en-IN")} /></>, tone: "success" },
+          { label: <><BanglaDigit value={paid} /> / <BanglaDigit value={list.length} /> {t("ps_impact_paid_ratio")}</>, tone: paid === list.length ? "success" : "warning" },
         ]}
       />
 
       {list.length === 0 ? (
-        <p className="text-muted-foreground text-sm">এই মাসে কোন বেতন রেকর্ড নেই।</p>
+        <p className="text-muted-foreground text-sm">{t("ps_empty")}</p>
       ) : (
         <Card>
           <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>কর্মী</TableHead>
-                  <TableHead>পদ</TableHead>
-                  <TableHead className="text-right">Gross (৳)</TableHead>
-                  <TableHead className="text-right">কাটা (৳)</TableHead>
-                  <TableHead className="text-right">Net (৳)</TableHead>
-                  <TableHead>স্ট্যাটাস</TableHead>
+                  <TableHead>{t("ps_col_employee")}</TableHead>
+                  <TableHead>{t("ps_col_position")}</TableHead>
+                  <TableHead className="text-right">{t("ps_col_gross")}</TableHead>
+                  <TableHead className="text-right">{t("ps_col_deduct")}</TableHead>
+                  <TableHead className="text-right">{t("ps_col_net_amt")}</TableHead>
+                  <TableHead>{t("ps_col_status_label")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -95,7 +96,7 @@ export default async function PayrollSummaryPage({ searchParams }: PageProps) {
                     <TableCell className="text-right font-medium"><BanglaDigit value={Number(p.net_amount).toLocaleString("en-IN")} /></TableCell>
                     <TableCell>
                       <Badge variant={p.status === "paid" ? "default" : "secondary"}>
-                        {p.status === "paid" ? "পরিশোধ" : p.status === "approved" ? "অনুমোদিত" : "ড্রাফট"}
+                        {p.status === "paid" ? t("ps_status_paid_label") : p.status === "approved" ? t("ps_status_approved") : t("ps_status_draft_label")}
                       </Badge>
                     </TableCell>
                   </TableRow>
