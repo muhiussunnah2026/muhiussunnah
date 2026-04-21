@@ -213,21 +213,45 @@ export function SchoolSettingsForm({ schoolSlug, initial }: Props) {
               <label
                 key={k}
                 className={
-                  "flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition " +
+                  "group/cb flex cursor-pointer items-center gap-3 rounded-lg border-2 px-3 py-2.5 text-sm transition " +
                   (checked
-                    ? "border-primary/50 bg-primary/10 text-foreground"
-                    : "border-border bg-background hover:border-primary/30 hover:bg-primary/5")
+                    ? "border-primary bg-primary/10 text-foreground shadow-sm shadow-primary/20"
+                    : "border-border bg-background hover:border-primary/40 hover:bg-primary/5")
                 }
               >
                 <input
                   type="checkbox"
-                  className="accent-primary"
                   checked={checked}
                   onChange={() => toggleHeaderField(k)}
+                  className="peer sr-only"
                 />
+                {/* Custom checkbox box — always clearly visible */}
+                <span
+                  aria-hidden
+                  className={
+                    "relative inline-flex size-5 shrink-0 items-center justify-center rounded-md border-2 transition-all " +
+                    (checked
+                      ? "border-primary bg-gradient-to-br from-primary to-accent shadow-sm shadow-primary/40"
+                      : "border-muted-foreground/40 bg-background group-hover/cb:border-primary/60")
+                  }
+                >
+                  {checked ? (
+                    <svg
+                      viewBox="0 0 16 16"
+                      className="size-3.5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M3 8.5L6.5 12L13 4.5" />
+                    </svg>
+                  ) : null}
+                </span>
                 <span className="flex-1">{HEADER_FIELD_LABELS[k]}</span>
                 {checked ? (
-                  <span className="inline-flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+                  <span className="inline-flex size-5 items-center justify-center rounded-full bg-gradient-primary text-[10px] font-bold text-white shadow-sm shadow-primary/30">
                     {order + 1}
                   </span>
                 ) : null}

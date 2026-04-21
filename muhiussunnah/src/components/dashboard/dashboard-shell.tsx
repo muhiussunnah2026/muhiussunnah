@@ -71,17 +71,18 @@ export async function DashboardShell({
   const primary = visibleFields.find((f) => f.emphasis !== "secondary");
   const secondary = visibleFields.filter((f) => f !== primary);
 
-  // Labels for secondary fields so address/phone/email read like a
-  // proper letterhead instead of "A · B · C" run-together.
-  const fieldLabels: Record<string, string> = {
-    address: "Address",
-    phone: "Phone",
-    email: "Email",
-    website: "Website",
-    name_en: "",
-    name_ar: "",
-    name_bn: "",
-  };
+  // Partition secondary fields into semantic groups so the header reads
+  // like a real letterhead:
+  //   Line 1..N: alternate-language names (each on own line)
+  //   Line N+1: Address (full width)
+  //   Line N+2: Phone + Email (grouped)
+  //   Line N+3: Website (last, centered)
+  const nameKeys = new Set(["name_en", "name_ar"]);
+  const nameLines = secondary.filter((f) => nameKeys.has(f.key));
+  const addressField = secondary.find((f) => f.key === "address");
+  const phoneField = secondary.find((f) => f.key === "phone");
+  const emailField = secondary.find((f) => f.key === "email");
+  const websiteField = secondary.find((f) => f.key === "website");
 
   return (
     <SidebarProvider>
@@ -117,7 +118,7 @@ export async function DashboardShell({
           <div className="flex items-center gap-3 justify-self-start">
             <SidebarToggle />
           <Link href="/" className="group/brand flex items-center gap-3">
-            <span className="relative inline-flex size-12 items-center justify-center overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-background to-accent/15 shadow-lg shadow-primary/15 transition-all group-hover/brand:scale-105 group-hover/brand:shadow-primary/25">
+            <span className="relative inline-flex size-16 items-center justify-center overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-background to-accent/15 shadow-lg shadow-primary/15 transition-all group-hover/brand:scale-105 group-hover/brand:shadow-primary/25">
               {/* Rotating gradient halo on hover */}
               <span
                 className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-tr from-primary/0 via-primary/20 to-accent/0 opacity-0 transition-opacity duration-500 group-hover/brand:opacity-100"
@@ -127,13 +128,13 @@ export async function DashboardShell({
                 <Image
                   src={logoUrl}
                   alt="Institution logo"
-                  width={48}
-                  height={48}
+                  width={64}
+                  height={64}
                   className="relative size-full object-contain"
                   unoptimized
                 />
               ) : (
-                <span className="relative text-2xl font-extrabold bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent">
+                <span className="relative text-3xl font-extrabold bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent">
                   م
                 </span>
               )}
@@ -141,43 +142,74 @@ export async function DashboardShell({
           </Link>
           </div>
 
-          {/* Center — institution identity with gradient accent */}
+          {/* Center — institution identity, letterhead-style stacking:
+              [big name] / [name_en] / [name_ar] / [address] / [phone · email] / [website] */}
           <div className="min-w-0 text-center justify-self-center w-full">
             {visibleFields.length > 0 ? (
               <>
                 {primary ? (
-                  <h1 className="text-base font-extrabold tracking-tight leading-[1.2] md:text-xl lg:text-2xl bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent break-words">
+                  <h1 className="text-lg font-extrabold tracking-tight leading-[1.2] md:text-2xl lg:text-3xl bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent break-words">
                     {primary.value}
                   </h1>
                 ) : null}
-                {secondary.length > 0 ? (
-                  <div className="mt-1 flex flex-wrap justify-center items-center gap-x-3 gap-y-0.5 text-[11px] md:text-xs text-muted-foreground leading-snug">
-                    {secondary.map((f, i) => {
-                      const label = fieldLabels[f.key];
-                      return (
-                        <span key={f.key} className="inline-flex items-baseline gap-1">
-                          {label ? (
-                            <span className="font-semibold text-foreground/70">{label}:</span>
-                          ) : null}
-                          <span className="break-all">{f.value}</span>
-                          {i < secondary.length - 1 ? (
-                            <span className="text-muted-foreground/40" aria-hidden>
-                              ·
-                            </span>
-                          ) : null}
-                        </span>
-                      );
-                    })}
-                  </div>
+
+                {/* Alternate-language names — each on its own line, medium weight */}
+                {nameLines.map((f) => (
+                  <p
+                    key={f.key}
+                    className="mt-0.5 text-xs md:text-sm font-semibold text-foreground/80 leading-snug break-words"
+                    dir={f.key === "name_ar" ? "rtl" : undefined}
+                  >
+                    {f.value}
+                  </p>
+                ))}
+
+                {/* Address — own line, full-width text */}
+                {addressField ? (
+                  <p className="mt-1 text-[11px] md:text-xs text-muted-foreground leading-snug break-words">
+                    <span className="font-semibold text-foreground/70">Address:</span>{" "}
+                    {addressField.value}
+                  </p>
+                ) : null}
+
+                {/* Phone + Email on the same line */}
+                {(phoneField || emailField) ? (
+                  <p className="mt-0.5 text-[11px] md:text-xs text-muted-foreground leading-snug break-words">
+                    {phoneField ? (
+                      <>
+                        <span className="font-semibold text-foreground/70">Phone:</span>{" "}
+                        {phoneField.value}
+                      </>
+                    ) : null}
+                    {phoneField && emailField ? (
+                      <span className="mx-2 text-muted-foreground/40" aria-hidden>
+                        ·
+                      </span>
+                    ) : null}
+                    {emailField ? (
+                      <>
+                        <span className="font-semibold text-foreground/70">Email:</span>{" "}
+                        <span className="break-all">{emailField.value}</span>
+                      </>
+                    ) : null}
+                  </p>
+                ) : null}
+
+                {/* Website — last, centered on its own line */}
+                {websiteField ? (
+                  <p className="mt-0.5 text-[11px] md:text-xs text-muted-foreground leading-snug break-words">
+                    <span className="font-semibold text-foreground/70">Website:</span>{" "}
+                    <span className="break-all">{websiteField.value}</span>
+                  </p>
                 ) : null}
               </>
             ) : (
               <>
-                <h1 className="text-base font-extrabold tracking-tight leading-[1.2] md:text-xl lg:text-2xl bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent break-words">
+                <h1 className="text-lg font-extrabold tracking-tight leading-[1.2] md:text-2xl lg:text-3xl bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent break-words">
                   {title}
                 </h1>
                 {subtitle ? (
-                  <p className="mt-1 text-[11px] md:text-xs text-muted-foreground leading-snug">
+                  <p className="mt-1 text-xs md:text-sm text-muted-foreground leading-snug">
                     {subtitle}
                   </p>
                 ) : null}
