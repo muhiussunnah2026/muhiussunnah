@@ -35,6 +35,14 @@ type Student = {
   transport_fee: number | null;
   rf_id_card: string | null;
   nid_birth_cert: string | null;
+  section_id: string | null;
+  sections: { id: string; name: string; classes: { id: string; name_bn: string } } | null;
+};
+
+type ClassWithSections = {
+  id: string;
+  name_bn: string;
+  sections: { id: string; name: string }[];
 };
 
 type Guardian = {
@@ -51,12 +59,14 @@ export function EditStudentForm({
   father,
   mother,
   extra,
+  classes,
 }: {
   schoolSlug: string;
   student: Student;
   father: Guardian;
   mother: Guardian;
   extra: Guardian;
+  classes: ClassWithSections[];
 }) {
   const router = useRouter();
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(
@@ -67,6 +77,13 @@ export function EditStudentForm({
   const [photoPreview, setPhotoPreview] = useState<string | null>(student.photo_url);
   const [photoDataUrl, setPhotoDataUrl] = useState<string>(""); // "" | dataURL | __REMOVE__
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Class / section — controlled selects so changing class resets the
+  // section list to that class's sections.
+  const [classId, setClassId] = useState<string>(student.sections?.classes?.id ?? "");
+  const [sectionId, setSectionId] = useState<string>(student.section_id ?? "");
+  const availableSections =
+    classes.find((c) => c.id === classId)?.sections ?? [];
 
   useEffect(() => {
     if (!state) return;
@@ -155,6 +172,44 @@ export function EditStudentForm({
             <p className="text-xs text-muted-foreground">PNG / JPG / WebP · সর্বোচ্চ ৩ MB</p>
           </div>
         </div>
+      </FieldGroup>
+
+      {/* Class / Section */}
+      <FieldGroup title="একাডেমিক">
+        <input type="hidden" name="class_id" value={classId} />
+        <input type="hidden" name="section_id" value={sectionId} />
+        <Field label="ক্লাস">
+          <select
+            value={classId}
+            onChange={(e) => {
+              setClassId(e.target.value);
+              setSectionId(""); // reset section when class changes
+            }}
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="">— ক্লাস বাছাই করুন —</option>
+            {classes.map((c) => (
+              <option key={c.id} value={c.id}>{c.name_bn}</option>
+            ))}
+          </select>
+        </Field>
+        <Field label="শাখা / সেকশন">
+          <select
+            value={sectionId}
+            onChange={(e) => setSectionId(e.target.value)}
+            disabled={!classId || availableSections.length === 0}
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
+          >
+            <option value="">
+              {classId && availableSections.length === 0
+                ? "— সেকশন নেই (অটো-তৈরি হবে) —"
+                : "— সেকশন বাছাই করুন —"}
+            </option>
+            {availableSections.map((s) => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+        </Field>
       </FieldGroup>
 
       {/* Identity */}
@@ -316,7 +371,7 @@ export function EditStudentForm({
           বাতিল
         </Button>
         <p className="text-xs text-muted-foreground ms-auto">
-          💡 ক্লাস / সেকশন পরিবর্তন করতে, বিস্তারিত পেজ থেকে "স্থানান্তর" ফরম ব্যবহার করুন।
+          💡 সব ফিল্ড এখানেই সম্পাদনা করতে পারবেন — ছবি, ক্লাস, অভিভাবক, ফি সব।
         </p>
       </div>
     </form>

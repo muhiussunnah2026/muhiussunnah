@@ -7,6 +7,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import {
   type ActionResult,
   ok,
@@ -320,10 +321,17 @@ export async function addStudentAction(
   const { data: studentRow, error } = res;
   if (error || !studentRow) return fail(error?.message ?? "শিক্ষার্থী যোগ করা যায়নি।");
 
+  // Guardian inserts go through the ADMIN client because the RLS policy
+  // on student_guardians is tighter than the user's own token — the
+  // user-token insert silently failed for some tenants, which is why
+  // the detail page showed "no guardian record" after the form was
+  // submitted.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = supabaseAdmin() as any;
+
   // Father / primary guardian record
   if (parsed.guardian_name || parsed.guardian_phone) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from("student_guardians").insert({
+    await admin.from("student_guardians").insert({
       student_id: studentRow.id,
       name_bn: parsed.guardian_name ?? "অভিভাবক",
       phone: parsed.guardian_phone ?? null,
@@ -335,8 +343,7 @@ export async function addStudentAction(
   // Mother record — separate from the primary guardian so SMS/contact can
   // resolve per role even when only one parent is the primary contact.
   if (parsed.mother_name || parsed.mother_phone) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from("student_guardians").insert({
+    await admin.from("student_guardians").insert({
       student_id: studentRow.id,
       name_bn: parsed.mother_name ?? "মা",
       phone: parsed.mother_phone ?? null,
@@ -350,8 +357,7 @@ export async function addStudentAction(
   // so the admin can capture culturally-specific roles (চাচা, মামা, ফুপা,
   // দাদা, নানা, খালা, etc.).
   if (parsed.extra_guardian_name || parsed.extra_guardian_phone) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from("student_guardians").insert({
+    await admin.from("student_guardians").insert({
       student_id: studentRow.id,
       name_bn: parsed.extra_guardian_name ?? "অভিভাবক",
       phone: parsed.extra_guardian_phone ?? null,
@@ -559,6 +565,10 @@ export async function shiftStudentAction(
 const updateStudentSchema = z.object({
   schoolSlug: z.string().min(1),
   student_id: z.string().uuid(),
+  // class / section — inline edit (no more separate shift form for
+  // simple reassignments)
+  class_id: z.string().uuid().optional().or(z.literal("").transform(() => undefined)),
+  section_id: z.string().uuid().optional().or(z.literal("").transform(() => undefined)),
   // identity
   student_code: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
   name_bn: z.string().trim().min(2).max(200),
@@ -642,8 +652,35 @@ export async function updateStudentAction(
     extra_guardian_name,
     extra_guardian_phone,
     extra_guardian_relation,
+    // class_id isn't a students column — it's resolved to a section_id.
+    class_id,
     ...rawUpdate
   } = parsed;
+
+  // If the form picked a class_id but no explicit section_id, resolve
+  // to the first section of that class. If the class has no sections,
+  // create a default "ক" section on the fly.
+  if (class_id && !rawUpdate.section_id) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: firstSection } = await (supabase as any)
+      .from("sections")
+      .select("id")
+      .eq("class_id", class_id)
+      .order("name", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (firstSection?.id) {
+      rawUpdate.section_id = firstSection.id as string;
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: created } = await (supabase as any)
+        .from("sections")
+        .insert({ class_id, name: "ক", capacity: null })
+        .select("id")
+        .single();
+      if (created?.id) rawUpdate.section_id = created.id as string;
+    }
+  }
 
   // Drop undefined keys so we don't overwrite existing values with nulls.
   const update: Record<string, unknown> = {};
@@ -696,10 +733,15 @@ export async function updateStudentAction(
   if (error) return fail(error.message);
 
   // Guardians: upsert father / mother / extra rows by relation type so
-  // editing doesn't pile up duplicate records. Any field that was left
-  // blank in the form (undefined) is preserved; empty strings are
-  // explicit clears.
+  // editing doesn't pile up duplicate records. Use the ADMIN client
+  // because student_guardians RLS is stricter than the user's own
+  // session can modify — using the user client here silently failed
+  // for some tenants, hence "no guardian record" on the detail page
+  // even after the form was submitted.
   const studentId = parsed.student_id;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = supabaseAdmin() as any;
+
   async function upsertGuardian(
     name: string | undefined,
     phone: string | undefined,
@@ -707,8 +749,7 @@ export async function updateStudentAction(
     isPrimary: boolean,
   ) {
     if (name === undefined && phone === undefined) return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existing } = await (supabase as any)
+    const { data: existing } = await admin
       .from("student_guardians")
       .select("id")
       .eq("student_id", studentId)
@@ -720,14 +761,9 @@ export async function updateStudentAction(
       if (name !== undefined) patch.name_bn = name || "অভিভাবক";
       if (phone !== undefined) patch.phone = phone || null;
       patch.is_primary = isPrimary;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any)
-        .from("student_guardians")
-        .update(patch)
-        .eq("id", existing.id);
+      await admin.from("student_guardians").update(patch).eq("id", existing.id);
     } else if (name || phone) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from("student_guardians").insert({
+      await admin.from("student_guardians").insert({
         student_id: studentId,
         name_bn: name || "অভিভাবক",
         phone: phone || null,

@@ -16,20 +16,32 @@ export default async function EditStudentPage({ params }: PageProps) {
   const schoolSlug = membership.school_slug;
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: s } = await (supabase as any)
-    .from("students")
-    .select(`
-      id, student_code, name_bn, name_en, name_ar, roll, gender, photo_url,
-      blood_group, religion, date_of_birth, admission_date, guardian_phone,
-      address_present, address_permanent, previous_school, status,
-      admission_fee, tuition_fee, transport_fee, rf_id_card, nid_birth_cert,
-      sections ( id, name, classes ( id, name_bn ) ),
-      student_guardians ( id, name_bn, phone, relation, is_primary )
-    `)
-    .eq("id", id)
-    .eq("school_id", membership.school_id)
-    .single();
+  const [studentRes, classesRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select(`
+        id, student_code, name_bn, name_en, name_ar, roll, gender, photo_url,
+        blood_group, religion, date_of_birth, admission_date, guardian_phone,
+        address_present, address_permanent, previous_school, status,
+        admission_fee, tuition_fee, transport_fee, rf_id_card, nid_birth_cert,
+        section_id,
+        sections ( id, name, classes ( id, name_bn ) ),
+        student_guardians ( id, name_bn, phone, relation, is_primary )
+      `)
+      .eq("id", id)
+      .eq("school_id", membership.school_id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("classes")
+      .select("id, name_bn, sections ( id, name )")
+      .eq("school_id", membership.school_id)
+      .order("display_order"),
+  ]);
+
+  const { data: s } = studentRes;
+  const { data: classes } = classesRes;
 
   if (!s) notFound();
 
@@ -42,9 +54,16 @@ export default async function EditStudentPage({ params }: PageProps) {
     status: string;
     admission_fee: number | null; tuition_fee: number | null; transport_fee: number | null;
     rf_id_card: string | null; nid_birth_cert: string | null;
+    section_id: string | null;
     sections: { id: string; name: string; classes: { id: string; name_bn: string } } | null;
     student_guardians: { id: string; name_bn: string; phone: string | null; relation: string; is_primary: boolean }[];
   };
+
+  const classList = (classes ?? []) as Array<{
+    id: string;
+    name_bn: string;
+    sections: { id: string; name: string }[];
+  }>;
 
   const father = student.student_guardians?.find((g) => g.relation === "father") ?? null;
   const mother = student.student_guardians?.find((g) => g.relation === "mother") ?? null;
@@ -75,6 +94,7 @@ export default async function EditStudentPage({ params }: PageProps) {
             father={father}
             mother={mother}
             extra={extra}
+            classes={classList}
           />
         </CardContent>
       </Card>
