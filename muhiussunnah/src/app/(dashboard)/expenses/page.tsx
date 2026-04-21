@@ -1,4 +1,5 @@
 import { Wallet } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
@@ -50,14 +51,16 @@ export default async function ExpensesPage() {
   });
   const thisMonthTotal = thisMonth.reduce((s, e) => s + Number(e.amount), 0);
 
+  const t = await getTranslations("expenses");
+
   return (
     <>
       <PageHeader
-        title="খরচ ব্যবস্থাপনা"
-        subtitle="প্রতিটি খরচ নির্দিষ্ট হেডে রেকর্ড করুন। এ মাসে, গত মাসের সাথে তুলনা — ড্যাশবোর্ডে দেখাবে।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <>এ মাসে · ৳ <BanglaDigit value={thisMonthTotal.toLocaleString("en-IN")} /></>, tone: "warning" },
-          { label: <>মোট · ৳ <BanglaDigit value={total.toLocaleString("en-IN")} /></>, tone: "default" },
+          { label: <>{t("impact_this_month")} · ৳ <BanglaDigit value={thisMonthTotal.toLocaleString("en-IN")} /></>, tone: "warning" },
+          { label: <>{t("impact_total")} · ৳ <BanglaDigit value={total.toLocaleString("en-IN")} /></>, tone: "default" },
         ]}
       />
 
@@ -66,8 +69,8 @@ export default async function ExpensesPage() {
           {list.length === 0 ? (
             <EmptyState
               icon={<Wallet className="size-8" />}
-              title="এখনও কোন খরচ রেকর্ড করা হয়নি"
-              body="ডান পাশের ফর্ম থেকে প্রথম খরচ যোগ করুন। ২৪টি ডিফল্ট হেড seed হয়েছে রেজিস্ট্রেশনের সময়।"
+              title={t("empty_title")}
+              body={t("empty_body")}
             />
           ) : (
             <Card>
@@ -75,11 +78,11 @@ export default async function ExpensesPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>তারিখ</TableHead>
-                      <TableHead>হেড</TableHead>
-                      <TableHead>বিবরণ</TableHead>
-                      <TableHead>পদ্ধতি</TableHead>
-                      <TableHead className="text-right">amount</TableHead>
+                      <TableHead>{t("col_date")}</TableHead>
+                      <TableHead>{t("col_head")}</TableHead>
+                      <TableHead>{t("col_description")}</TableHead>
+                      <TableHead>{t("col_method")}</TableHead>
+                      <TableHead className="text-right">{t("col_amount")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -105,7 +108,7 @@ export default async function ExpensesPage() {
         <aside>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-lg font-semibold">নতুন খরচ</h2>
+              <h2 className="mb-4 text-lg font-semibold">{t("sidebar_title")}</h2>
               <AddExpenseForm heads={heads ?? []} schoolSlug={schoolSlug} />
             </CardContent>
           </Card>

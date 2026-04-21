@@ -1,4 +1,5 @@
 import { Award } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
@@ -52,14 +53,16 @@ export default async function ScholarshipsPage() {
     students: { id: string; name_bn: string; student_code: string; sections: { name: string; classes: { name_bn: string } } | null };
   }>;
 
+  const t = await getTranslations("scholarships");
+
   return (
     <>
       <PageHeader
-        title="বৃত্তি ব্যবস্থাপনা"
-        subtitle="যোগ্য শিক্ষার্থীদের জন্য বৃত্তি তৈরি করুন, তারপর নির্দিষ্ট ছাত্রকে assign করুন। ফি invoice-এ amount স্বয়ংক্রিয়ভাবে adjust হবে (Phase 4-এ wire হবে)।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <>বৃত্তি · <BanglaDigit value={schList.length} /></>, tone: "accent" },
-          { label: <>প্রদত্ত · <BanglaDigit value={assignmentList.length} /></>, tone: "success" },
+          { label: <>{t("impact_count")} · <BanglaDigit value={schList.length} /></>, tone: "accent" },
+          { label: <>{t("impact_granted")} · <BanglaDigit value={assignmentList.length} /></>, tone: "success" },
         ]}
       />
 
@@ -67,9 +70,9 @@ export default async function ScholarshipsPage() {
         <section className="flex flex-col gap-4">
           <Card>
             <CardContent className="p-5">
-              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">সক্রিয় বৃত্তি</h3>
+              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("active_heading")}</h3>
               {schList.length === 0 ? (
-                <EmptyState title="এখনও কোন বৃত্তি নেই" body="ডান পাশ থেকে প্রথম বৃত্তি তৈরি করুন।" />
+                <EmptyState title={t("empty_title")} body={t("empty_body")} />
               ) : (
                 <ul className="divide-y divide-border/60">
                   {schList.map((s) => (
@@ -83,7 +86,7 @@ export default async function ScholarshipsPage() {
                           {s.amount_type === "fixed" ? <>৳ <BanglaDigit value={Number(s.amount).toLocaleString("en-IN")} /></> : <><BanglaDigit value={s.amount} />%</>}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          <BanglaDigit value={s.student_scholarships.length} /> জন পেয়েছে
+                          <BanglaDigit value={s.student_scholarships.length} /> {t("recipient_count_suffix")}
                         </div>
                       </div>
                     </li>
@@ -95,17 +98,17 @@ export default async function ScholarshipsPage() {
 
           <Card>
             <CardContent className="p-0">
-              <h3 className="p-5 pb-3 text-sm font-semibold text-muted-foreground">প্রদানের ইতিহাস</h3>
+              <h3 className="p-5 pb-3 text-sm font-semibold text-muted-foreground">{t("history_heading")}</h3>
               {assignmentList.length === 0 ? (
-                <p className="px-5 pb-5 text-sm text-muted-foreground">এখনও কেউ বৃত্তি পায়নি।</p>
+                <p className="px-5 pb-5 text-sm text-muted-foreground">{t("history_empty")}</p>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>ছাত্র</TableHead>
-                      <TableHead>বৃত্তি</TableHead>
-                      <TableHead>ক্লাস</TableHead>
-                      <TableHead className="text-right">amount</TableHead>
+                      <TableHead>{t("col_student")}</TableHead>
+                      <TableHead>{t("col_scholarship")}</TableHead>
+                      <TableHead>{t("col_class")}</TableHead>
+                      <TableHead className="text-right">{t("col_amount")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -139,7 +142,7 @@ export default async function ScholarshipsPage() {
           <Card>
             <CardContent className="p-5">
               <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                <Award className="size-4" /> নতুন বৃত্তি
+                <Award className="size-4" /> {t("sidebar_new_title")}
               </h2>
               <AddScholarshipForm  schoolSlug={schoolSlug}/>
             </CardContent>
@@ -148,7 +151,7 @@ export default async function ScholarshipsPage() {
           {schList.length > 0 && (students?.length ?? 0) > 0 ? (
             <Card>
               <CardContent className="p-5">
-                <h2 className="mb-4 text-lg font-semibold">ছাত্রকে বৃত্তি দিন</h2>
+                <h2 className="mb-4 text-lg font-semibold">{t("sidebar_assign_title")}</h2>
                 <AssignScholarshipForm
                   scholarships={schList.map((s) => ({ id: s.id, name: s.name }))}
                   students={(students ?? []) as { id: string; name_bn: string; student_code: string }[]}

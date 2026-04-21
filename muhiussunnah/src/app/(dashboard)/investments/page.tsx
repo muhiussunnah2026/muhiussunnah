@@ -1,4 +1,5 @@
 import { TrendingUp } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,10 +10,6 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { AddInvestmentForm } from "./add-investment-form";
-
-const statusLabel: Record<string, string> = {
-  active: "সক্রিয়", matured: "পরিপক্ক", withdrawn: "উত্তোলন", defaulted: "খেলাপি",
-};
 
 export default async function InvestmentsPage() {
   const membership = await requireActiveRole(ADMIN_ROLES);
@@ -35,14 +32,16 @@ export default async function InvestmentsPage() {
   const totalPrincipal = list.reduce((s, i) => s + Number(i.principal), 0);
   const totalReturns = list.reduce((s, i) => s + i.investment_returns.reduce((a, r) => a + Number(r.amount), 0), 0);
 
+  const t = await getTranslations("investments");
+
   return (
     <>
       <PageHeader
-        title="বিনিয়োগ"
-        subtitle="প্রতিষ্ঠানের জমা, ফিক্সড ডিপোজিট, ব্যবসায়িক বিনিয়োগ — সব ট্র্যাক করুন।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <>বিনিয়োগকৃত · ৳ <BanglaDigit value={totalPrincipal.toLocaleString("en-IN")} /></>, tone: "default" },
-          { label: <>রিটার্ন · ৳ <BanglaDigit value={totalReturns.toLocaleString("en-IN")} /></>, tone: "success" },
+          { label: <>{t("impact_invested")} · ৳ <BanglaDigit value={totalPrincipal.toLocaleString("en-IN")} /></>, tone: "default" },
+          { label: <>{t("impact_returns")} · ৳ <BanglaDigit value={totalReturns.toLocaleString("en-IN")} /></>, tone: "success" },
         ]}
       />
 
@@ -51,8 +50,8 @@ export default async function InvestmentsPage() {
           {list.length === 0 ? (
             <EmptyState
               icon={<TrendingUp className="size-8" />}
-              title="এখনও কোন বিনিয়োগ নেই"
-              body="ডান পাশ থেকে প্রথম বিনিয়োগ যোগ করুন।"
+              title={t("empty_title")}
+              body={t("empty_body")}
             />
           ) : (
             <Card>
@@ -60,12 +59,12 @@ export default async function InvestmentsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>শিরোনাম</TableHead>
-                      <TableHead>শুরু</TableHead>
-                      <TableHead className="hidden md:table-cell">পরিপক্ক</TableHead>
-                      <TableHead className="text-right">মূলধন</TableHead>
-                      <TableHead className="text-right">রিটার্ন</TableHead>
-                      <TableHead>স্ট্যাটাস</TableHead>
+                      <TableHead>{t("col_title")}</TableHead>
+                      <TableHead>{t("col_start")}</TableHead>
+                      <TableHead className="hidden md:table-cell">{t("col_maturity")}</TableHead>
+                      <TableHead className="text-right">{t("col_principal")}</TableHead>
+                      <TableHead className="text-right">{t("col_returns")}</TableHead>
+                      <TableHead>{t("col_status")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -91,7 +90,9 @@ export default async function InvestmentsPage() {
                               i.status === "matured" ? "bg-success/10 text-success" :
                               "bg-muted text-muted-foreground"
                             }`}>
-                              {statusLabel[i.status] ?? i.status}
+                              {(() => {
+                                try { return t(`status_${i.status}`); } catch { return i.status; }
+                              })()}
                             </span>
                           </TableCell>
                         </TableRow>
@@ -107,7 +108,7 @@ export default async function InvestmentsPage() {
         <aside>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-lg font-semibold">নতুন বিনিয়োগ</h2>
+              <h2 className="mb-4 text-lg font-semibold">{t("sidebar_title")}</h2>
               <AddInvestmentForm  schoolSlug={schoolSlug}/>
             </CardContent>
           </Card>

@@ -1,4 +1,5 @@
 import { HeartHandshake } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
@@ -47,20 +48,22 @@ export default async function DonationsPage() {
     campaignTotals.set(d.campaign_id, (campaignTotals.get(d.campaign_id) ?? 0) + Number(d.amount));
   }
 
+  const t = await getTranslations("donations");
+
   return (
     <>
       <PageHeader
-        title="চাঁদা ব্যবস্থাপনা"
-        subtitle="মাদ্রাসার জন্য critical — ক্যাম্পেইন তৈরি করুন, চাঁদা গ্রহণ করুন, receipt দিন। রশিদ স্বয়ংক্রিয়ভাবে তৈরি হয়।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <>মোট সংগ্রহ · ৳ <BanglaDigit value={totalReceived.toLocaleString("en-IN")} /></>, tone: "success" },
-          { label: <>সক্রিয় ক্যাম্পেইন · <BanglaDigit value={campaignList.filter((c) => c.status === "active").length} /></>, tone: "accent" },
+          { label: <>{t("impact_total")} · ৳ <BanglaDigit value={totalReceived.toLocaleString("en-IN")} /></>, tone: "success" },
+          { label: <>{t("impact_active_campaigns")} · <BanglaDigit value={campaignList.filter((c) => c.status === "active").length} /></>, tone: "accent" },
         ]}
       />
 
       {campaignList.length > 0 ? (
         <section className="mb-6">
-          <h2 className="mb-3 text-sm font-semibold text-muted-foreground">🎯 চলমান ক্যাম্পেইন</h2>
+          <h2 className="mb-3 text-sm font-semibold text-muted-foreground">{t("active_campaigns_heading")}</h2>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {campaignList.map((c) => {
               const raised = campaignTotals.get(c.id) ?? 0;
@@ -84,7 +87,7 @@ export default async function DonationsPage() {
                           <div className="h-full bg-gradient-primary transition-all" style={{ width: `${Math.min(100, pct)}%` }} />
                         </div>
                       ) : null}
-                      {pct !== null ? <p className="mt-1 text-xs text-muted-foreground"><BanglaDigit value={pct} />% সম্পন্ন</p> : null}
+                      {pct !== null ? <p className="mt-1 text-xs text-muted-foreground"><BanglaDigit value={pct} />{t("pct_complete_suffix")}</p> : null}
                     </div>
                   </CardContent>
                 </Card>
@@ -99,9 +102,9 @@ export default async function DonationsPage() {
           {donationList.length === 0 ? (
             <EmptyState
               icon={<HeartHandshake className="size-8" />}
-              title="এখনও কোন চাঁদা গ্রহণ করা হয়নি"
-              body="ডান পাশের ফর্ম থেকে নতুন চাঁদা রেকর্ড করুন। পাসওয়ার্ড বা রশিদ সংখ্যা স্বয়ংক্রিয়ভাবে তৈরি হবে।"
-              proTip="ক্যাম্পেইন তৈরি করে রিপোর্ট করুন কতটুকু target, কতটুকু সংগ্রহ।"
+              title={t("empty_title")}
+              body={t("empty_body")}
+              proTip={t("empty_tip")}
             />
           ) : (
             <Card>
@@ -109,11 +112,11 @@ export default async function DonationsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>রশিদ</TableHead>
-                      <TableHead>দাতা</TableHead>
-                      <TableHead>ক্যাম্পেইন</TableHead>
-                      <TableHead>তারিখ</TableHead>
-                      <TableHead className="text-right">amount</TableHead>
+                      <TableHead>{t("col_receipt")}</TableHead>
+                      <TableHead>{t("col_donor")}</TableHead>
+                      <TableHead>{t("col_campaign")}</TableHead>
+                      <TableHead>{t("col_date")}</TableHead>
+                      <TableHead className="text-right">{t("col_amount")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -121,7 +124,7 @@ export default async function DonationsPage() {
                       <TableRow key={d.id}>
                         <TableCell className="font-mono text-xs">{d.receipt_no}</TableCell>
                         <TableCell>
-                          <div>{d.is_anonymous ? <span className="italic text-muted-foreground">নামহীন</span> : d.donor_name ?? "—"}</div>
+                          <div>{d.is_anonymous ? <span className="italic text-muted-foreground">{t("anonymous_donor")}</span> : d.donor_name ?? "—"}</div>
                           {!d.is_anonymous && d.donor_phone ? <div className="text-xs text-muted-foreground">{d.donor_phone}</div> : null}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">{d.donation_campaigns?.title ?? "—"}</TableCell>
@@ -139,13 +142,13 @@ export default async function DonationsPage() {
         <aside className="flex flex-col gap-4">
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-lg font-semibold">নতুন চাঁদা</h2>
+              <h2 className="mb-4 text-lg font-semibold">{t("sidebar_new_donation")}</h2>
               <AddDonationForm campaigns={campaignList.filter((c) => c.status === "active")} schoolSlug={schoolSlug} />
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-lg font-semibold">নতুন ক্যাম্পেইন</h2>
+              <h2 className="mb-4 text-lg font-semibold">{t("sidebar_new_campaign")}</h2>
               <AddCampaignForm  schoolSlug={schoolSlug}/>
             </CardContent>
           </Card>

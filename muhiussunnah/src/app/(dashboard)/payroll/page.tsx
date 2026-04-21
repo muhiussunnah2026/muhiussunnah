@@ -1,4 +1,5 @@
 import { Banknote } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,14 +43,20 @@ export default async function PayrollPage({ searchParams }: PageProps) {
   const totalPayroll = list.reduce((s, r) => s + Number(r.net_amount), 0);
   const paid = list.filter((r) => r.status === "paid").length;
 
+  const t = await getTranslations("payroll");
+
   return (
     <>
       <PageHeader
-        title="বেতন ব্যবস্থাপনা"
-        subtitle={`${month}/${year} · ${list.length.toString()} টি এন্ট্রি · মোট ৳ ${totalPayroll.toLocaleString("en-IN")}`}
+        title={t("page_title")}
+        subtitle={t("page_subtitle", {
+          month, year,
+          count: list.length,
+          total: totalPayroll.toLocaleString("en-IN"),
+        })}
         impact={[
-          { label: <>পরিশোধিত · <BanglaDigit value={paid} /> / <BanglaDigit value={list.length} /></>, tone: "success" },
-          { label: <>মোট · ৳ <BanglaDigit value={totalPayroll.toLocaleString("en-IN")} /></>, tone: "default" },
+          { label: <>{t("impact_paid")} · <BanglaDigit value={paid} /> / <BanglaDigit value={list.length} /></>, tone: "success" },
+          { label: <>{t("impact_total")} · ৳ <BanglaDigit value={totalPayroll.toLocaleString("en-IN")} /></>, tone: "default" },
         ]}
       />
 
@@ -58,9 +65,9 @@ export default async function PayrollPage({ searchParams }: PageProps) {
           {list.length === 0 ? (
             <EmptyState
               icon={<Banknote className="size-8" />}
-              title={`${month}/${year} মাসের কোন এন্ট্রি নেই`}
-              body="ডান পাশ থেকে এই মাসের draft salary তৈরি করুন। প্রতি staff-এর metadata.basic_salary থেকে hisab হবে।"
-              proTip="Staff profile থেকে basic_salary + allowances + deductions সেট করে রাখুন, প্রতি মাসে এক ক্লিকে বেতন তৈরি হবে।"
+              title={t("empty_title", { month, year })}
+              body={t("empty_body")}
+              proTip={t("empty_tip")}
             />
           ) : (
             <Card>
@@ -68,12 +75,12 @@ export default async function PayrollPage({ searchParams }: PageProps) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>নাম</TableHead>
-                      <TableHead className="hidden md:table-cell">ভূমিকা</TableHead>
-                      <TableHead className="text-right">Basic</TableHead>
-                      <TableHead className="text-right">Gross</TableHead>
-                      <TableHead className="text-right">Net</TableHead>
-                      <TableHead>স্ট্যাটাস</TableHead>
+                      <TableHead>{t("col_name")}</TableHead>
+                      <TableHead className="hidden md:table-cell">{t("col_role")}</TableHead>
+                      <TableHead className="text-right">{t("col_basic")}</TableHead>
+                      <TableHead className="text-right">{t("col_gross")}</TableHead>
+                      <TableHead className="text-right">{t("col_net")}</TableHead>
+                      <TableHead>{t("col_status")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -86,7 +93,7 @@ export default async function PayrollPage({ searchParams }: PageProps) {
                         <TableCell className="text-right font-semibold">৳ <BanglaDigit value={Number(r.net_amount).toLocaleString("en-IN")} /></TableCell>
                         <TableCell>
                           {r.status === "paid" ? (
-                            <span className="rounded-full bg-success/10 px-2 py-0.5 text-xs text-success">পরিশোধিত</span>
+                            <span className="rounded-full bg-success/10 px-2 py-0.5 text-xs text-success">{t("status_paid")}</span>
                           ) : (
                             <MarkPaidButton id={r.id} schoolSlug={schoolSlug} />
                           )}

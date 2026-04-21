@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,19 +10,20 @@ import { markSalaryPaidAction } from "@/server/actions/payroll";
 import type { ActionResult } from "@/server/actions/_helpers";
 
 export function MarkPaidButton({ schoolSlug, id }: { schoolSlug: string; id: string }) {
+  const t = useTranslations("payroll");
   const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(markSalaryPaidAction, null);
 
   useEffect(() => {
     if (!state) return;
-    if (state.ok) { toast.success(state.message ?? "সফল"); setOpen(false); }
+    if (state.ok) { toast.success(state.message ?? t("mark_paid_success")); setOpen(false); }
     else toast.error(state.error);
-  }, [state]);
+  }, [state, t]);
 
   if (!open) {
     return (
       <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-        Mark Paid
+        {t("mark_paid_button")}
       </Button>
     );
   }
@@ -34,13 +36,13 @@ export function MarkPaidButton({ schoolSlug, id }: { schoolSlug: string; id: str
       <Select name="payment_method" defaultValue="cash">
         <SelectTrigger className="h-8 w-24"><SelectValue /></SelectTrigger>
         <SelectContent>
-          <SelectItem value="cash">Cash</SelectItem>
-          <SelectItem value="bkash">bKash</SelectItem>
-          <SelectItem value="bank_transfer">Bank</SelectItem>
+          <SelectItem value="cash">{t("mark_paid_cash")}</SelectItem>
+          <SelectItem value="bkash">{t("mark_paid_bkash")}</SelectItem>
+          <SelectItem value="bank_transfer">{t("mark_paid_bank")}</SelectItem>
         </SelectContent>
       </Select>
       <Button type="submit" size="sm" disabled={pending} className="bg-gradient-primary text-white">
-        {pending ? "..." : "✓"}
+        {pending ? t("mark_paid_pending") : "✓"}
       </Button>
       <Button type="button" size="sm" variant="ghost" onClick={() => setOpen(false)}>✕</Button>
     </form>
