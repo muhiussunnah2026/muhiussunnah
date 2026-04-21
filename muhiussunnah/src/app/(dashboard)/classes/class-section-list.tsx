@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
-import { Trash2, Plus, X, Pencil, Check, Info, ChevronDown, ChevronUp } from "lucide-react";
+import { Trash2, Plus, X, Pencil, Check, Info, ChevronDown, ChevronUp, ArrowRight, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -101,22 +102,60 @@ function ClassCard({
         ) : (
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base font-semibold">
-                  {data.name_bn}
-                  {data.name_en ? <span className="ml-1 text-xs text-muted-foreground">({data.name_en})</span> : null}
-                </h3>
-                {/* Student count pill — prominent so admin can scan at a glance */}
-                <span
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Class name — click to see that class's student list */}
+                <Link
+                  href={`/students?class_id=${data.id}`}
+                  className="group/cls inline-flex items-center gap-1.5 text-base font-semibold transition-colors hover:text-primary"
+                  title="এই ক্লাসের সব শিক্ষার্থী দেখুন"
+                >
+                  <span className="underline-offset-4 group-hover/cls:underline">
+                    {data.name_bn}
+                  </span>
+                  {data.name_en ? (
+                    <span className="text-xs font-normal text-muted-foreground">
+                      ({data.name_en})
+                    </span>
+                  ) : null}
+                  <ArrowRight className="size-3.5 opacity-0 -translate-x-1 transition-all group-hover/cls:opacity-100 group-hover/cls:translate-x-0" />
+                </Link>
+
+                {/* Prominent student-count pill — hero stat of the card */}
+                <Link
+                  href={`/students?class_id=${data.id}`}
                   className={
                     classStudentCount > 0
-                      ? "inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary/15 to-accent/15 px-2.5 py-0.5 text-xs font-semibold text-primary"
-                      : "inline-flex items-center gap-1 rounded-full bg-muted/60 px-2.5 py-0.5 text-xs font-medium text-muted-foreground"
+                      ? "group/count inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 px-3 py-1.5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/20"
+                      : "inline-flex items-center gap-1.5 rounded-xl border border-dashed border-border/60 bg-muted/40 px-3 py-1.5"
                   }
-                  title="এই ক্লাসে সক্রিয় শিক্ষার্থী সংখ্যা"
+                  title="এই ক্লাসের সব শিক্ষার্থী দেখুন"
                 >
-                  👥 <BanglaDigit value={classStudentCount} /> ছাত্র/ছাত্রী
-                </span>
+                  <Users
+                    className={
+                      classStudentCount > 0
+                        ? "size-4 text-primary"
+                        : "size-4 text-muted-foreground/60"
+                    }
+                  />
+                  <span
+                    className={
+                      classStudentCount > 0
+                        ? "text-lg font-extrabold tabular-nums bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent"
+                        : "text-lg font-bold tabular-nums text-muted-foreground"
+                    }
+                  >
+                    <BanglaDigit value={classStudentCount} />
+                  </span>
+                  <span
+                    className={
+                      classStudentCount > 0
+                        ? "text-[11px] font-medium uppercase tracking-wider text-primary/80"
+                        : "text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
+                    }
+                  >
+                    ছাত্র/ছাত্রী
+                  </span>
+                </Link>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
                 স্ট্রিম: {streamLabel[data.stream] ?? data.stream}
@@ -172,7 +211,12 @@ function ClassCard({
                 {data.sections.map((s) => {
                   const n = sectionStudentCounts[s.id] ?? 0;
                   return (
-                    <span key={s.id} className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-3 py-1 text-xs">
+                    <Link
+                      key={s.id}
+                      href={`/students?section_id=${s.id}`}
+                      className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-3 py-1 text-xs transition hover:border-primary/40 hover:bg-primary/5"
+                      title="এই সেকশনের শিক্ষার্থী দেখুন"
+                    >
                       <span className="font-medium">{s.name}</span>
                       <span className="text-muted-foreground">
                         · <BanglaDigit value={n} /> জন
@@ -182,7 +226,7 @@ function ClassCard({
                           / <BanglaDigit value={s.capacity} />
                         </span>
                       ) : null}
-                    </span>
+                    </Link>
                   );
                 })}
               </div>
