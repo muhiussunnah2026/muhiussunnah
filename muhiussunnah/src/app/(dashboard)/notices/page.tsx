@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Megaphone, Plus } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -10,18 +11,18 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 
-const audienceLabel: Record<string, string> = {
-  all: "সবাই", staff: "স্টাফ", teachers: "শিক্ষক", students: "ছাত্র",
-  parents: "অভিভাবক", class: "ক্লাস", section: "সেকশন", individual: "নির্দিষ্ট",
-};
-
 export default async function NoticesListPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
+  const t = await getTranslations("notices");
+
+  const audienceLabel: Record<string, string> = {
+    all: t("aud_all"), staff: t("aud_staff"), teachers: t("aud_teachers"), students: t("aud_students"),
+    parents: t("aud_parents"), class: t("aud_class"), section: t("aud_section"), individual: t("aud_individual"),
+  };
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
 
-  // Independent — notices by school_id, school by membership.school_id (known pre-query).
   const [noticesRes, schoolRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -47,25 +48,24 @@ export default async function NoticesListPage() {
 
   const sent = list.filter((n) => n.sent_at).length;
   const scheduled = list.filter((n) => n.scheduled_for && !n.sent_at).length;
-
   const balance = Number(school?.sms_credit_balance_bdt ?? 0);
 
   return (
     <>
       <PageHeader
-        title="নোটিশ ব্যবস্থাপনা"
-        subtitle="এক ক্লিকে SMS + WhatsApp + App + Email — একসাথে ৫০০+ অভিভাবকে ১০ সেকেন্ডে পৌঁছান।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <>পাঠান ো · <BanglaDigit value={sent} /></>, tone: "success" },
-          { label: <>নির্ধারিত · <BanglaDigit value={scheduled} /></>, tone: "accent" },
-          { label: <>SMS ক্রেডিট · ৳ <BanglaDigit value={balance.toLocaleString("en-IN")} /></>, tone: balance > 100 ? "default" : "warning" },
+          { label: <>{t("tally_sent")} · <BanglaDigit value={sent} /></>, tone: "success" },
+          { label: <>{t("tally_scheduled")} · <BanglaDigit value={scheduled} /></>, tone: "accent" },
+          { label: <>{t("tally_sms_balance")} · ৳ <BanglaDigit value={balance.toLocaleString("en-IN")} /></>, tone: balance > 100 ? "default" : "warning" },
         ]}
         actions={
           <Link
             href={`/notices/new`}
             className={buttonVariants({ size: "sm", className: "bg-gradient-primary text-white" })}
           >
-            <Plus className="me-1 size-3.5" /> নতুন নোটিশ
+            <Plus className="me-1 size-3.5" /> {t("new_cta")}
           </Link>
         }
       />
@@ -73,14 +73,14 @@ export default async function NoticesListPage() {
       {list.length === 0 ? (
         <EmptyState
           icon={<Megaphone className="size-8" />}
-          title="📢 প্রথম নোটিশ পাঠান"
-          body="এক ফর্মে লিখুন, তারপর SMS + WhatsApp + App-এ একসাথে পাঠান। প্রতিটি চ্যানেলের cost live দেখাবে।"
+          title={t("empty_title")}
+          body={t("empty_body")}
           primaryAction={
             <Link href={`/notices/new`} className={buttonVariants({ className: "bg-gradient-primary text-white" })}>
-              নতুন নোটিশ তৈরি
+              {t("empty_primary")}
             </Link>
           }
-          proTip="SMS ক্রেডিট শেষ হলে শুধু in-app + push পাঠানো যাবে। Super admin থেকে topup করুন।"
+          proTip={t("empty_tip")}
         />
       ) : (
         <div className="grid gap-3">
@@ -102,11 +102,11 @@ export default async function NoticesListPage() {
                   <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{n.body}</p>
                   <div className="mt-2 text-xs text-muted-foreground">
                     {n.sent_at ? (
-                      <>✓ পাঠান ো হয়েছে · <BengaliDate value={n.sent_at} /></>
+                      <>{t("status_sent_prefix")} · <BengaliDate value={n.sent_at} /></>
                     ) : n.scheduled_for ? (
-                      <>📅 নির্ধারিত · <BengaliDate value={n.scheduled_for} /></>
+                      <>{t("status_scheduled_prefix")} · <BengaliDate value={n.scheduled_for} /></>
                     ) : (
-                      <>Draft</>
+                      <>{t("status_draft")}</>
                     )}
                   </div>
                 </div>

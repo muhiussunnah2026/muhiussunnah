@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,17 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { saveSmsTemplateAction } from "@/server/actions/sms-templates";
 
-const categories = [
-  { value: "fee_reminder", label: "ফি রিমাইন্ডার" },
-  { value: "absent_alert", label: "অনুপস্থিতি সতর্কতা" },
-  { value: "exam_reminder", label: "পরীক্ষার রিমাইন্ডার" },
-  { value: "result_announce", label: "রেজাল্ট ঘোষণা" },
-  { value: "holiday", label: "ছুটির নোটিশ" },
-  { value: "general", label: "সাধারণ" },
-  { value: "custom", label: "কাস্টম" },
-];
-
 export function TemplateForm({ schoolSlug, schoolName }: { schoolSlug: string; schoolName: string }) {
+  const t = useTranslations("messaging");
   const [state, action, pending] = useActionState(saveSmsTemplateAction, null);
   const ref = useRef<HTMLFormElement>(null);
   const [body, setBody] = useState("");
@@ -28,10 +20,21 @@ export function TemplateForm({ schoolSlug, schoolName }: { schoolSlug: string; s
   const [aiLoading, setAiLoading] = useState(false);
   const [aiUsed, setAiUsed] = useState(false);
 
+  const categories = [
+    { value: "fee_reminder", label: t("tpl_form_cat_fee_reminder") },
+    { value: "absent_alert", label: t("tpl_form_cat_absent_alert") },
+    { value: "exam_reminder", label: t("tpl_form_cat_exam_reminder") },
+    { value: "result_announce", label: t("tpl_form_cat_result_announce") },
+    { value: "holiday", label: t("tpl_form_cat_holiday") },
+    { value: "general", label: t("tpl_form_cat_general") },
+    { value: "custom", label: t("tpl_form_cat_custom") },
+  ];
+
   useEffect(() => {
     if (!state) return;
-    if (state.ok) { toast.success(state.message ?? "সেভ হয়েছে।"); ref.current?.reset(); setBody(""); setContext(""); setAiUsed(false); }
+    if (state.ok) { toast.success(state.message ?? t("tpl_form_saved")); ref.current?.reset(); setBody(""); setContext(""); setAiUsed(false); }
     else toast.error(state.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   async function generate() {
@@ -46,12 +49,12 @@ export function TemplateForm({ schoolSlug, schoolName }: { schoolSlug: string; s
       if (data.ok && data.body) {
         setBody(data.body);
         setAiUsed(!!data.ai);
-        toast.success(data.ai ? "AI টেমপ্লেট তৈরি হয়েছে" : "টেমপ্লেট প্রস্তাবিত (AI নেই — fallback ব্যবহার)");
+        toast.success(data.ai ? t("tpl_form_gen_ok") : t("tpl_form_gen_fallback"));
       } else {
-        toast.error(data.error ?? "তৈরি করা যায়নি");
+        toast.error(data.error ?? t("tpl_form_gen_failed"));
       }
     } catch {
-      toast.error("নেটওয়ার্ক ত্রুটি");
+      toast.error(t("tpl_form_net_error"));
     } finally {
       setAiLoading(false);
     }
@@ -63,12 +66,12 @@ export function TemplateForm({ schoolSlug, schoolName }: { schoolSlug: string; s
       <input type="hidden" name="is_ai_generated" value={aiUsed ? "true" : "false"} />
 
       <div>
-        <Label>টেমপ্লেট নাম *</Label>
-        <Input name="name" placeholder="যেমন: জানুয়ারি ফি রিমাইন্ডার" required />
+        <Label>{t("tpl_form_name_label")}</Label>
+        <Input name="name" placeholder={t("tpl_form_name_placeholder")} required />
       </div>
 
       <div>
-        <Label>ক্যাটাগরি *</Label>
+        <Label>{t("tpl_form_cat_label")}</Label>
         <select
           name="category"
           value={category}
@@ -80,42 +83,42 @@ export function TemplateForm({ schoolSlug, schoolName }: { schoolSlug: string; s
       </div>
 
       <div>
-        <Label>AI জন্য অতিরিক্ত context (optional)</Label>
+        <Label>{t("tpl_form_ctx_label")}</Label>
         <Input
           value={context}
           onChange={(e) => setContext(e.target.value)}
-          placeholder="যেমন: মাদ্রাসার জন্য, ইসলামিক টোন"
+          placeholder={t("tpl_form_ctx_placeholder")}
         />
       </div>
 
       <Button type="button" variant="outline" size="sm" disabled={aiLoading} onClick={generate} className="w-full">
         <Sparkles className="me-1.5 size-4" />
-        {aiLoading ? "তৈরি হচ্ছে..." : "AI দিয়ে টেমপ্লেট তৈরি করুন"}
+        {aiLoading ? t("tpl_form_generating") : t("tpl_form_gen_cta")}
       </Button>
 
       <div>
-        <Label>টেমপ্লেট বডি *</Label>
+        <Label>{t("tpl_form_body_label")}</Label>
         <Textarea
           name="body"
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          placeholder="{{student_name}}, {{amount}} — এই ভাবে variable ব্যবহার করুন"
+          placeholder={t("tpl_form_body_placeholder")}
           rows={4}
           required
         />
-        <p className="text-xs text-muted-foreground mt-1">দৈর্ঘ্য: {body.length} অক্ষর (160-এর মধ্যে রাখুন)</p>
+        <p className="text-xs text-muted-foreground mt-1">{t("tpl_form_body_help", { count: body.length })}</p>
       </div>
 
       <div>
-        <Label>ভাষা</Label>
+        <Label>{t("tpl_form_lang_label")}</Label>
         <select name="language" defaultValue="bn" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-          <option value="bn">বাংলা</option>
-          <option value="en">English</option>
+          <option value="bn">{t("tpl_form_lang_bn")}</option>
+          <option value="en">{t("tpl_form_lang_en")}</option>
         </select>
       </div>
 
       <Button type="submit" disabled={pending} className="w-full">
-        {pending ? "সেভ হচ্ছে..." : "টেমপ্লেট সেভ করুন"}
+        {pending ? t("tpl_form_saving") : t("tpl_form_save_cta")}
       </Button>
     </form>
   );

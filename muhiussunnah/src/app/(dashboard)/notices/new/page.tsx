@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,11 +11,11 @@ import { NoticeComposer } from "./composer";
 
 export default async function NewNoticePage() {
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
+  const t = await getTranslations("notices");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
 
-  // Independent — classes by school_id, school by id.
   const [classesRes, schoolRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -39,11 +40,11 @@ export default async function NewNoticePage() {
       <PageHeader
         breadcrumbs={
           <Link href={`/notices`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> নোটিশ তালিকা
+            <ArrowLeft className="size-3.5" /> {t("new_back")}
           </Link>
         }
-        title="নতুন নোটিশ তৈরি করুন"
-        subtitle="এক ক্লিকে SMS + WhatsApp + App notification + Email পাঠান। Live cost estimate পান, যে পর্যন্ত পাঠান ো হয়নি ততক্ষণ edit করা যাবে।"
+        title={t("new_title")}
+        subtitle={t("new_subtitle")}
       />
 
       <Card>

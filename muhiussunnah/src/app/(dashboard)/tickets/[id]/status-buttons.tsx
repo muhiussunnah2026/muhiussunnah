@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { updateTicketStatusAction } from "@/server/actions/support";
@@ -8,21 +9,23 @@ import type { ActionResult } from "@/server/actions/_helpers";
 
 type Props = { schoolSlug: string; ticketId: string; currentStatus: string };
 
-const statuses: { value: string; label: string; variant?: "default" | "outline" | "secondary" }[] = [
-  { value: "open", label: "খোলা", variant: "outline" },
-  { value: "in_progress", label: "চলমান", variant: "outline" },
-  { value: "waiting", label: "অপেক্ষমান", variant: "outline" },
-  { value: "resolved", label: "সমাধান", variant: "default" },
-  { value: "closed", label: "বন্ধ", variant: "secondary" },
-];
-
 export function StatusButtons({ schoolSlug, ticketId, currentStatus }: Props) {
+  const t = useTranslations("tickets");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(updateTicketStatusAction, null);
+
+  const statuses: { value: string; label: string }[] = [
+    { value: "open", label: t("status_open") },
+    { value: "in_progress", label: t("status_in_progress") },
+    { value: "waiting", label: t("status_waiting") },
+    { value: "resolved", label: t("status_resolved") },
+    { value: "closed", label: t("status_closed") },
+  ];
 
   useEffect(() => {
     if (!state) return;
-    if (state.ok) toast.success(state.message ?? "আপডেট");
+    if (state.ok) toast.success(state.message ?? t("status_updated"));
     else toast.error(state.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   return (

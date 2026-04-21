@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { MetricCard } from "@/components/ui/metric-card";
@@ -10,12 +11,12 @@ import { ADMIN_ROLES } from "@/lib/auth/roles";
 
 export default async function MessagingReportPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
+  const t = await getTranslations("messaging");
 
   const schoolSlug = membership.school_slug;
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   const supabase = await supabaseServer();
-  // All five independent — logs + topups by school_id, school by id.
   const [smsLogsRes, whatsappLogsRes, pushLogsRes, schoolRes, topupsRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -72,41 +73,41 @@ export default async function MessagingReportPage() {
   return (
     <>
       <PageHeader
-        title="মেসেজিং রিপোর্ট"
-        subtitle="সর্বশেষ ৩০ দিনের SMS / WhatsApp / Push ব্যবহার। SMS ক্রেডিট ব্যালেন্স শেষ হওয়ার আগেই topup করে রাখুন।"
+        title={t("report_title")}
+        subtitle={t("report_subtitle")}
         impact={[
-          { label: <>SMS ক্রেডিট · ৳ <BanglaDigit value={Number(school?.sms_credit_balance_bdt ?? 0).toLocaleString("en-IN")} /></>, tone: Number(school?.sms_credit_balance_bdt ?? 0) > 100 ? "success" : "warning" },
-          { label: <>SMS খরচ ৩০ দিনে · ৳ <BanglaDigit value={smsCost.toFixed(2)} /></>, tone: "default" },
+          { label: <>{t("report_sms_balance")} · ৳ <BanglaDigit value={Number(school?.sms_credit_balance_bdt ?? 0).toLocaleString("en-IN")} /></>, tone: Number(school?.sms_credit_balance_bdt ?? 0) > 100 ? "success" : "warning" },
+          { label: <>{t("report_sms_cost_30d")} · ৳ <BanglaDigit value={smsCost.toFixed(2)} /></>, tone: "default" },
         ]}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard label="SMS পাঠান ো" value={smsSent} trendLabel={smsFailed > 0 ? `${smsFailed} ব্যর্থ` : "সব সফল"} />
-        <MetricCard label="WhatsApp" value={waSent} trendLabel={`৳ ${waCost.toFixed(2)} খরচ`} />
-        <MetricCard label="Push notifications" value={pushSent} />
-        <MetricCard label="মোট মেসেজ" value={smsSent + waSent + pushSent} tone="accent" />
+        <MetricCard label={t("metric_sms_sent")} value={smsSent} trendLabel={smsFailed > 0 ? t("metric_sms_failed", { count: smsFailed }) : t("metric_sms_all_ok")} />
+        <MetricCard label={t("metric_whatsapp")} value={waSent} trendLabel={t("metric_whatsapp_cost", { cost: waCost.toFixed(2) })} />
+        <MetricCard label={t("metric_push")} value={pushSent} />
+        <MetricCard label={t("metric_total")} value={smsSent + waSent + pushSent} tone="accent" />
       </div>
 
       {topupList.length > 0 ? (
         <Card className="mt-6">
           <CardContent className="p-5">
-            <h3 className="mb-3 text-sm font-semibold text-muted-foreground">সাম্প্রতিক SMS ক্রেডিট topup</h3>
+            <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("topup_heading")}</h3>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>তারিখ</TableHead>
-                  <TableHead>পদ্ধতি</TableHead>
-                  <TableHead className="text-right">amount</TableHead>
-                  <TableHead className="text-right">balance after</TableHead>
+                  <TableHead>{t("topup_col_date")}</TableHead>
+                  <TableHead>{t("topup_col_method")}</TableHead>
+                  <TableHead className="text-right">{t("topup_col_amount")}</TableHead>
+                  <TableHead className="text-right">{t("topup_col_balance_after")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {topupList.map((t, i) => (
+                {topupList.map((row, i) => (
                   <TableRow key={i}>
-                    <TableCell className="text-xs"><BengaliDate value={t.created_at} /></TableCell>
-                    <TableCell className="text-xs"><span className="rounded-full bg-muted px-2 py-0.5">{t.method}</span></TableCell>
-                    <TableCell className="text-right">৳ <BanglaDigit value={Number(t.amount_bdt).toLocaleString("en-IN")} /></TableCell>
-                    <TableCell className="text-right font-medium">৳ <BanglaDigit value={Number(t.balance_after).toLocaleString("en-IN")} /></TableCell>
+                    <TableCell className="text-xs"><BengaliDate value={row.created_at} /></TableCell>
+                    <TableCell className="text-xs"><span className="rounded-full bg-muted px-2 py-0.5">{row.method}</span></TableCell>
+                    <TableCell className="text-right">৳ <BanglaDigit value={Number(row.amount_bdt).toLocaleString("en-IN")} /></TableCell>
+                    <TableCell className="text-right font-medium">৳ <BanglaDigit value={Number(row.balance_after).toLocaleString("en-IN")} /></TableCell>
                   </TableRow>
                 ))}
               </TableBody>

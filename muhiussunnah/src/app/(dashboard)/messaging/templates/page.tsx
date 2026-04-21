@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { MessageSquare, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -10,19 +11,20 @@ import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { TemplateForm } from "./template-form";
 import { DeleteTemplateButton } from "./delete-template-button";
 
-const categoryLabel = (c: string | null) =>
-  ({
-    fee_reminder: "ফি রিমাইন্ডার",
-    absent_alert: "অনুপস্থিতি",
-    exam_reminder: "পরীক্ষা",
-    result_announce: "রেজাল্ট",
-    holiday: "ছুটি",
-    general: "সাধারণ",
-    custom: "কাস্টম",
-  }[c ?? "general"] ?? "সাধারণ");
-
 export default async function SmsTemplatesPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES]);
+  const t = await getTranslations("messaging");
+
+  const categoryLabel = (c: string | null) =>
+    ({
+      fee_reminder: t("tpl_cat_fee_reminder"),
+      absent_alert: t("tpl_cat_absent_alert"),
+      exam_reminder: t("tpl_cat_exam_reminder"),
+      result_announce: t("tpl_cat_result_announce"),
+      holiday: t("tpl_cat_holiday"),
+      general: t("tpl_cat_general"),
+      custom: t("tpl_cat_custom"),
+    }[c ?? "general"] ?? t("tpl_cat_general"));
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
@@ -46,16 +48,16 @@ export default async function SmsTemplatesPage() {
     created_at: string;
   };
   const list = (templates ?? []) as Row[];
-  const aiCount = list.filter((t) => t.is_ai_generated).length;
+  const aiCount = list.filter((tpl) => tpl.is_ai_generated).length;
 
   return (
     <>
       <PageHeader
-        title="SMS টেমপ্লেট"
-        subtitle="পুনরায় ব্যবহারযোগ্য SMS টেমপ্লেট — AI দিয়ে তৈরি করুন, variables দিয়ে personalize করুন, নোটিশ কম্পোজারে ব্যবহার করুন।"
+        title={t("tpl_title")}
+        subtitle={t("tpl_subtitle")}
         impact={[
-          { label: <><BanglaDigit value={list.length} /> টেমপ্লেট</>, tone: "default" },
-          ...(aiCount > 0 ? [{ label: <><Sparkles className="me-1 inline size-3" /> <BanglaDigit value={aiCount} /> AI-তৈরি</>, tone: "accent" as const }] : []),
+          { label: <><BanglaDigit value={list.length} /> {t("tpl_count_suffix")}</>, tone: "default" },
+          ...(aiCount > 0 ? [{ label: <><Sparkles className="me-1 inline size-3" /> <BanglaDigit value={aiCount} /> {t("tpl_ai_count")}</>, tone: "accent" as const }] : []),
         ]}
       />
 
@@ -64,40 +66,40 @@ export default async function SmsTemplatesPage() {
           {list.length === 0 ? (
             <EmptyState
               icon={<MessageSquare className="size-8" />}
-              title="এখনো কোন টেমপ্লেট নেই"
-              body="ডান পাশের ফর্ম থেকে প্রথম টেমপ্লেট তৈরি করুন। AI অপশন ব্যবহার করে সেকেন্ডে পেশাদার কপি পাবেন।"
-              proTip="variable placeholder হিসেবে {{student_name}}, {{amount}}, {{month}} ব্যবহার করুন — নোটিশ পাঠানোর সময় auto-fill হবে।"
+              title={t("tpl_empty_title")}
+              body={t("tpl_empty_body")}
+              proTip={t("tpl_empty_tip")}
             />
           ) : (
             <div className="space-y-3">
-              {list.map((t) => (
-                <Card key={t.id}>
+              {list.map((tpl) => (
+                <Card key={tpl.id}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-semibold">{t.name}</h3>
-                          <Badge variant="outline" className="text-xs">{categoryLabel(t.category)}</Badge>
-                          <Badge variant="secondary" className="text-xs">{t.language.toUpperCase()}</Badge>
-                          {t.is_ai_generated && (
+                          <h3 className="font-semibold">{tpl.name}</h3>
+                          <Badge variant="outline" className="text-xs">{categoryLabel(tpl.category)}</Badge>
+                          <Badge variant="secondary" className="text-xs">{tpl.language.toUpperCase()}</Badge>
+                          {tpl.is_ai_generated && (
                             <Badge className="text-xs bg-gradient-primary text-white">
                               <Sparkles className="me-1 size-3" />AI
                             </Badge>
                           )}
-                          {t.use_count > 0 && (
+                          {tpl.use_count > 0 && (
                             <Badge variant="secondary" className="text-xs">
-                              <BanglaDigit value={t.use_count} /> বার ব্যবহৃত
+                              {t("tpl_use_count", { count: tpl.use_count })}
                             </Badge>
                           )}
                         </div>
-                        <p className="mt-2 text-sm whitespace-pre-wrap rounded-md bg-muted/50 p-2">{t.body}</p>
-                        {t.variables.length > 0 && (
+                        <p className="mt-2 text-sm whitespace-pre-wrap rounded-md bg-muted/50 p-2">{tpl.body}</p>
+                        {tpl.variables.length > 0 && (
                           <p className="mt-2 text-xs text-muted-foreground">
-                            Variables: {t.variables.map((v) => <code key={v} className="mx-0.5 rounded bg-muted px-1 py-0.5">{`{{${v}}}`}</code>)}
+                            Variables: {tpl.variables.map((v) => <code key={v} className="mx-0.5 rounded bg-muted px-1 py-0.5">{`{{${v}}}`}</code>)}
                           </p>
                         )}
                       </div>
-                      <DeleteTemplateButton id={t.id} schoolSlug={schoolSlug} />
+                      <DeleteTemplateButton id={tpl.id} schoolSlug={schoolSlug} />
                     </div>
                   </CardContent>
                 </Card>
@@ -109,7 +111,7 @@ export default async function SmsTemplatesPage() {
         <aside>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-base font-semibold">নতুন টেমপ্লেট</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("tpl_new_heading")}</h2>
               <TemplateForm
                 schoolName={membership.school_name_bn ?? membership.school_name_en ?? ""} schoolSlug={schoolSlug}
               />

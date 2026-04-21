@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,10 +17,10 @@ type PageProps = { params: Promise<{ id: string }> };
 export default async function TicketDetailPage({ params }: PageProps) {
   const { id } = await params;
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
+  const t = await getTranslations("tickets");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
-  // Independent queries — ticket + its messages both keyed off the ticket id.
   const [ticketRes, messagesRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -46,11 +47,11 @@ export default async function TicketDetailPage({ params }: PageProps) {
       <PageHeader
         breadcrumbs={
           <Link href={`/tickets`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> টিকেট তালিকা
+            <ArrowLeft className="size-3.5" /> {t("detail_back")}
           </Link>
         }
         title={ticket.subject}
-        subtitle={<>Priority: {ticket.priority} · Status: {ticket.status} · <BengaliDate value={ticket.created_at} /></>}
+        subtitle={<>{t("detail_priority")}: {ticket.priority} · {t("detail_status")}: {ticket.status} · <BengaliDate value={ticket.created_at} /></>}
       />
 
       <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
@@ -58,7 +59,7 @@ export default async function TicketDetailPage({ params }: PageProps) {
           <Card>
             <CardContent className="p-5">
               <div className="mb-3 text-xs text-muted-foreground">
-                প্রাথমিক বিবরণ
+                {t("detail_initial")}
               </div>
               <p className="whitespace-pre-line text-sm">{ticket.body}</p>
               <p className="mt-3 text-xs text-muted-foreground">
@@ -85,7 +86,7 @@ export default async function TicketDetailPage({ params }: PageProps) {
 
           <Card>
             <CardContent className="p-5">
-              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">উত্তর</h3>
+              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("detail_reply_heading")}</h3>
               <ReplyForm ticketId={id} schoolSlug={schoolSlug} />
             </CardContent>
           </Card>
@@ -94,7 +95,7 @@ export default async function TicketDetailPage({ params }: PageProps) {
         <aside>
           <Card>
             <CardContent className="p-5">
-              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">স্ট্যাটাস</h3>
+              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("detail_status_heading")}</h3>
               <StatusButtons ticketId={id} currentStatus={ticket.status} schoolSlug={schoolSlug} />
             </CardContent>
           </Card>
