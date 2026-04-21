@@ -64,13 +64,24 @@ export async function DashboardShell({
   const cookieLocale = jar.get(localeCookieName)?.value;
   const locale: Locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
 
-  // Build the visible header lines. Each field gets its own row so
-  // address/phone/website don't turn into one cramped string.
+  // Build the visible header lines.
   const visibleFields = (headerFields ?? []).filter(
     (f) => typeof f.value === "string" && f.value.trim().length > 0,
   );
   const primary = visibleFields.find((f) => f.emphasis !== "secondary");
   const secondary = visibleFields.filter((f) => f !== primary);
+
+  // Labels for secondary fields so address/phone/email read like a
+  // proper letterhead instead of "A · B · C" run-together.
+  const fieldLabels: Record<string, string> = {
+    address: "Address",
+    phone: "Phone",
+    email: "Email",
+    website: "Website",
+    name_en: "",
+    name_ar: "",
+    name_bn: "",
+  };
 
   return (
     <SidebarProvider>
@@ -135,23 +146,38 @@ export async function DashboardShell({
             {visibleFields.length > 0 ? (
               <>
                 {primary ? (
-                  <h1 className="truncate text-lg font-extrabold tracking-tight leading-tight md:text-2xl lg:text-3xl bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent">
+                  <h1 className="text-base font-extrabold tracking-tight leading-[1.2] md:text-xl lg:text-2xl bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent break-words">
                     {primary.value}
                   </h1>
                 ) : null}
                 {secondary.length > 0 ? (
-                  <p className="truncate text-xs md:text-sm text-muted-foreground leading-snug mt-0.5">
-                    {secondary.map((f) => f.value).join(" · ")}
-                  </p>
+                  <div className="mt-1 flex flex-wrap justify-center items-center gap-x-3 gap-y-0.5 text-[11px] md:text-xs text-muted-foreground leading-snug">
+                    {secondary.map((f, i) => {
+                      const label = fieldLabels[f.key];
+                      return (
+                        <span key={f.key} className="inline-flex items-baseline gap-1">
+                          {label ? (
+                            <span className="font-semibold text-foreground/70">{label}:</span>
+                          ) : null}
+                          <span className="break-all">{f.value}</span>
+                          {i < secondary.length - 1 ? (
+                            <span className="text-muted-foreground/40" aria-hidden>
+                              ·
+                            </span>
+                          ) : null}
+                        </span>
+                      );
+                    })}
+                  </div>
                 ) : null}
               </>
             ) : (
               <>
-                <h1 className="truncate text-lg font-extrabold tracking-tight leading-tight md:text-2xl lg:text-3xl bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent">
+                <h1 className="text-base font-extrabold tracking-tight leading-[1.2] md:text-xl lg:text-2xl bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent break-words">
                   {title}
                 </h1>
                 {subtitle ? (
-                  <p className="truncate text-xs md:text-sm text-muted-foreground leading-tight">
+                  <p className="mt-1 text-[11px] md:text-xs text-muted-foreground leading-snug">
                     {subtitle}
                   </p>
                 ) : null}

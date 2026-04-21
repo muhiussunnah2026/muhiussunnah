@@ -2,28 +2,17 @@ import Link from "next/link";
 import { FileSpreadsheet, UserPlus, Users2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { ensureDefaultSections } from "@/lib/schools/self-heal";
 import { StudentsFilters } from "./filters";
-import { StudentRowActions } from "./row-actions";
+import { StudentsTable } from "./students-table";
 
 type PageProps = {
   searchParams: Promise<{ class_id?: string; section_id?: string; status?: string; q?: string }>;
-};
-
-const statusLabel: Record<string, string> = {
-  active: "সক্রিয়",
-  transferred: "বদলি হয়েছে",
-  passed_out: "পাশ করেছে",
-  dropped: "বাদ",
-  suspended: "স্থগিত",
 };
 
 export default async function StudentsListPage({ searchParams }: PageProps) {
@@ -144,71 +133,11 @@ export default async function StudentsListPage({ searchParams }: PageProps) {
           proTip="Excel template ডাউনলোড করে পূরণ করে upload করলে পুর ো ক্লাসের ডেটা মুহূর্তে ঢুকে যাবে।"
         />
       ) : (
-        <Card className="mt-4">
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ছাত্র/ছাত্রী</TableHead>
-                  <TableHead className="hidden md:table-cell">কোড</TableHead>
-                  <TableHead className="hidden md:table-cell">ক্লাস</TableHead>
-                  <TableHead className="hidden lg:table-cell">অভিভাবক</TableHead>
-                  <TableHead className="hidden md:table-cell">স্ট্যাটাস</TableHead>
-                  <TableHead className="text-end">কার্যক্রম</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {students.map((s) => (
-                  <TableRow key={s.id} className="cursor-pointer">
-                    <TableCell>
-                      <Link href={`/students/${s.id}`} className="flex items-center gap-3 hover:underline-offset-4 hover:underline">
-                        <Avatar className="size-8">
-                          {s.photo_url ? <AvatarImage src={s.photo_url} alt={s.name_bn} /> : null}
-                          <AvatarFallback className="bg-primary/10 text-xs text-primary">
-                            {s.name_bn.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{s.name_bn}</div>
-                          {s.roll ? (
-                            <div className="text-xs text-muted-foreground">
-                              রোল: <BanglaDigit value={s.roll} />
-                            </div>
-                          ) : null}
-                        </div>
-                      </Link>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell font-mono text-xs">{s.student_code}</TableCell>
-                    <TableCell className="hidden md:table-cell text-sm">
-                      {s.sections ? (
-                        <span>{s.sections.classes.name_bn} — {s.sections.name}</span>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell text-xs text-muted-foreground">
-                      {s.guardian_phone ?? "—"}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <span className={`rounded-full px-2 py-0.5 text-xs ${
-                        s.status === "active" ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
-                      }`}>
-                        {statusLabel[s.status] ?? s.status}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-end">
-                      <StudentRowActions
-                        schoolSlug={schoolSlug}
-                        studentId={s.id}
-                        studentName={s.name_bn}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <StudentsTable
+          students={students}
+          schoolSlug={schoolSlug}
+          schoolName={membership.school_name_bn}
+        />
       )}
     </>
   );

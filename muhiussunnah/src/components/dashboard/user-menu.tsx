@@ -45,7 +45,7 @@ export function UserMenu({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="group/user flex cursor-pointer items-center gap-2 rounded-full border border-border/60 bg-card/70 px-1.5 py-1 pe-3 backdrop-blur transition-all hover:border-primary/40 hover:bg-primary/5 hover:shadow-md hover:shadow-primary/10">
+      <DropdownMenuTrigger className="group/user flex cursor-pointer items-center gap-2 rounded-full border border-primary/25 bg-gradient-to-br from-primary/10 via-card to-accent/10 px-1.5 py-1 pe-3 shadow-sm shadow-primary/10 backdrop-blur transition-all hover:border-primary/50 hover:from-primary/20 hover:to-accent/20 hover:shadow-md hover:shadow-primary/20 data-[popup-open]:border-primary/60 data-[popup-open]:from-primary/25 data-[popup-open]:to-accent/20 data-[popup-open]:shadow-md">
         <span className="relative inline-flex size-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary/20 to-accent/20 ring-2 ring-background">
           {photoUrl ? (
             <Image
