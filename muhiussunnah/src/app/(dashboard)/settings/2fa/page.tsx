@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -9,6 +10,7 @@ import { TwoFactorSetup } from "./setup-client";
 
 export default async function TwoFactorPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT", "CLASS_TEACHER", "SUBJECT_TEACHER"]);
+  const t = await getTranslations("settings");
   const schoolSlug = membership.school_slug;
   const session = await getSession(schoolSlug);
   if (!session) return null;
@@ -26,11 +28,11 @@ export default async function TwoFactorPage() {
       <PageHeader
         breadcrumbs={
           <Link href={`/settings`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> সেটিংস
+            <ArrowLeft className="size-3.5" /> {t("twofa_back")}
           </Link>
         }
-        title="দুই-স্তর প্রমাণীকরণ (2FA)"
-        subtitle="আপনার অ্যাকাউন্টে বাড়তি সুরক্ষা — প্রতিবার লগইনে Authenticator app থেকে ৬-ডিজিট কোড দিতে হবে।"
+        title={t("twofa_title")}
+        subtitle={t("twofa_subtitle")}
       />
 
       <div className="max-w-2xl">

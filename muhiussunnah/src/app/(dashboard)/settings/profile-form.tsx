@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { toast } from "sonner";
 import { Camera, Lock, Mail, Upload, User, X } from "lucide-react";
@@ -26,7 +27,15 @@ type Props = {
 type Tab = "photo" | "name" | "email" | "password";
 
 export function ProfileForm({ schoolSlug, currentEmail, currentFullName, currentPhotoUrl }: Props) {
+  const t = useTranslations("settings");
   const [tab, setTab] = useState<Tab>("photo");
+
+  const labels: Record<Tab, string> = {
+    photo: t("profile_tab_photo"),
+    name: t("profile_tab_name"),
+    email: t("profile_tab_email"),
+    password: t("profile_tab_password"),
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -47,7 +56,7 @@ export function ProfileForm({ schoolSlug, currentEmail, currentFullName, current
             {k === "name" ? <User className="size-3.5" /> : null}
             {k === "email" ? <Mail className="size-3.5" /> : null}
             {k === "password" ? <Lock className="size-3.5" /> : null}
-            {k === "photo" ? "ছবি" : k === "name" ? "নাম" : k === "email" ? "ইমেইল" : "পাসওয়ার্ড"}
+            {labels[k]}
           </button>
         ))}
       </div>
@@ -75,33 +84,35 @@ function PhotoForm({
   current: string | null;
   name: string;
 }) {
+  const t = useTranslations("settings");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(
     updateProfilePhotoAction,
     null,
   );
   const [preview, setPreview] = useState<string | null>(current);
-  const [dataUrl, setDataUrl] = useState<string>(""); // "" | dataUrl | "__REMOVE__"
+  const [dataUrl, setDataUrl] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!state) return;
     if (state.ok) {
-      toast.success(state.message ?? "ছবি আপডেট হয়েছে");
-      setDataUrl(""); // reset so subsequent saves don't re-submit the same payload
+      toast.success(state.message ?? t("profile_photo_updated"));
+      setDataUrl("");
     } else {
       toast.error(state.error);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      toast.error("শুধু ছবি নির্বাচন করুন।");
+      toast.error(t("profile_photo_image_only"));
       return;
     }
     if (file.size > 500 * 1024) {
-      toast.error("ছবি ৫০০ KB এর বেশি হতে পারে না।");
+      toast.error(t("profile_photo_size_error"));
       return;
     }
     const reader = new FileReader();
@@ -127,7 +138,6 @@ function PhotoForm({
       <input type="hidden" name="photo_data_url" value={dataUrl} />
 
       <div className="flex items-center gap-5">
-        {/* Avatar preview */}
         <div className="relative">
           <div className="flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-border bg-gradient-to-br from-primary/10 to-accent/10">
             {preview ? (
@@ -147,7 +157,6 @@ function PhotoForm({
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex-1 flex flex-col gap-2">
           <input
             ref={fileRef}
@@ -164,7 +173,7 @@ function PhotoForm({
               onClick={() => fileRef.current?.click()}
             >
               <Upload className="size-3.5 me-1" />
-              ছবি আপলোড
+              {t("profile_photo_upload")}
             </Button>
             {preview ? (
               <Button
@@ -175,13 +184,12 @@ function PhotoForm({
                 className="text-destructive hover:bg-destructive/10"
               >
                 <X className="size-3.5 me-1" />
-                সরান
+                {t("profile_photo_remove")}
               </Button>
             ) : null}
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            PNG / JPG / WebP · সর্বোচ্চ ৫০০ KB · বর্গাকার (১:১) ছবি ভালো দেখায়।
-            সাইডবার + হেডারের অ্যাভাটারে দেখা যাবে।
+            {t("profile_photo_help")}
           </p>
         </div>
       </div>
@@ -191,85 +199,91 @@ function PhotoForm({
         disabled={pending || !dataUrl}
         className="bg-gradient-primary text-white w-fit"
       >
-        {pending ? "সংরক্ষণ হচ্ছে..." : "সংরক্ষণ"}
+        {pending ? t("profile_saving") : t("profile_save")}
       </Button>
     </form>
   );
 }
 
 function NameForm({ schoolSlug, current }: { schoolSlug: string; current: string }) {
+  const t = useTranslations("settings");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(
     updateProfileNameAction,
     null,
   );
   useEffect(() => {
     if (!state) return;
-    if (state.ok) toast.success(state.message ?? "আপডেট হয়েছে");
+    if (state.ok) toast.success(state.message ?? t("form_updated"));
     else toast.error(state.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   return (
     <form action={action} className="flex flex-col gap-3">
       <input type="hidden" name="schoolSlug" value={schoolSlug} />
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="full_name_bn">আপনার নাম</Label>
+        <Label htmlFor="full_name_bn">{t("profile_name_label")}</Label>
         <Input id="full_name_bn" name="full_name_bn" required defaultValue={current} />
       </div>
       <Button type="submit" disabled={pending} className="bg-gradient-primary text-white w-fit">
-        {pending ? "সংরক্ষণ হচ্ছে..." : "সংরক্ষণ"}
+        {pending ? t("profile_saving") : t("profile_save")}
       </Button>
     </form>
   );
 }
 
 function EmailForm({ schoolSlug, current }: { schoolSlug: string; current: string }) {
+  const t = useTranslations("settings");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(
     updateProfileEmailAction,
     null,
   );
   useEffect(() => {
     if (!state) return;
-    if (state.ok) toast.success(state.message ?? "লিংক পাঠানো হয়েছে");
+    if (state.ok) toast.success(state.message ?? t("profile_link_sent"));
     else toast.error(state.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   return (
     <form action={action} className="flex flex-col gap-3">
       <input type="hidden" name="schoolSlug" value={schoolSlug} />
       <div className="flex flex-col gap-1.5">
-        <Label>বর্তমান ইমেইল</Label>
+        <Label>{t("profile_email_current")}</Label>
         <Input value={current} disabled className="opacity-60" />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="new_email">নতুন ইমেইল</Label>
+        <Label htmlFor="new_email">{t("profile_email_new")}</Label>
         <Input id="new_email" name="new_email" type="email" required autoComplete="email" />
       </div>
       <p className="text-xs text-muted-foreground">
-        🔐 নিরাপত্তার জন্য পুরনো ও নতুন উভয় ইমেইলে কনফার্মেশন লিংক যাবে।
+        {t("profile_email_help")}
       </p>
       <Button type="submit" disabled={pending} className="bg-gradient-primary text-white w-fit">
-        {pending ? "পাঠানো হচ্ছে..." : "ইমেইল পরিবর্তন"}
+        {pending ? t("profile_email_sending") : t("profile_email_cta")}
       </Button>
     </form>
   );
 }
 
 function PasswordForm({ schoolSlug }: { schoolSlug: string }) {
+  const t = useTranslations("settings");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(
     updateProfilePasswordAction,
     null,
   );
   useEffect(() => {
     if (!state) return;
-    if (state.ok) toast.success(state.message ?? "পাসওয়ার্ড আপডেট হয়েছে");
+    if (state.ok) toast.success(state.message ?? t("profile_password_updated"));
     else toast.error(state.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   return (
     <form action={action} className="flex flex-col gap-3">
       <input type="hidden" name="schoolSlug" value={schoolSlug} />
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="new_password">নতুন পাসওয়ার্ড (৮+ অক্ষর)</Label>
+        <Label htmlFor="new_password">{t("profile_password_new")}</Label>
         <Input
           id="new_password"
           name="new_password"
@@ -280,7 +294,7 @@ function PasswordForm({ schoolSlug }: { schoolSlug: string }) {
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="confirm_password">পাসওয়ার্ড নিশ্চিত করুন</Label>
+        <Label htmlFor="confirm_password">{t("profile_password_confirm")}</Label>
         <Input
           id="confirm_password"
           name="confirm_password"
@@ -291,7 +305,7 @@ function PasswordForm({ schoolSlug }: { schoolSlug: string }) {
         />
       </div>
       <Button type="submit" disabled={pending} className="bg-gradient-primary text-white w-fit">
-        {pending ? "সংরক্ষণ হচ্ছে..." : "পাসওয়ার্ড পরিবর্তন"}
+        {pending ? t("profile_saving") : t("profile_password_cta")}
       </Button>
     </form>
   );

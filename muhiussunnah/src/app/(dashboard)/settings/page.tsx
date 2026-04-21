@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Shield, User } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,12 +12,10 @@ import { ProfileForm } from "./profile-form";
 
 export default async function SchoolSettingsPage() {
   const membership = await requireActiveRole(ADMIN_ROLES);
+  const t = await getTranslations("settings");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
-  // Select the * so new columns (logo_url, display_name_locale from migration
-  // 0018) are included if present; unmigrated projects fall back gracefully.
-  // Independent queries — school row + current auth user.
   const [schoolRes, authRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -40,25 +39,35 @@ export default async function SchoolSettingsPage() {
 
   if (!school) return null;
 
-  // Current user's auth record + their school_users row for the profile card.
   const { data: { user: authUser } } = authRes;
   const currentEmail = authUser?.email ?? "";
   const currentFullName = membership.full_name_bn ?? membership.full_name_en ?? "";
 
+  const subLabel = (status: string): string => {
+    const map: Record<string, string> = {
+      trial: t("sub_trial"),
+      active: t("sub_active"),
+      past_due: t("sub_past_due"),
+      canceled: t("sub_canceled"),
+      suspended: t("sub_suspended"),
+    };
+    return map[status] ?? status;
+  };
+
   return (
     <>
       <PageHeader
-        title="স্কুল সেটিংস"
-        subtitle="প্রতিষ্ঠানের মৌলিক তথ্য, যোগাযোগ, সাবস্ক্রিপশন — সব এক জায়গায়।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: `সাবস্ক্রিপশন: ${subscriptionLabel(school.subscription_status)}`, tone: "accent" },
+          { label: t("subscription_badge", { status: subLabel(school.subscription_status) }), tone: "accent" },
         ]}
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardContent className="p-5">
-            <h2 className="mb-4 text-lg font-semibold">মৌলিক তথ্য</h2>
+            <h2 className="mb-4 text-lg font-semibold">{t("basic_info_heading")}</h2>
             <SchoolSettingsForm initial={school} schoolSlug={schoolSlug} />
           </CardContent>
         </Card>
@@ -70,8 +79,8 @@ export default async function SchoolSettingsPage() {
                 <User className="size-4" />
               </span>
               <div>
-                <h2 className="text-lg font-semibold leading-tight">আমার প্রোফাইল</h2>
-                <p className="text-xs text-muted-foreground">নাম, ইমেইল, পাসওয়ার্ড পরিবর্তন</p>
+                <h2 className="text-lg font-semibold leading-tight">{t("profile_heading")}</h2>
+                <p className="text-xs text-muted-foreground">{t("profile_subheading")}</p>
               </div>
             </div>
             <ProfileForm
@@ -85,61 +94,50 @@ export default async function SchoolSettingsPage() {
 
         <Card>
           <CardContent className="flex flex-col gap-3 p-5">
-            <h2 className="text-lg font-semibold">সাবস্ক্রিপশন</h2>
+            <h2 className="text-lg font-semibold">{t("subscription_heading")}</h2>
             <dl className="grid grid-cols-2 gap-3 text-sm">
-              <dt className="text-muted-foreground">স্ট্যাটাস</dt>
-              <dd>{subscriptionLabel(school.subscription_status)}</dd>
+              <dt className="text-muted-foreground">{t("subscription_status_label")}</dt>
+              <dd>{subLabel(school.subscription_status)}</dd>
               {school.trial_ends_at ? (
                 <>
-                  <dt className="text-muted-foreground">ট্রায়াল শেষ হবে</dt>
-                  <dd>{new Date(school.trial_ends_at).toLocaleDateString("bn-BD")}</dd>
+                  <dt className="text-muted-foreground">{t("subscription_trial_ends")}</dt>
+                  <dd>{new Date(school.trial_ends_at).toLocaleDateString()}</dd>
                 </>
               ) : null}
-              <dt className="text-muted-foreground">স্কুল URL</dt>
+              <dt className="text-muted-foreground">{t("subscription_url")}</dt>
               <dd className="font-mono text-xs">/school/{school.slug}</dd>
             </dl>
             <p className="mt-4 rounded-md border border-dashed border-primary/30 bg-primary/5 p-3 text-xs text-muted-foreground">
-              💡 আপনার ট্রায়াল শেষ হওয়ার আগে আপগ্রেড করুন, কোন ডেটা হারাবে না।
+              {t("subscription_tip")}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="flex flex-col gap-3 p-5">
-            <h2 className="text-lg font-semibold">সুরক্ষা</h2>
+            <h2 className="text-lg font-semibold">{t("security_heading")}</h2>
             <p className="text-sm text-muted-foreground">
-              দুই-স্তর প্রমাণীকরণ (2FA) চালু করলে আপনার অ্যাকাউন্টে অননুমোদিত লগইন প্রায় অসম্ভব হয়ে যাবে।
+              {t("security_body")}
             </p>
             <Link href={`/settings/2fa`} className={buttonVariants({ variant: "outline", size: "sm" })}>
               <Shield className="me-1.5 size-4" />
-              2FA সেটিংস
+              {t("security_2fa_cta")}
             </Link>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="flex flex-col gap-3 p-5">
-            <h2 className="text-lg font-semibold">SMS টেমপ্লেট</h2>
+            <h2 className="text-lg font-semibold">{t("sms_heading")}</h2>
             <p className="text-sm text-muted-foreground">
-              AI দিয়ে পেশাদার SMS টেমপ্লেট তৈরি করুন — ফি রিমাইন্ডার, অনুপস্থিতি, পরীক্ষার খবর — সব একই জায়গায়।
+              {t("sms_body")}
             </p>
             <Link href={`/messaging/templates`} className={buttonVariants({ variant: "outline", size: "sm" })}>
-              টেমপ্লেট ম্যানেজ করুন
+              {t("sms_cta")}
             </Link>
           </CardContent>
         </Card>
       </div>
     </>
   );
-}
-
-function subscriptionLabel(status: string): string {
-  const map: Record<string, string> = {
-    trial: "ফ্রি ট্রায়াল",
-    active: "সক্রিয়",
-    past_due: "বকেয়া",
-    canceled: "বাতিল",
-    suspended: "স্থগিত",
-  };
-  return map[status] ?? status;
 }

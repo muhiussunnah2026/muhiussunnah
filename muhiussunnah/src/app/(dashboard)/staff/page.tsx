@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Users2, UserPlus } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -12,28 +13,27 @@ import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { InviteStaffForm } from "./invite-staff-form";
 
-const roleLabels: Record<string, string> = {
-  SCHOOL_ADMIN: "প্রিন্সিপাল",
-  VICE_PRINCIPAL: "ভাইস প্রিন্সিপাল",
-  ACCOUNTANT: "হিসাবরক্ষক",
-  BRANCH_ADMIN: "শাখা প্রধান",
-  CLASS_TEACHER: "শ্রেণি শিক্ষক",
-  SUBJECT_TEACHER: "বিষয় শিক্ষক",
-  MADRASA_USTADH: "উস্তাদ",
-  LIBRARIAN: "গ্রন্থাগারিক",
-  TRANSPORT_MANAGER: "পরিবহন ব্যবস্থাপক",
-  HOSTEL_WARDEN: "হোস্টেল ওয়ার্ডেন",
-  CANTEEN_MANAGER: "ক্যান্টিন ব্যবস্থাপক",
-  COUNSELOR: "কাউন্সেলর",
-};
-
 export default async function StaffPage() {
   const membership = await requireActiveRole(ADMIN_ROLES);
+  const t = await getTranslations("staff");
+
+  const roleLabels: Record<string, string> = {
+    SCHOOL_ADMIN: t("role_SCHOOL_ADMIN"),
+    VICE_PRINCIPAL: t("role_VICE_PRINCIPAL"),
+    ACCOUNTANT: t("role_ACCOUNTANT"),
+    BRANCH_ADMIN: t("role_BRANCH_ADMIN"),
+    CLASS_TEACHER: t("role_CLASS_TEACHER"),
+    SUBJECT_TEACHER: t("role_SUBJECT_TEACHER"),
+    MADRASA_USTADH: t("role_MADRASA_USTADH"),
+    LIBRARIAN: t("role_LIBRARIAN"),
+    TRANSPORT_MANAGER: t("role_TRANSPORT_MANAGER"),
+    HOSTEL_WARDEN: t("role_HOSTEL_WARDEN"),
+    CANTEEN_MANAGER: t("role_CANTEEN_MANAGER"),
+    COUNSELOR: t("role_COUNSELOR"),
+  };
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
-  // Fire both queries concurrently — they're independent. Collapsing
-  // two sequential round-trips saves ~200-500ms on every page load.
   const [staffRes, branchesRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -63,12 +63,12 @@ export default async function StaffPage() {
   return (
     <>
       <PageHeader
-        title="শিক্ষক ও স্টাফ"
-        subtitle="শিক্ষক, হিসাবরক্ষক, লাইব্রেরিয়ান, পরিবহন ব্যবস্থাপক — সবাইকে এখান থেকে যোগ ও ব্যবস্থাপনা করুন।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <>মোট · <BanglaDigit value={staffList.length} /></>, tone: "accent" },
-          { label: <>সক্রিয় · <BanglaDigit value={active} /></>, tone: "success" },
-          { label: <>শিক্ষক · <BanglaDigit value={teachers} /></>, tone: "default" },
+          { label: <>{t("tally_total")} · <BanglaDigit value={staffList.length} /></>, tone: "accent" },
+          { label: <>{t("tally_active")} · <BanglaDigit value={active} /></>, tone: "success" },
+          { label: <>{t("tally_teachers")} · <BanglaDigit value={teachers} /></>, tone: "default" },
         ]}
       />
 
@@ -77,9 +77,9 @@ export default async function StaffPage() {
           {staffList.length === 0 ? (
             <EmptyState
               icon={<Users2 className="size-8" />}
-              title="👨‍🏫 প্রথম শিক্ষক যোগ করুন"
-              body="ডান পাশের ফর্ম থেকে শিক্ষক বা স্টাফ আমন্ত্রণ জানান। তাদের ইমেইলে পাসওয়ার্ড সেট করার লিংক চলে যাবে।"
-              proTip="আপনি নিজেও SCHOOL_ADMIN হিসেবে সিস্টেমে আছেন। একাধিক অ্যাডমিন থাকলে কাজ ভাগাভাগি হয়, backup থাকে।"
+              title={t("empty_title")}
+              body={t("empty_body")}
+              proTip={t("empty_tip")}
             />
           ) : (
             <Card>
@@ -87,11 +87,11 @@ export default async function StaffPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>নাম</TableHead>
-                      <TableHead className="hidden md:table-cell">ভূমিকা</TableHead>
-                      <TableHead className="hidden lg:table-cell">যোগাযোগ</TableHead>
-                      <TableHead className="hidden md:table-cell">স্ট্যাটাস</TableHead>
-                      <TableHead className="text-right">কার্যক্রম</TableHead>
+                      <TableHead>{t("col_name")}</TableHead>
+                      <TableHead className="hidden md:table-cell">{t("col_role")}</TableHead>
+                      <TableHead className="hidden lg:table-cell">{t("col_contact")}</TableHead>
+                      <TableHead className="hidden md:table-cell">{t("col_status")}</TableHead>
+                      <TableHead className="text-right">{t("col_actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -121,7 +121,7 @@ export default async function StaffPage() {
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
                           <span className={`rounded-full px-2 py-0.5 text-xs ${s.status === "active" ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
-                            {s.status === "active" ? "সক্রিয়" : s.status}
+                            {s.status === "active" ? t("status_active") : s.status}
                           </span>
                         </TableCell>
                         <TableCell className="text-right">
@@ -129,7 +129,7 @@ export default async function StaffPage() {
                             href={`/staff/${s.id}/permissions`}
                             className="text-xs font-medium text-primary underline-offset-4 hover:underline"
                           >
-                            অনুমতি
+                            {t("action_permissions")}
                           </Link>
                         </TableCell>
                       </TableRow>
@@ -146,7 +146,7 @@ export default async function StaffPage() {
             <CardContent className="p-5">
               <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
                 <UserPlus className="size-4" />
-                নতুন স্টাফ আমন্ত্রণ
+                {t("invite_heading")}
               </h2>
               <InviteStaffForm branches={branches ?? []} schoolSlug={schoolSlug} />
             </CardContent>
@@ -155,7 +155,7 @@ export default async function StaffPage() {
             href={`/settings`}
             className={buttonVariants({ variant: "ghost", size: "sm", className: "mt-2 w-full" })}
           >
-            সেটিংস
+            {t("settings_cta")}
           </Link>
         </aside>
       </div>

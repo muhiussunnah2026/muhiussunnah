@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Shield, ShieldCheck, ShieldOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { setupTotpAction, verifyTotpAction, disableTotpAction } from "@/server/a
 type Existing = { verified: boolean };
 
 export function TwoFactorSetup({ schoolSlug, existing }: { schoolSlug: string; existing: Existing | null }) {
+  const t = useTranslations("settings");
   const [setupState, setupAction, setupPending] = useActionState(setupTotpAction, null);
   const [verifyState, verifyAction, verifyPending] = useActionState(verifyTotpAction, null);
   const [disableState, disableAction, disablePending] = useActionState(disableTotpAction, null);
@@ -22,25 +24,27 @@ export function TwoFactorSetup({ schoolSlug, existing }: { schoolSlug: string; e
     if (!setupState) return;
     if (setupState.ok && setupState.data) {
       setSetup(setupState.data);
-      toast.success(setupState.message ?? "সেটআপ শুরু");
+      toast.success(setupState.message ?? t("twofa_setup_started"));
     } else if (!setupState.ok) {
       toast.error(setupState.error);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setupState]);
 
   useEffect(() => {
     if (!verifyState) return;
-    if (verifyState.ok) { toast.success(verifyState.message ?? "2FA চালু"); setSetup(null); }
+    if (verifyState.ok) { toast.success(verifyState.message ?? t("twofa_enabled_toast")); setSetup(null); }
     else toast.error(verifyState.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verifyState]);
 
   useEffect(() => {
     if (!disableState) return;
-    if (disableState.ok) toast.success(disableState.message ?? "2FA বন্ধ");
+    if (disableState.ok) toast.success(disableState.message ?? t("twofa_disabled_toast"));
     else toast.error(disableState.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disableState]);
 
-  // Already verified state
   if (existing?.verified && !setup) {
     return (
       <Card>
@@ -50,18 +54,18 @@ export function TwoFactorSetup({ schoolSlug, existing }: { schoolSlug: string; e
               <ShieldCheck className="size-5" />
             </div>
             <div>
-              <h3 className="font-semibold">2FA সক্রিয়</h3>
-              <p className="text-xs text-muted-foreground">আপনার অ্যাকাউন্ট সুরক্ষিত — প্রতিবার লগইনে ৬-ডিজিট কোড লাগবে।</p>
+              <h3 className="font-semibold">{t("twofa_active_title")}</h3>
+              <p className="text-xs text-muted-foreground">{t("twofa_active_body")}</p>
             </div>
             <Badge className="ms-auto bg-success/10 text-success hover:bg-success/20" variant="secondary">
-              চালু
+              {t("twofa_active_badge")}
             </Badge>
           </div>
           <form action={disableAction}>
             <input type="hidden" name="schoolSlug" value={schoolSlug} />
             <Button type="submit" variant="destructive" size="sm" disabled={disablePending}>
               <ShieldOff className="me-1.5 size-4" />
-              {disablePending ? "বন্ধ হচ্ছে..." : "2FA বন্ধ করুন"}
+              {disablePending ? t("twofa_disabling") : t("twofa_disable_cta")}
             </Button>
           </form>
         </CardContent>
@@ -69,29 +73,28 @@ export function TwoFactorSetup({ schoolSlug, existing }: { schoolSlug: string; e
     );
   }
 
-  // Setup in progress — show QR + verification
   if (setup) {
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(setup.uri)}`;
     return (
       <Card>
         <CardContent className="p-5 space-y-4">
-          <h3 className="font-semibold">ধাপ ১: Authenticator app-এ scan করুন</h3>
+          <h3 className="font-semibold">{t("twofa_step1_title")}</h3>
           <p className="text-sm text-muted-foreground">
-            Google Authenticator, Authy বা 1Password খুলে নিচের QR কোড scan করুন।
+            {t("twofa_step1_body")}
           </p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={qrUrl} alt="TOTP QR" className="border rounded-lg bg-white p-2" width={220} height={220} />
 
           <details className="text-xs">
-            <summary className="cursor-pointer text-muted-foreground">Manual entry (QR scan না হলে)</summary>
+            <summary className="cursor-pointer text-muted-foreground">{t("twofa_manual_entry")}</summary>
             <code className="mt-2 block rounded bg-muted p-2 break-all">{setup.secret}</code>
           </details>
 
           <hr />
 
-          <h3 className="font-semibold">ধাপ ২: Recovery codes সংরক্ষণ করুন</h3>
+          <h3 className="font-semibold">{t("twofa_step2_title")}</h3>
           <p className="text-sm text-muted-foreground">
-            ফোন হারালে এই কোডগুলো দিয়ে লগইন করতে পারবেন। নিরাপদ জায়গায় রাখুন।
+            {t("twofa_step2_body")}
           </p>
           <div className="grid grid-cols-2 gap-2 text-sm font-mono">
             {setup.recovery.map((c) => (
@@ -101,15 +104,15 @@ export function TwoFactorSetup({ schoolSlug, existing }: { schoolSlug: string; e
 
           <hr />
 
-          <h3 className="font-semibold">ধাপ ৩: কোড verify করুন</h3>
+          <h3 className="font-semibold">{t("twofa_step3_title")}</h3>
           <form action={verifyAction} className="space-y-3">
             <input type="hidden" name="schoolSlug" value={schoolSlug} />
             <div>
-              <Label>৬-ডিজিট কোড</Label>
+              <Label>{t("twofa_code_label")}</Label>
               <Input name="code" placeholder="123456" maxLength={6} inputMode="numeric" required />
             </div>
             <Button type="submit" disabled={verifyPending} className="w-full">
-              {verifyPending ? "verify হচ্ছে..." : "Verify এবং 2FA চালু করুন"}
+              {verifyPending ? t("twofa_verifying") : t("twofa_verify_cta")}
             </Button>
           </form>
         </CardContent>
@@ -117,7 +120,6 @@ export function TwoFactorSetup({ schoolSlug, existing }: { schoolSlug: string; e
     );
   }
 
-  // Initial state — not setup yet
   return (
     <Card>
       <CardContent className="p-5 space-y-4">
@@ -126,15 +128,15 @@ export function TwoFactorSetup({ schoolSlug, existing }: { schoolSlug: string; e
             <Shield className="size-5" />
           </div>
           <div>
-            <h3 className="font-semibold">দুই-স্তর প্রমাণীকরণ (2FA)</h3>
-            <p className="text-xs text-muted-foreground">আপনার অ্যাকাউন্টের জন্য বাড়তি সুরক্ষা — Authenticator app-এর কোড দরকার হবে।</p>
+            <h3 className="font-semibold">{t("twofa_init_title")}</h3>
+            <p className="text-xs text-muted-foreground">{t("twofa_init_body")}</p>
           </div>
         </div>
         <form action={setupAction}>
           <input type="hidden" name="schoolSlug" value={schoolSlug} />
           <Button type="submit" disabled={setupPending}>
             <Shield className="me-1.5 size-4" />
-            {setupPending ? "সেটআপ হচ্ছে..." : "2FA সেটআপ শুরু করুন"}
+            {setupPending ? t("twofa_setting_up") : t("twofa_start_cta")}
           </Button>
         </form>
       </CardContent>
