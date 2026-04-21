@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup } from "@/components/ui/select";
 
 type ClassWithSections = { id: string; name_bn: string; sections: { id: string; name: string }[] };
@@ -25,6 +26,7 @@ type Props = {
 export function StudentsFilters({ schoolSlug, classes, initial }: Props) {
   const router = useRouter();
   const params = useSearchParams();
+  const t = useTranslations("studentsFilters");
 
   // Derive current encoded value from the URL
   const currentValue = initial.section_id
@@ -59,28 +61,28 @@ export function StudentsFilters({ schoolSlug, classes, initial }: Props) {
           Class + status filters stay here because they trigger a server query. */}
       <Select value={currentValue} onValueChange={updateFilter}>
         <SelectTrigger className="h-10 w-60">
-          <SelectValue placeholder="সকল ক্লাস">
+          <SelectValue placeholder={t("all_classes")}>
             {(v: unknown) => {
               const value = typeof v === "string" ? v : "";
-              if (!value || value === "all") return "সকল ক্লাস";
+              if (!value || value === "all") return t("all_classes");
               if (value.startsWith("class:")) {
                 const id = value.slice("class:".length);
                 const c = classes.find((x) => x.id === id);
-                return c ? `📚 ${c.name_bn}` : "সকল ক্লাস";
+                return c ? `📚 ${c.name_bn}` : t("all_classes");
               }
               if (value.startsWith("section:")) {
                 const id = value.slice("section:".length);
                 for (const c of classes) {
                   const s = c.sections.find((x) => x.id === id);
-                  if (s) return `${c.name_bn} — সেকশন ${s.name}`;
+                  if (s) return `${c.name_bn} — ${t("section_prefix")} ${s.name}`;
                 }
               }
-              return "সকল ক্লাস";
+              return t("all_classes");
             }}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">সকল ক্লাস</SelectItem>
+          <SelectItem value="all">{t("all_classes")}</SelectItem>
           {classes.map((c) => {
             const hasMultiple = c.sections.length > 1;
             return (
@@ -89,12 +91,12 @@ export function StudentsFilters({ schoolSlug, classes, initial }: Props) {
                     Selecting it filters to all students in that class. */}
                 <SelectItem value={`class:${c.id}`}>
                   📚 {c.name_bn}
-                  {hasMultiple ? ` (সকল সেকশন)` : ""}
+                  {hasMultiple ? t("all_sections_suffix") : ""}
                 </SelectItem>
                 {hasMultiple
                   ? c.sections.map((s) => (
                       <SelectItem key={s.id} value={`section:${s.id}`}>
-                        &nbsp;&nbsp;&nbsp;↳ {c.name_bn} — সেকশন {s.name}
+                        &nbsp;&nbsp;&nbsp;↳ {c.name_bn} — {t("section_prefix")} {s.name}
                       </SelectItem>
                     ))
                   : null}
@@ -106,14 +108,23 @@ export function StudentsFilters({ schoolSlug, classes, initial }: Props) {
 
       <Select defaultValue={initial.status ?? "active"} onValueChange={(v: string | null) => updateStatus(v)}>
         <SelectTrigger className="h-10 w-36">
-          <SelectValue />
+          <SelectValue>
+            {(v: unknown) => {
+              const key = typeof v === "string" && v ? v : "active";
+              try {
+                return t(`status_${key}`);
+              } catch {
+                return key;
+              }
+            }}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="active">সক্রিয়</SelectItem>
-          <SelectItem value="transferred">বদলি</SelectItem>
-          <SelectItem value="passed_out">পাশ</SelectItem>
-          <SelectItem value="dropped">বাদ</SelectItem>
-          <SelectItem value="all">সকল</SelectItem>
+          <SelectItem value="active">{t("status_active")}</SelectItem>
+          <SelectItem value="transferred">{t("status_transferred")}</SelectItem>
+          <SelectItem value="passed_out">{t("status_passed_out")}</SelectItem>
+          <SelectItem value="dropped">{t("status_dropped")}</SelectItem>
+          <SelectItem value="all">{t("status_all")}</SelectItem>
         </SelectContent>
       </Select>
     </div>

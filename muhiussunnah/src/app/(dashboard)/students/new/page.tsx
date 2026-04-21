@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -65,19 +66,21 @@ export default async function NewStudentPage() {
     is_active: boolean;
   }>;
 
+  const t = await getTranslations("newStudent");
+
   return (
     <>
       <PageHeader
         breadcrumbs={
           <Link href={`/students`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> ছাত্র/ছাত্রী তালিকা
+            <ArrowLeft className="size-3.5" /> {t("breadcrumb_back")}
           </Link>
         }
-        title="নতুন শিক্ষার্থী ভর্তি"
-        subtitle="ফর্ম পূরণ করতে প্রায় ২ মিনিট লাগবে। পরে সকল তথ্য edit করা যাবে।"
+        title={t("page_title_new")}
+        subtitle={t("page_subtitle_new")}
         impact={[
-          { label: "⏱️ ~২ মিনিট", tone: "accent" },
-          { label: "💾 ছাত্র কোড স্বয়ংক্রিয়ভাবে তৈরি হবে", tone: "default" },
+          { label: t("impact_time"), tone: "accent" },
+          { label: t("impact_auto_code"), tone: "default" },
         ]}
       />
 
@@ -92,15 +95,15 @@ export default async function NewStudentPage() {
             />
           ) : (
             <div className="rounded-xl border border-dashed border-warning/40 bg-warning/5 p-6 text-center">
-              <p className="text-base font-semibold mb-2">আগে ক্লাস যোগ করুন</p>
+              <p className="text-base font-semibold mb-2">{t("no_class_title")}</p>
               <p className="text-sm text-muted-foreground mb-4">
-                ছাত্র ভর্তি করতে হলে কমপক্ষে একটি ক্লাস প্রয়োজন। সেকশন ঐচ্ছিক।
+                {t("no_class_body")}
               </p>
               <Link
                 href={`/classes`}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/25"
               >
-                ক্লাস সেটআপে যান →
+                {t("no_class_cta")}
               </Link>
             </div>
           )}

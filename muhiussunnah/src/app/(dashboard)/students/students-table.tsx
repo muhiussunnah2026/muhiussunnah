@@ -41,13 +41,14 @@ type Student = {
 type SortKey = "name" | "code" | "class" | "roll" | "admission" | "status";
 type SortDir = "asc" | "desc";
 
-const statusLabel: Record<string, string> = {
-  active: "সক্রিয়",
-  transferred: "বদলি হয়েছে",
-  passed_out: "পাশ করেছে",
-  dropped: "বাদ",
-  suspended: "স্থগিত",
-};
+/**
+ * Lookup status → translation key. Full strings are in the
+ * `studentsFilters` namespace (status_active, status_dropped…).
+ * Caller resolves via t(). Falls back to the raw key if missing.
+ */
+function statusKey(status: string): string {
+  return `status_${status}`;
+}
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100] as const;
 
@@ -69,6 +70,17 @@ export function StudentsTable({
   const [pending, startTransition] = useTransition();
   const t = useTranslations("common");
   const tTable = useTranslations("studentsTable");
+  const tStatus = useTranslations("studentsFilters");
+  // Resolve a status enum → localised label. `common.dropped` etc are
+  // short forms; studentsFilters uses fuller wording for the row badge
+  // (e.g. "বদলি হয়েছে" / "Transferred") so we prefer that namespace.
+  function statusText(status: string): string {
+    try {
+      return tStatus(statusKey(status));
+    } catch {
+      return status;
+    }
+  }
 
   // ── Real-time name/ID filter ──────────────────────────────
   // Matches substring in either Bangla name, English name, or the
@@ -195,7 +207,7 @@ export function StudentsTable({
       s.roll?.toString() ?? "",
       s.gender ?? "",
       s.guardian_phone ?? "",
-      statusLabel[s.status] ?? s.status,
+      statusText(s.status),
     ]);
     const csv = [headers, ...rows]
       .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
@@ -219,7 +231,7 @@ export function StudentsTable({
         s.sections?.name ?? "",
         s.roll ?? "",
         s.guardian_phone ?? "",
-        statusLabel[s.status] ?? s.status,
+        statusText(s.status),
       ].join("\t"),
     );
     const text = ["Code\tName\tClass\tSection\tRoll\tGuardian\tStatus", ...rows].join("\n");
@@ -271,7 +283,7 @@ export function StudentsTable({
                       <td>${escapeHtml(s.sections?.name ?? "")}</td>
                       <td>${s.roll ?? ""}</td>
                       <td>${escapeHtml(s.guardian_phone ?? "")}</td>
-                      <td>${escapeHtml(statusLabel[s.status] ?? s.status)}</td>
+                      <td>${escapeHtml(statusText(s.status))}</td>
                     </tr>`,
                 )
                 .join("")}
@@ -558,7 +570,7 @@ export function StudentsTable({
                           : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {statusLabel[s.status] ?? s.status}
+                      {statusText(s.status)}
                     </span>
                   </TableCell>
                   <TableCell className="text-end">
