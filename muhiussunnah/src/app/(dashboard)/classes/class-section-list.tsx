@@ -21,24 +21,52 @@ type ClassRow = {
   sections: { id: string; name: string; capacity: number | null; room: string | null }[];
 };
 
-type Props = { schoolSlug: string; classes: ClassRow[] };
+type Props = {
+  schoolSlug: string;
+  classes: ClassRow[];
+  /** classId → total active students in that class */
+  classStudentCounts?: Record<string, number>;
+  /** sectionId → active students in that section */
+  sectionStudentCounts?: Record<string, number>;
+};
 
 const streamLabel: Record<string, string> = {
   general: "সাধারণ", science: "বিজ্ঞান", commerce: "ব্যবসায়", arts: "মানবিক",
   hifz: "হিফজ", kitab: "কিতাব", nazera: "নাজেরা",
 };
 
-export function ClassSectionList({ schoolSlug, classes }: Props) {
+export function ClassSectionList({
+  schoolSlug,
+  classes,
+  classStudentCounts = {},
+  sectionStudentCounts = {},
+}: Props) {
   return (
     <div className="grid gap-3">
       {classes.map((c) => (
-        <ClassCard key={c.id} data={c} schoolSlug={schoolSlug} />
+        <ClassCard
+          key={c.id}
+          data={c}
+          schoolSlug={schoolSlug}
+          classStudentCount={classStudentCounts[c.id] ?? 0}
+          sectionStudentCounts={sectionStudentCounts}
+        />
       ))}
     </div>
   );
 }
 
-function ClassCard({ schoolSlug, data }: { schoolSlug: string; data: ClassRow }) {
+function ClassCard({
+  schoolSlug,
+  data,
+  classStudentCount,
+  sectionStudentCounts,
+}: {
+  schoolSlug: string;
+  data: ClassRow;
+  classStudentCount: number;
+  sectionStudentCounts: Record<string, number>;
+}) {
   const [showAddSection, setShowAddSection] = useState(false);
   const [editing, setEditing] = useState(false);
   return (
@@ -52,12 +80,25 @@ function ClassCard({ schoolSlug, data }: { schoolSlug: string; data: ClassRow })
           />
         ) : (
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <h3 className="text-base font-semibold">
-                {data.name_bn}
-                {data.name_en ? <span className="ml-2 text-xs text-muted-foreground">({data.name_en})</span> : null}
-              </h3>
-              <p className="text-xs text-muted-foreground">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-base font-semibold">
+                  {data.name_bn}
+                  {data.name_en ? <span className="ml-1 text-xs text-muted-foreground">({data.name_en})</span> : null}
+                </h3>
+                {/* Student count pill — prominent so admin can scan at a glance */}
+                <span
+                  className={
+                    classStudentCount > 0
+                      ? "inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary/15 to-accent/15 px-2.5 py-0.5 text-xs font-semibold text-primary"
+                      : "inline-flex items-center gap-1 rounded-full bg-muted/60 px-2.5 py-0.5 text-xs font-medium text-muted-foreground"
+                  }
+                  title="এই ক্লাসে সক্রিয় শিক্ষার্থী সংখ্যা"
+                >
+                  👥 <BanglaDigit value={classStudentCount} /> ছাত্র/ছাত্রী
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
                 স্ট্রিম: {streamLabel[data.stream] ?? data.stream} · সেকশন: <BanglaDigit value={data.sections.length} />
               </p>
             </div>
@@ -78,12 +119,22 @@ function ClassCard({ schoolSlug, data }: { schoolSlug: string; data: ClassRow })
         )}
 
         <div className="flex flex-wrap items-center gap-2">
-          {data.sections.map((s) => (
-            <span key={s.id} className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-3 py-1 text-xs">
-              {s.name}
-              {s.capacity !== null ? <span className="text-muted-foreground">· <BanglaDigit value={s.capacity} /> ধারণ</span> : null}
-            </span>
-          ))}
+          {data.sections.map((s) => {
+            const n = sectionStudentCounts[s.id] ?? 0;
+            return (
+              <span key={s.id} className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-3 py-1 text-xs">
+                <span className="font-medium">{s.name}</span>
+                <span className="text-muted-foreground">
+                  · <BanglaDigit value={n} /> জন
+                </span>
+                {s.capacity !== null ? (
+                  <span className="text-muted-foreground">
+                    / <BanglaDigit value={s.capacity} />
+                  </span>
+                ) : null}
+              </span>
+            );
+          })}
           <button
             type="button"
             onClick={() => setShowAddSection((v) => !v)}

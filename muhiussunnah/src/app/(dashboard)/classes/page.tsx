@@ -18,8 +18,8 @@ export default async function ClassesPage() {
   await ensureDefaultSections(membership.school_id);
 
   const supabase = await supabaseServer();
-  // Independent — both keyed off school_id.
-  const [classesRes, branchesRes] = await Promise.all([
+  // Independent — all three keyed off school_id.
+  const [classesRes, branchesRes, studentsRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from("classes")
@@ -35,9 +35,20 @@ export default async function ClassesPage() {
       .select("id, name")
       .eq("school_id", membership.school_id)
       .order("is_primary", { ascending: false }),
+    // Pull all active students with just the section_id — we'll
+    // aggregate into per-class + per-section counts client-side so the
+    // card can show "15 ছাত্র · 3 সেকশন" at a glance.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("students")
+      .select("id, section_id")
+      .eq("school_id", membership.school_id)
+      .eq("status", "active")
+      .limit(10000),
   ]);
   const { data: classes } = classesRes;
   const { data: branches } = branchesRes;
+  const { data: students } = studentsRes;
 
   const classList = (classes ?? []) as {
     id: string;
@@ -48,6 +59,24 @@ export default async function ClassesPage() {
     branch_id: string | null;
     sections: { id: string; name: string; capacity: number | null; room: string | null }[];
   }[];
+
+  // Build { sectionId → studentCount } and { classId → totalStudentCount }
+  const sectionCounts = new Map<string, number>();
+  for (const s of (students ?? []) as { id: string; section_id: string | null }[]) {
+    if (!s.section_id) continue;
+    sectionCounts.set(s.section_id, (sectionCounts.get(s.section_id) ?? 0) + 1);
+  }
+  const classStudentCounts: Record<string, number> = {};
+  const sectionStudentCounts: Record<string, number> = {};
+  for (const c of classList) {
+    let classTotal = 0;
+    for (const sec of c.sections) {
+      const n = sectionCounts.get(sec.id) ?? 0;
+      sectionStudentCounts[sec.id] = n;
+      classTotal += n;
+    }
+    classStudentCounts[c.id] = classTotal;
+  }
 
   return (
     <>
@@ -69,7 +98,12 @@ export default async function ClassesPage() {
               proTip="Play / Nursery / KG থেকে শুরু করে Class 10 পর্যন্ত সব একসাথে যোগ করে ফেলুন, সময় বাঁচবে।"
             />
           ) : (
-            <ClassSectionList classes={classList} schoolSlug={schoolSlug} />
+            <ClassSectionList
+              classes={classList}
+              schoolSlug={schoolSlug}
+              classStudentCounts={classStudentCounts}
+              sectionStudentCounts={sectionStudentCounts}
+            />
           )}
         </section>
 
