@@ -754,9 +754,19 @@ export function NewStudentForm({
         </fieldset>
 
         {state && !state.ok ? (
-          <p className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive" role="alert">
-            ⚠️ {state.error}
-          </p>
+          <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive" role="alert">
+            <p className="font-semibold mb-1">⚠️ {state.error}</p>
+            {Object.keys(fieldErrors).length > 0 ? (
+              <ul className="mt-2 ms-5 list-disc space-y-0.5 text-xs">
+                {Object.entries(fieldErrors).map(([field, errs]) => (
+                  <li key={field}>
+                    <strong>{fieldLabelBn(field)}:</strong>{" "}
+                    {errs.join(", ")}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
         ) : null}
 
         <div className="flex items-center gap-3 print:hidden">
@@ -773,4 +783,44 @@ export function NewStudentForm({
       </form>
     </>
   );
+}
+
+/** Bengali labels for each form field — shown in the error summary so
+ *  admins know exactly which field the server rejected. */
+function fieldLabelBn(key: string): string {
+  const map: Record<string, string> = {
+    name_bn: "নাম (বাংলা)",
+    name_en: "নাম (ইংরেজি)",
+    name_ar: "নাম (আরবি)",
+    roll: "রোল",
+    class_id: "ক্লাস",
+    section_id: "শাখা",
+    branch_id: "শাখা ইউনিট",
+    admission_date: "ভর্তির তারিখ",
+    date_of_birth: "জন্ম তারিখ",
+    gender: "লিঙ্গ",
+    blood_group: "রক্তের গ্রুপ",
+    religion: "ধর্ম",
+    nid_birth_cert: "জন্ম নিবন্ধন / NID",
+    rf_id_card: "RF আইডি কার্ড",
+    guardian_phone: "অভিভাবক ফোন",
+    guardian_name: "পিতার নাম",
+    guardian_relation: "সম্পর্ক",
+    mother_name: "মাতার নাম",
+    mother_phone: "মাতার ফোন",
+    extra_guardian_name: "অতিরিক্ত অভিভাবকের নাম",
+    extra_guardian_phone: "অতিরিক্ত অভিভাবকের ফোন",
+    extra_guardian_relation: "অতিরিক্ত অভিভাবকের সম্পর্ক",
+    address_present: "বর্তমান ঠিকানা",
+    address_permanent: "স্থায়ী ঠিকানা",
+    previous_school: "পূর্ববর্তী বিদ্যালয়",
+    admission_fee: "ভর্তি ফি",
+    tuition_fee: "টিউশন ফি",
+    transport_fee: "পরিবহন ফি",
+    session_id: "শিক্ষাবর্ষ",
+    session_name_new: "নতুন শিক্ষাবর্ষ নাম",
+    student_code: "শিক্ষার্থী কোড",
+    photo_data_url: "ছবি",
+  };
+  return map[key] ?? key;
 }

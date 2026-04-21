@@ -68,19 +68,75 @@ const studentSchema = z.object({
   transport_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),
 });
 
-/** Generate a unique student code: STU-YYYYMM-XXXX. */
-async function nextStudentCode(schoolId: string): Promise<string> {
+/**
+ * Resolve the 4-digit class prefix for student codes.
+ *
+ * Format: `2025 + class.display_order`. So Class 1 → 2026, Class 2 →
+ * 2027, … Class N → 2025+N. This matches the user's ask ("class one er
+ * roll ek er code hobe 202601") while staying numeric + predictable.
+ *
+ * Falls back to 2000 when we can't resolve a class (e.g. section id
+ * missing). The downstream code will still dedupe by serial.
+ */
+async function classCodePrefix(
+  sectionId: string | null | undefined,
+): Promise<number> {
+  if (!sectionId) return 2000;
   const supabase = await supabaseServer();
-  const date = new Date();
-  const prefix = `STU-${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}`;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { count } = await (supabase as any)
+  const { data } = await (supabase as any)
+    .from("sections")
+    .select("classes ( display_order )")
+    .eq("id", sectionId)
+    .maybeSingle();
+  const order = (data?.classes?.display_order as number | undefined) ?? 1;
+  return 2025 + order;
+}
+
+/**
+ * Next unique student code in "PPPPSS" shape (6 digits): 4-digit class
+ * prefix + 2-digit serial within that class. Accepts an optional
+ * `avoid` set so repeated callers can skip codes known to collide.
+ */
+async function nextStudentCode(
+  schoolId: string,
+  sectionId: string | null | undefined,
+  avoid: Set<string> = new Set(),
+): Promise<string> {
+  const supabase = await supabaseServer();
+  const prefix = await classCodePrefix(sectionId);
+  const prefixStr = String(prefix);
+
+  // Find the highest existing code for this prefix in this school.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: existing } = await (supabase as any)
     .from("students")
-    .select("id", { count: "exact", head: true })
+    .select("student_code")
     .eq("school_id", schoolId)
-    .ilike("student_code", `${prefix}%`);
-  const next = (count ?? 0) + 1;
-  return `${prefix}-${String(next).padStart(4, "0")}`;
+    .like("student_code", `${prefixStr}%`)
+    .order("student_code", { ascending: false })
+    .limit(50);
+
+  let nextSerial = 1;
+  const used = new Set<number>();
+  for (const row of (existing ?? []) as { student_code: string | null }[]) {
+    const c = row.student_code ?? "";
+    if (!c.startsWith(prefixStr)) continue;
+    const suffix = c.slice(prefixStr.length);
+    const n = parseInt(suffix, 10);
+    if (Number.isFinite(n) && n > 0) used.add(n);
+  }
+  if (used.size > 0) nextSerial = Math.max(...used) + 1;
+
+  // Skip over codes the caller has told us collide (used for retry loop).
+  while (avoid.has(`${prefixStr}${String(nextSerial).padStart(2, "0")}`)) {
+    nextSerial++;
+  }
+
+  // Pad to at least 2 digits (so the code is always ≥ 6 chars). Grows
+  // automatically past 99 students/class without truncation.
+  const serialStr = String(nextSerial).padStart(2, "0");
+  return `${prefixStr}${serialStr}`;
 }
 
 export async function addStudentAction(
@@ -98,7 +154,8 @@ export async function addStudentAction(
   if ("error" in auth) return auth.error;
 
   const supabase = await supabaseServer();
-  const code = parsed.student_code ?? (await nextStudentCode(auth.active.school_id));
+  // Code is resolved AFTER section is resolved, below (so we can key it to
+  // the class).
 
   // Resolve session_id. If the form typed a brand-new session name (not in
   // academic_years yet) we create that row first and use the resulting id.
@@ -171,6 +228,20 @@ export async function addStudentAction(
       ? parsed.photo_data_url
       : null;
 
+  // Empty-string → null normalization for DATE columns. Zod's
+  // z.string().optional().or(...) pattern doesn't catch "" because
+  // z.string() accepts empty strings first — so empty DATE fields
+  // reached postgres as "" and crashed with "invalid input syntax for
+  // type date". Fix at the insert boundary.
+  const cleanDate = (v: string | undefined): string | null =>
+    v && v.trim() !== "" ? v : null;
+
+  // Generate a class-keyed student code (6-digit class prefix + serial).
+  // Caller can override via parsed.student_code (manual admin edit).
+  let code = parsed.student_code && parsed.student_code.trim().length > 0
+    ? parsed.student_code.trim()
+    : await nextStudentCode(auth.active.school_id, resolvedSectionId);
+
   // Build the insert payload. Extended fields from migration 0019
   // (session_id, rf_id_card, admission_fee, tuition_fee, transport_fee) are
   // optional on the type — if that migration hasn't been applied to the
@@ -185,8 +256,8 @@ export async function addStudentAction(
     name_ar: parsed.name_ar ?? null,
     roll: parsed.roll ?? null,
     section_id: resolvedSectionId,
-    admission_date: parsed.admission_date ?? null,
-    date_of_birth: parsed.date_of_birth ?? null,
+    admission_date: cleanDate(parsed.admission_date),
+    date_of_birth: cleanDate(parsed.date_of_birth),
     gender: parsed.gender ?? null,
     blood_group: parsed.blood_group ?? null,
     religion: parsed.religion ?? null,
@@ -205,24 +276,46 @@ export async function addStudentAction(
   if (parsed.tuition_fee !== undefined) extended.tuition_fee = parsed.tuition_fee;
   if (parsed.transport_fee !== undefined) extended.transport_fee = parsed.transport_fee;
 
+  // Insert with up to 4 automatic retries if the auto-generated student
+  // code happens to collide with an existing row (race between multiple
+  // admins admitting simultaneously, or historical data gaps the counter
+  // didn't see). Each retry generates a fresh serial, skipping known
+  // collisions.
+  const collided = new Set<string>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let res = await (supabase as any)
-    .from("students")
-    .insert({ ...baseInsert, ...extended })
-    .select("id")
-    .single();
-
-  // Retry without the 0019 fields if that migration isn't applied yet.
-  if (
-    res.error &&
-    /column .*(session_id|rf_id_card|admission_fee|tuition_fee|transport_fee)/i.test(res.error.message ?? "")
-  ) {
+  let res: any = null;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    baseInsert.student_code = code;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     res = await (supabase as any)
       .from("students")
-      .insert(baseInsert)
+      .insert({ ...baseInsert, ...extended })
       .select("id")
       .single();
+
+    // Column-missing retry (0019 not applied yet): drop extended fields.
+    if (
+      res.error &&
+      /column .*(session_id|rf_id_card|admission_fee|tuition_fee|transport_fee)/i.test(res.error.message ?? "")
+    ) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      res = await (supabase as any)
+        .from("students")
+        .insert(baseInsert)
+        .select("id")
+        .single();
+    }
+
+    // Duplicate student_code retry.
+    if (
+      res.error &&
+      /duplicate key value .*students_school_id_student_code_key/i.test(res.error.message ?? "")
+    ) {
+      collided.add(code);
+      code = await nextStudentCode(auth.active.school_id, resolvedSectionId, collided);
+      continue;
+    }
+    break;
   }
   const { data: studentRow, error } = res;
   if (error || !studentRow) return fail(error?.message ?? "শিক্ষার্থী যোগ করা যায়নি।");
@@ -355,7 +448,7 @@ export async function bulkImportStudentsAction(
       sectionId = sectionLookup.get(key) ?? null;
     }
 
-    const code = await nextStudentCode(auth.active.school_id);
+    const code = await nextStudentCode(auth.active.school_id, sectionId);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase as any).from("students").insert({
       school_id: auth.active.school_id,
@@ -518,7 +611,7 @@ export async function updateStudentAction(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: current } = await (supabase as any)
     .from("students")
-    .select("school_id, student_code")
+    .select("school_id, student_code, section_id")
     .eq("id", parsed.student_id)
     .single();
   if (!current || current.school_id !== auth.active.school_id) {
@@ -529,7 +622,10 @@ export async function updateStudentAction(
   // pre-v2 admission, etc.), auto-generate one on the next edit so the
   // admin doesn't have to think about it.
   if ((!current.student_code || current.student_code.trim().length === 0) && !parsed.student_code) {
-    parsed.student_code = await nextStudentCode(auth.active.school_id);
+    parsed.student_code = await nextStudentCode(
+      auth.active.school_id,
+      current.section_id ?? null,
+    );
   }
 
   const {
@@ -553,6 +649,13 @@ export async function updateStudentAction(
   const update: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(rawUpdate)) {
     if (v !== undefined) update[k] = v;
+  }
+
+  // Empty-string date fields → null (postgres DATE doesn't accept "").
+  const dateKeys = ["admission_date", "date_of_birth"] as const;
+  for (const k of dateKeys) {
+    const v = update[k];
+    if (typeof v === "string" && v.trim() === "") update[k] = null;
   }
 
   // Photo handling: data URL → store inline, "__REMOVE__" → clear, empty/undefined → leave alone.
