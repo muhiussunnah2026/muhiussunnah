@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -36,32 +37,39 @@ export default async function PaymentsLogPage() {
 
   const completed = payments.filter((p) => p.status === "completed");
   const totalCollected = completed.reduce((s, p) => s + Number(p.amount), 0);
+  const t = await getTranslations("fees");
 
   return (
     <>
       <PageHeader
-        title="পেমেন্ট লগ"
-        subtitle={`সর্বশেষ ${payments.length} টি লেনদেন · ৳ ${totalCollected.toLocaleString("en-IN")} মোট সংগ্রহ`}
-        impact={[{ label: <>মোট · <BanglaDigit value={completed.length} /> টি সম্পন্ন</>, tone: "success" }]}
+        title={t("payments_page_title")}
+        subtitle={t("payments_page_subtitle", {
+          count: payments.length,
+          collected: totalCollected.toLocaleString("en-IN"),
+        })}
+        impact={[{
+          label: t("payments_impact_done", { count: completed.length }),
+          tone: "success",
+        }]}
       />
       <FeesSubNav active="payments" schoolSlug={schoolSlug} />
 
       <div className="mt-4">
         {payments.length === 0 ? (
-          <EmptyState title="এখনও কোন পেমেন্ট নেই" body="প্রথম ইনভয়েস তৈরি করে পেমেন্ট নিন।" />
+          <EmptyState title={t("payments_empty_title")} body={t("payments_empty_body")} />
         ) : (
           <Card>
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>রশিদ</TableHead>
-                    <TableHead>ছাত্র</TableHead>
-                    <TableHead>ইনভয়েস</TableHead>
-                    <TableHead>পদ্ধতি</TableHead>
-                    <TableHead>তারিখ</TableHead>
-                    <TableHead className="text-right">amount</TableHead>
-                    <TableHead>স্ট্যাটাস</TableHead>
+                    <TableHead>{t("col_receipt")}</TableHead>
+                    <TableHead>{t("col_student")}</TableHead>
+                    <TableHead>{t("col_invoice")}</TableHead>
+                    <TableHead>{t("col_method")}</TableHead>
+                    <TableHead>{t("col_date")}</TableHead>
+                    <TableHead className="text-right">{t("col_amount")}</TableHead>
+                    <TableHead>{t("col_status")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

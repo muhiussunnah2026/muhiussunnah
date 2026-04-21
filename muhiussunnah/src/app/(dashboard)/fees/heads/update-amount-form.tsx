@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -11,14 +12,15 @@ import type { ActionResult } from "@/server/actions/_helpers";
 type Props = { schoolSlug: string; id: string; defaultAmount: number };
 
 export function UpdateAmountForm({ schoolSlug, id, defaultAmount }: Props) {
+  const t = useTranslations("fees");
   const [value, setValue] = useState(String(defaultAmount));
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(updateFeeHeadAmountAction, null);
 
   useEffect(() => {
     if (!state) return;
-    if (state.ok) toast.success(state.message ?? "আপডেট");
+    if (state.ok) toast.success(state.message ?? t("update_amount_success"));
     else toast.error(state.error);
-  }, [state]);
+  }, [state, t]);
 
   const changed = Number(value) !== Number(defaultAmount);
 

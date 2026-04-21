@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Receipt } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,14 +15,6 @@ import { GenerateInvoicesPanel } from "./generate-panel";
 
 type PageProps = {
   searchParams: Promise<{ month?: string; year?: string; status?: string; q?: string }>;
-};
-
-const statusLabel: Record<string, string> = {
-  unpaid: "বকেয়া",
-  partial: "আংশিক",
-  paid: "পরিশোধিত",
-  overdue: "মেয়াদোত্তীর্ণ",
-  canceled: "বাতিল",
 };
 
 const statusTones: Record<string, string> = {
@@ -82,15 +75,22 @@ export default async function InvoicesListPage({ searchParams }: PageProps) {
   const totalBilled = invoices.reduce((sum, i) => sum + Number(i.total_amount ?? 0), 0);
   const collectionPct = totalBilled > 0 ? Math.round((totalCollected / totalBilled) * 100) : 0;
 
+  const t = await getTranslations("fees");
+
   return (
     <>
       <PageHeader
-        title="ফি ইনভয়েস"
-        subtitle={`${month}/${year} · ${invoices.length.toString()} টি ইনভয়েস · ৳ ${totalCollected.toLocaleString("en-IN")} সংগ্রহ হয়েছে, ৳ ${totalDue.toLocaleString("en-IN")} বাকি`}
+        title={t("invoices_page_title")}
+        subtitle={t("invoices_page_subtitle", {
+          month, year,
+          count: invoices.length,
+          collected: totalCollected.toLocaleString("en-IN"),
+          due: totalDue.toLocaleString("en-IN"),
+        })}
         impact={[
-          { label: <>সংগ্রহ · ৳ <BanglaDigit value={totalCollected.toLocaleString("en-IN")} /></>, tone: "success" },
-          { label: <>বাকি · ৳ <BanglaDigit value={totalDue.toLocaleString("en-IN")} /></>, tone: totalDue > 0 ? "warning" : "default" },
-          { label: <>কালেকশন · <BanglaDigit value={collectionPct} />%</>, tone: "accent" },
+          { label: <>{t("impact_collected")} · ৳ <BanglaDigit value={totalCollected.toLocaleString("en-IN")} /></>, tone: "success" },
+          { label: <>{t("impact_due")} · ৳ <BanglaDigit value={totalDue.toLocaleString("en-IN")} /></>, tone: totalDue > 0 ? "warning" : "default" },
+          { label: <>{t("impact_collection_rate")} · <BanglaDigit value={collectionPct} />%</>, tone: "accent" },
         ]}
       />
       <FeesSubNav active="invoices" schoolSlug={schoolSlug} />
@@ -100,9 +100,9 @@ export default async function InvoicesListPage({ searchParams }: PageProps) {
           {invoices.length === 0 ? (
             <EmptyState
               icon={<Receipt className="size-8" />}
-              title="এই মাসে কোন ইনভয়েস নেই"
-              body="ডান পাশের প্যানেল থেকে এই মাসের ইনভয়েস তৈরি করুন। আগে ফি কাঠামো সেট করা থাকলে এক ক্লিকে সব ছাত্রের ইনভয়েস তৈরি হবে।"
-              proTip="প্রতি মাসের ১ তারিখে স্বয়ংক্রিয়ভাবে invoice তৈরি করতে Vercel Cron already configured।"
+              title={t("invoices_empty_title")}
+              body={t("invoices_empty_body")}
+              proTip={t("invoices_empty_tip")}
             />
           ) : (
             <Card>
@@ -110,12 +110,12 @@ export default async function InvoicesListPage({ searchParams }: PageProps) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>ইনভয়েস</TableHead>
-                      <TableHead>ছাত্র</TableHead>
-                      <TableHead className="hidden md:table-cell">ক্লাস</TableHead>
-                      <TableHead className="text-right">মোট</TableHead>
-                      <TableHead className="text-right">বাকি</TableHead>
-                      <TableHead className="hidden md:table-cell">স্ট্যাটাস</TableHead>
+                      <TableHead>{t("col_invoice")}</TableHead>
+                      <TableHead>{t("col_student")}</TableHead>
+                      <TableHead className="hidden md:table-cell">{t("col_class")}</TableHead>
+                      <TableHead className="text-right">{t("col_total")}</TableHead>
+                      <TableHead className="text-right">{t("col_due")}</TableHead>
+                      <TableHead className="hidden md:table-cell">{t("col_status")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -125,7 +125,7 @@ export default async function InvoicesListPage({ searchParams }: PageProps) {
                           <Link href={`/fees/invoices/${inv.id}`} className="font-mono text-xs underline-offset-4 hover:underline">
                             {inv.invoice_no}
                           </Link>
-                          {inv.due_date ? <div className="text-xs text-muted-foreground">Due: <BengaliDate value={inv.due_date} /></div> : null}
+                          {inv.due_date ? <div className="text-xs text-muted-foreground">{t("due_prefix")} <BengaliDate value={inv.due_date} /></div> : null}
                         </TableCell>
                         <TableCell>
                           {inv.students ? (
@@ -133,7 +133,7 @@ export default async function InvoicesListPage({ searchParams }: PageProps) {
                               {inv.students.name_bn}
                             </Link>
                           ) : "—"}
-                          {inv.students?.roll ? <div className="text-xs text-muted-foreground">রোল: <BanglaDigit value={inv.students.roll} /></div> : null}
+                          {inv.students?.roll ? <div className="text-xs text-muted-foreground">{t("roll_prefix")} <BanglaDigit value={inv.students.roll} /></div> : null}
                         </TableCell>
                         <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
                           {inv.students?.sections ? `${inv.students.sections.classes.name_bn} — ${inv.students.sections.name}` : "—"}
@@ -142,7 +142,9 @@ export default async function InvoicesListPage({ searchParams }: PageProps) {
                         <TableCell className="text-right font-medium">৳ <BanglaDigit value={Number(inv.due_amount).toLocaleString("en-IN")} /></TableCell>
                         <TableCell className="hidden md:table-cell">
                           <span className={`rounded-full px-2 py-0.5 text-xs ${statusTones[inv.status] ?? "bg-muted"}`}>
-                            {statusLabel[inv.status] ?? inv.status}
+                            {(() => {
+                              try { return t(`status_${inv.status}`); } catch { return inv.status; }
+                            })()}
                           </span>
                         </TableCell>
                       </TableRow>

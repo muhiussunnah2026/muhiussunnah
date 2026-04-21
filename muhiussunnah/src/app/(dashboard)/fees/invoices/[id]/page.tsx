@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Printer } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
@@ -48,30 +49,32 @@ export default async function InvoiceDetailPage({ params }: PageProps) {
 
   const dueAmount = Number(invoice.due_amount);
 
+  const t = await getTranslations("fees");
+
   return (
     <>
       <PageHeader
         breadcrumbs={
           <Link href={`/fees/invoices`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> ইনভয়েস তালিকা
+            <ArrowLeft className="size-3.5" /> {t("invoice_back")}
           </Link>
         }
-        title={`ইনভয়েস ${invoice.invoice_no}`}
+        title={t("invoice_title", { no: invoice.invoice_no })}
         subtitle={
           <>
             {invoice.students?.name_bn}
-            {invoice.students?.roll ? <> · রোল: <BanglaDigit value={invoice.students.roll} /></> : null}
+            {invoice.students?.roll ? t("invoice_roll_inline", { roll: invoice.students.roll }) : null}
             {invoice.students?.sections ? <> · {invoice.students.sections.classes.name_bn} — {invoice.students.sections.name}</> : null}
           </>
         }
         impact={[
-          { label: <>মোট · ৳ <BanglaDigit value={Number(invoice.total_amount).toLocaleString("en-IN")} /></>, tone: "default" },
-          { label: <>পরিশোধিত · ৳ <BanglaDigit value={Number(invoice.paid_amount).toLocaleString("en-IN")} /></>, tone: "success" },
-          { label: <>বাকি · ৳ <BanglaDigit value={dueAmount.toLocaleString("en-IN")} /></>, tone: dueAmount > 0 ? "warning" : "success" },
+          { label: <>{t("invoice_impact_total")} · ৳ <BanglaDigit value={Number(invoice.total_amount).toLocaleString("en-IN")} /></>, tone: "default" },
+          { label: <>{t("invoice_impact_paid")} · ৳ <BanglaDigit value={Number(invoice.paid_amount).toLocaleString("en-IN")} /></>, tone: "success" },
+          { label: <>{t("invoice_impact_due")} · ৳ <BanglaDigit value={dueAmount.toLocaleString("en-IN")} /></>, tone: dueAmount > 0 ? "warning" : "success" },
         ]}
         actions={
           <Link href="#" className={buttonVariants({ variant: "outline", size: "sm" })}>
-            <Printer className="me-1 size-3.5" /> প্রিন্ট
+            <Printer className="me-1 size-3.5" /> {t("invoice_print")}
           </Link>
         }
       />
@@ -80,14 +83,14 @@ export default async function InvoiceDetailPage({ params }: PageProps) {
         <div className="flex flex-col gap-4">
           <Card>
             <CardContent className="p-5">
-              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">ফি বিবরণ</h3>
+              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("invoice_fee_breakdown")}</h3>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>বিবরণ</TableHead>
-                    <TableHead className="text-right">amount</TableHead>
-                    <TableHead className="text-right">ছাড়</TableHead>
-                    <TableHead className="text-right">মোট</TableHead>
+                    <TableHead>{t("invoice_col_description")}</TableHead>
+                    <TableHead className="text-right">{t("col_amount")}</TableHead>
+                    <TableHead className="text-right">{t("invoice_col_discount")}</TableHead>
+                    <TableHead className="text-right">{t("invoice_col_grand_total")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -110,18 +113,18 @@ export default async function InvoiceDetailPage({ params }: PageProps) {
 
           <Card>
             <CardContent className="p-5">
-              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">পেমেন্ট ইতিহাস</h3>
+              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("invoice_payment_history")}</h3>
               {invoice.payments.length === 0 ? (
-                <p className="text-sm text-muted-foreground">এখনও কোন পেমেন্ট হয়নি।</p>
+                <p className="text-sm text-muted-foreground">{t("invoice_no_payments")}</p>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>রশিদ</TableHead>
-                      <TableHead>পদ্ধতি</TableHead>
-                      <TableHead>তারিখ</TableHead>
-                      <TableHead className="text-right">amount</TableHead>
-                      <TableHead>স্ট্যাটাস</TableHead>
+                      <TableHead>{t("col_receipt")}</TableHead>
+                      <TableHead>{t("col_method")}</TableHead>
+                      <TableHead>{t("col_date")}</TableHead>
+                      <TableHead className="text-right">{t("col_amount")}</TableHead>
+                      <TableHead>{t("col_status")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -152,16 +155,18 @@ export default async function InvoiceDetailPage({ params }: PageProps) {
         <aside className="flex flex-col gap-4">
           <Card>
             <CardContent className="p-5">
-              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">ইনভয়েস তথ্য</h3>
+              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("invoice_info_card")}</h3>
               <dl className="grid grid-cols-2 gap-2 text-sm">
-                <dt className="text-muted-foreground">সংখ্যা</dt>
+                <dt className="text-muted-foreground">{t("invoice_label_number")}</dt>
                 <dd className="font-mono text-xs">{invoice.invoice_no}</dd>
-                <dt className="text-muted-foreground">জারির তারিখ</dt>
+                <dt className="text-muted-foreground">{t("invoice_label_issue_date")}</dt>
                 <dd>{invoice.issue_date ? <BengaliDate value={invoice.issue_date} /> : "—"}</dd>
-                <dt className="text-muted-foreground">Due</dt>
+                <dt className="text-muted-foreground">{t("due_prefix").replace(":", "")}</dt>
                 <dd>{invoice.due_date ? <BengaliDate value={invoice.due_date} /> : "—"}</dd>
-                <dt className="text-muted-foreground">স্ট্যাটাস</dt>
-                <dd className="capitalize">{invoice.status}</dd>
+                <dt className="text-muted-foreground">{t("invoice_label_status")}</dt>
+                <dd>{(() => {
+                  try { return t(`status_${invoice.status}`); } catch { return invoice.status; }
+                })()}</dd>
               </dl>
             </CardContent>
           </Card>
@@ -169,7 +174,7 @@ export default async function InvoiceDetailPage({ params }: PageProps) {
           {dueAmount > 0 ? (
             <Card className="border-primary/30">
               <CardContent className="p-5">
-                <h3 className="mb-3 text-sm font-semibold">পেমেন্ট রেকর্ড করুন (ক্যাশ)</h3>
+                <h3 className="mb-3 text-sm font-semibold">{t("record_payment_heading")}</h3>
                 <RecordPaymentForm invoiceId={invoice.id} maxAmount={dueAmount} schoolSlug={schoolSlug} />
               </CardContent>
             </Card>

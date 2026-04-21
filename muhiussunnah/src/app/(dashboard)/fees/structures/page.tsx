@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -43,13 +44,15 @@ export default async function FeeStructuresPage() {
   const headList = (heads ?? []) as { id: string; name_bn: string; default_amount: number; frequency: string | null }[];
   const structures = (existingStructures ?? []) as { id: string; class_id: string; fee_head_id: string; amount: number; frequency: string }[];
 
+  const t = await getTranslations("fees");
+
   return (
     <>
       <PageHeader
-        title="ফি কাঠামো"
-        subtitle="প্রতিটি শ্রেণির জন্য প্রতিটি ফি হেডের amount ও ফ্রিকোয়েন্সি সেট করুন। এই amounts মাসিক invoice generation-এ ব্যবহৃত হবে।"
+        title={t("structures_page_title")}
+        subtitle={t("structures_page_subtitle")}
         impact={[
-          { label: "💡 শুধু monthly/quarterly/annual heads দেখানো হচ্ছে", tone: "default" },
+          { label: t("structures_impact_hint"), tone: "default" },
         ]}
       />
       <FeesSubNav active="structures" schoolSlug={schoolSlug} />
@@ -57,8 +60,8 @@ export default async function FeeStructuresPage() {
       <div className="mt-4">
         {classList.length === 0 || headList.length === 0 ? (
           <EmptyState
-            title="আগে ক্লাস + ফি হেড সেট করুন"
-            body="ফি কাঠামো তৈরি করতে কমপক্ষে একটি ক্লাস ও একটি ফি হেড দরকার।"
+            title={t("structures_empty_title")}
+            body={t("structures_empty_body")}
           />
         ) : (
           <Card>

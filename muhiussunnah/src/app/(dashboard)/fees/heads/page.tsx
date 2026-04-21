@@ -1,4 +1,5 @@
 import { CoinsIcon } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -9,16 +10,6 @@ import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { AddFeeHeadForm } from "./add-head-form";
 import { UpdateAmountForm } from "./update-amount-form";
 import { FeesSubNav } from "../nav";
-
-const typeLabel: Record<string, string> = {
-  general: "সাধারণ", admission: "ভর্তি", session: "সেশন",
-  exam: "পরীক্ষা", transport: "পরিবহন", hostel: "হোস্টেল",
-  canteen: "ক্যান্টিন", other: "অন্যান্য",
-};
-
-const freqLabel: Record<string, string> = {
-  monthly: "মাসিক", quarterly: "ত্রৈমাসিক", annual: "বার্ষিক", one_time: "একবার",
-};
 
 export default async function FeeHeadsPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
@@ -37,12 +28,20 @@ export default async function FeeHeadsPage() {
     default_amount: number; frequency: string | null; is_recurring: boolean; display_order: number;
   }>;
 
+  const t = await getTranslations("fees");
+  const typeText = (type: string) => {
+    try { return t(`head_type_${type}`); } catch { return type; }
+  };
+  const freqText = (freq: string) => {
+    try { return t(`freq_${freq}`); } catch { return freq; }
+  };
+
   return (
     <>
       <PageHeader
-        title="ফি হেড"
-        subtitle="স্কুল রেজিস্ট্রেশনের সময় ৩০টি ফি হেড স্বয়ংক্রিয়ভাবে seed হয়েছে। এখানে amount update করুন বা custom হেড যোগ করুন।"
-        impact={[{ label: <>মোট · <BanglaDigit value={heads.length} /></>, tone: "accent" }]}
+        title={t("heads_page_title")}
+        subtitle={t("heads_page_subtitle")}
+        impact={[{ label: <>{t("heads_impact_total")} · <BanglaDigit value={heads.length} /></>, tone: "accent" }]}
       />
       <FeesSubNav active="heads" schoolSlug={schoolSlug} />
 
@@ -52,10 +51,10 @@ export default async function FeeHeadsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>নাম</TableHead>
-                  <TableHead className="hidden md:table-cell">ধরন</TableHead>
-                  <TableHead className="hidden md:table-cell">ফ্রিকোয়েন্সি</TableHead>
-                  <TableHead className="text-right">ডিফল্ট amount</TableHead>
+                  <TableHead>{t("heads_col_name")}</TableHead>
+                  <TableHead className="hidden md:table-cell">{t("heads_col_type")}</TableHead>
+                  <TableHead className="hidden md:table-cell">{t("heads_col_frequency")}</TableHead>
+                  <TableHead className="text-right">{t("heads_col_default_amount")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -66,10 +65,10 @@ export default async function FeeHeadsPage() {
                       {h.name_en ? <div className="text-xs text-muted-foreground">{h.name_en}</div> : null}
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-xs">
-                      <span className="rounded-full bg-muted px-2 py-0.5">{typeLabel[h.type] ?? h.type}</span>
+                      <span className="rounded-full bg-muted px-2 py-0.5">{typeText(h.type)}</span>
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
-                      {h.frequency ? freqLabel[h.frequency] : "—"}
+                      {h.frequency ? freqText(h.frequency) : "—"}
                     </TableCell>
                     <TableCell>
                       <UpdateAmountForm id={h.id} defaultAmount={Number(h.default_amount)} schoolSlug={schoolSlug} />
@@ -85,7 +84,7 @@ export default async function FeeHeadsPage() {
           <Card>
             <CardContent className="p-5">
               <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                <CoinsIcon className="size-4" /> নতুন ফি হেড
+                <CoinsIcon className="size-4" /> {t("heads_new_title")}
               </h2>
               <AddFeeHeadForm  schoolSlug={schoolSlug}/>
             </CardContent>

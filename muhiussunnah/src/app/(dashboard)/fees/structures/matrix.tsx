@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ type Props = { schoolSlug: string; classes: ClassRow[]; heads: HeadRow[]; struct
 type Cell = { amount: string; frequency: string };
 
 export function StructureMatrix({ schoolSlug, classes, heads, structures }: Props) {
+  const t = useTranslations("fees");
   const [cells, setCells] = useState<Record<string, Cell>>(() => {
     const out: Record<string, Cell> = {};
     for (const s of structures) {
@@ -52,7 +54,7 @@ export function StructureMatrix({ schoolSlug, classes, heads, structures }: Prop
       fd.set("amount", cell.amount);
       fd.set("frequency", cell.frequency || "monthly");
       const res = await upsertFeeStructureAction(null, fd);
-      if (res.ok) toast.success(res.message ?? "সংরক্ষিত");
+      if (res.ok) toast.success(res.message ?? t("structures_saved"));
       else toast.error(res.error);
     });
   }
@@ -62,11 +64,11 @@ export function StructureMatrix({ schoolSlug, classes, heads, structures }: Prop
       <table className="w-full text-sm">
         <thead className="bg-muted/50">
           <tr>
-            <th className="sticky left-0 z-10 bg-muted/50 p-3 text-left">শ্রেণি</th>
+            <th className="sticky left-0 z-10 bg-muted/50 p-3 text-left">{t("structures_col_class")}</th>
             {heads.map((h) => (
               <th key={h.id} className="p-3 text-left whitespace-nowrap min-w-44">
                 <div>{h.name_bn}</div>
-                <div className="text-xs font-normal text-muted-foreground">default ৳ {h.default_amount}</div>
+                <div className="text-xs font-normal text-muted-foreground">{t("structures_default_prefix")} {h.default_amount}</div>
               </th>
             ))}
           </tr>
@@ -103,10 +105,10 @@ export function StructureMatrix({ schoolSlug, classes, heads, structures }: Prop
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="monthly">মাসিক</SelectItem>
-                          <SelectItem value="quarterly">ত্রৈমা.</SelectItem>
-                          <SelectItem value="annual">বার্ষিক</SelectItem>
-                          <SelectItem value="one_time">একবার</SelectItem>
+                          <SelectItem value="monthly">{t("freq_monthly")}</SelectItem>
+                          <SelectItem value="quarterly">{t("freq_quarterly_short")}</SelectItem>
+                          <SelectItem value="annual">{t("freq_annual")}</SelectItem>
+                          <SelectItem value="one_time">{t("freq_one_time")}</SelectItem>
                         </SelectContent>
                       </Select>
                       {changed ? (
