@@ -27,7 +27,6 @@ export default async function StudentPrintPage({ params, searchParams }: PagePro
         id, student_code, name_bn, name_en, name_ar, roll, gender, photo_url,
         blood_group, religion, date_of_birth, admission_date, guardian_phone,
         address_present, address_permanent, previous_school,
-        birth_cert_no, nid_no,
         admission_fee, tuition_fee, transport_fee,
         sections ( name, classes ( name_bn ) ),
         student_guardians ( name_bn, phone, relation, is_primary )
@@ -54,7 +53,6 @@ export default async function StudentPrintPage({ params, searchParams }: PagePro
     blood_group: string | null; religion: string | null; date_of_birth: string | null;
     admission_date: string | null; guardian_phone: string | null;
     address_present: string | null; address_permanent: string | null; previous_school: string | null;
-    birth_cert_no: string | null; nid_no: string | null;
     admission_fee: number | null; tuition_fee: number | null; transport_fee: number | null;
     sections: { name: string; classes: { name_bn: string } } | null;
     student_guardians: { name_bn: string; phone: string | null; relation: string; is_primary: boolean }[];
@@ -149,7 +147,6 @@ function AdmissionDetails({
     religion: string | null; date_of_birth: string | null; admission_date: string | null;
     address_present: string | null; address_permanent: string | null;
     blood_group: string | null; previous_school: string | null;
-    birth_cert_no: string | null; nid_no: string | null;
     admission_fee: number | null; tuition_fee: number | null; transport_fee: number | null;
     sections: { name: string; classes: { name_bn: string } } | null;
     student_guardians: { name_bn: string; phone: string | null; relation: string; is_primary: boolean }[];
@@ -173,8 +170,6 @@ function AdmissionDetails({
         <Row label="ধর্ম" value={student.religion ?? "—"} />
         <Row label="রক্তের গ্রুপ" value={student.blood_group ?? "—"} />
         <Row label="ভর্তির তারিখ" value={student.admission_date ?? "—"} />
-        <Row label="জন্ম নিবন্ধন নম্বর" value={student.birth_cert_no ?? "—"} />
-        <Row label="NID নম্বর" value={student.nid_no ?? "—"} />
       </Section>
 
       <Section title="ঠিকানা">
