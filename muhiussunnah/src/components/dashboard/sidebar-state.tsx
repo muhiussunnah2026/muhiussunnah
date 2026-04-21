@@ -1,15 +1,22 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
 /**
- * Sidebar collapse state — shared between the hamburger toggle button
- * (header) and the sidebar itself. Persisted in localStorage so it
- * survives navigations and page reloads.
+ * Sidebar state — two separate dimensions:
+ *   • `collapsed`  → desktop icon-rail mode (persists in localStorage)
+ *   • `mobileOpen` → mobile drawer overlay (does NOT persist; closes on nav)
+ *
+ * Shared between the hamburger button in the header, the sidebar shell,
+ * and the mobile drawer backdrop.
  */
 type SidebarState = {
   collapsed: boolean;
+  mobileOpen: boolean;
   toggle: () => void;
+  toggleMobile: () => void;
+  closeMobile: () => void;
   setCollapsed: (v: boolean) => void;
 };
 
@@ -18,8 +25,9 @@ const SidebarCtx = createContext<SidebarState | null>(null);
 const STORAGE_KEY = "dashboard:sidebar-collapsed";
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
-  // Hydration-safe: start uncollapsed on server; read localStorage on mount.
   const [collapsed, setCollapsedState] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     try {
@@ -29,6 +37,24 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
       /* storage disabled */
     }
   }, []);
+
+  // Auto-close the mobile drawer whenever the route changes. Without
+  // this, tapping a nav item would leave the overlay stuck open on top
+  // of the newly loaded page.
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll while the mobile drawer is open so the underlying
+  // page doesn't scroll behind it.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
 
   const setCollapsed = useCallback((v: boolean) => {
     setCollapsedState(v);
@@ -43,8 +69,13 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
     setCollapsed(!collapsed);
   }, [collapsed, setCollapsed]);
 
+  const toggleMobile = useCallback(() => setMobileOpen((v) => !v), []);
+  const closeMobile = useCallback(() => setMobileOpen(false), []);
+
   return (
-    <SidebarCtx.Provider value={{ collapsed, toggle, setCollapsed }}>
+    <SidebarCtx.Provider
+      value={{ collapsed, mobileOpen, toggle, toggleMobile, closeMobile, setCollapsed }}
+    >
       {children}
     </SidebarCtx.Provider>
   );

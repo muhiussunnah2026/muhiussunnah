@@ -7,10 +7,9 @@ import { LiveIndicator } from "@/components/ui/live-indicator";
 import { LanguageSwitcher } from "@/components/marketing/language-switcher";
 import { ThemeToggle } from "@/components/marketing/theme-toggle";
 import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i18n/config";
-import { SidebarNav } from "./sidebar-nav";
 import { SidebarProvider } from "./sidebar-state";
 import { SidebarToggle } from "./sidebar-toggle";
-import { SidebarShell, SidebarFooter } from "./sidebar-shell";
+import { SidebarShell } from "./sidebar-shell";
 import { UserMenu } from "./user-menu";
 
 type NavItem = {
@@ -233,15 +232,10 @@ export async function DashboardShell({
       </header>
 
       <div className="relative flex flex-1">
-        <SidebarShell>
-          <div className="relative">
-            <SidebarNav items={nav} />
-          </div>
-          <SidebarFooter />
-        </SidebarShell>
+        <SidebarShell items={nav} />
 
         {/* Content */}
-        <main className="relative flex-1 p-5 md:p-8">
+        <main className="relative min-w-0 flex-1 p-4 md:p-8">
           {children}
           <div className="mt-10">
             <TrustBadge variant="footer" />
