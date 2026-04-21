@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { ensureDefaultSections } from "@/lib/schools/self-heal";
@@ -17,7 +17,11 @@ export default async function ClassesPage() {
   // Heal legacy classes so the dropdowns on student pages always work.
   await ensureDefaultSections(membership.school_id);
 
-  const supabase = await supabaseServer();
+  // Admin client: requireActiveRole() already authorized the user, all queries
+  // scoped by school_id. Needed because RLS on `sections` blocks the nested
+  // join in the classes query — without this, per-class student counts come
+  // back as zero because the sections list on each class is empty.
+  const supabase = supabaseAdmin();
   // Independent — all three keyed off school_id.
   const [classesRes, branchesRes, studentsRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
