@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Bus } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -12,6 +13,7 @@ import { AddRouteForm, AddVehicleForm } from "./route-forms";
 
 export default async function TransportPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES]);
+  const t = await getTranslations("transport");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
@@ -38,12 +40,12 @@ export default async function TransportPage() {
   return (
     <>
       <PageHeader
-        title="পরিবহন"
-        subtitle="রুট, গাড়ি ও ছাত্রদের পরিবহন ব্যবস্থাপনা।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <><BanglaDigit value={routeList.length} /> রুট</>, tone: "default" },
-          { label: <><BanglaDigit value={totalVehicles} /> গাড়ি</>, tone: "accent" },
-          { label: <><BanglaDigit value={(studentCount as { id: string }[])?.length ?? 0} /> ছাত্র</>, tone: "success" },
+          { label: t("tally_routes", { count: routeList.length }), tone: "default" },
+          { label: t("tally_vehicles", { count: totalVehicles }), tone: "accent" },
+          { label: t("tally_students", { count: (studentCount as { id: string }[])?.length ?? 0 }), tone: "success" },
         ]}
       />
 
@@ -52,8 +54,8 @@ export default async function TransportPage() {
           {routeList.length === 0 ? (
             <EmptyState
               icon={<Bus className="size-8" />}
-              title="কোন রুট নেই"
-              body="ডান পাশের ফর্ম থেকে প্রথম রুট যোগ করুন।"
+              title={t("empty_title")}
+              body={t("empty_body")}
             />
           ) : (
             <div className="space-y-4">
@@ -67,20 +69,20 @@ export default async function TransportPage() {
                           <p className="text-xs text-muted-foreground">{r.start_point} → {r.end_point}</p>
                         )}
                         {r.fare_per_month && (
-                          <p className="text-xs text-muted-foreground">মাসিক ভাড়া: ৳ <BanglaDigit value={r.fare_per_month} /></p>
+                          <p className="text-xs text-muted-foreground">{t("monthly_fare", { amount: r.fare_per_month })}</p>
                         )}
                       </div>
                       <Badge variant={r.is_active ? "default" : "secondary"}>
-                        {r.is_active ? "সক্রিয়" : "বন্ধ"}
+                        {r.is_active ? t("status_active") : t("status_inactive")}
                       </Badge>
                     </div>
                     {r.transport_vehicles.length > 0 && (
                       <Table className="mt-3">
                         <TableHeader>
                           <TableRow>
-                            <TableHead>রেজিস্ট্রেশন</TableHead>
-                            <TableHead>ড্রাইভার</TableHead>
-                            <TableHead className="text-right">ধারণ</TableHead>
+                            <TableHead>{t("col_reg")}</TableHead>
+                            <TableHead>{t("col_driver")}</TableHead>
+                            <TableHead className="text-right">{t("col_capacity")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -104,13 +106,13 @@ export default async function TransportPage() {
         <aside className="space-y-4">
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-base font-semibold">নতুন রুট</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("new_route_heading")}</h2>
               <AddRouteForm  schoolSlug={schoolSlug}/>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-base font-semibold">গাড়ি যোগ করুন</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("add_vehicle_heading")}</h2>
               <AddVehicleForm routes={routeList} schoolSlug={schoolSlug} />
             </CardContent>
           </Card>

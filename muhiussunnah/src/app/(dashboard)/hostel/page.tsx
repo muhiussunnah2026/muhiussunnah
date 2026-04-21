@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Home } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -12,11 +13,11 @@ import { AddHostelForm, AddRoomForm, AllocateForm } from "./hostel-forms";
 
 export default async function HostelPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES]);
+  const t = await getTranslations("hostel");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
 
-  // Hostels + students are independent (both keyed off school_id). Allocations depend on hostels' room ids.
   const [hostelsRes, studentsRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -53,16 +54,16 @@ export default async function HostelPage() {
     h.hostel_rooms.map((r) => ({ id: r.id, room_no: r.room_no, hostel_name: h.name }))
   );
 
-  const typeLabel = (t: string) => ({ boys: "ছেলে", girls: "মেয়ে", mixed: "মিশ্র" }[t] ?? t);
+  const typeLabel = (tp: string) => ({ boys: t("type_boys"), girls: t("type_girls"), mixed: t("type_mixed") }[tp] ?? tp);
 
   return (
     <>
       <PageHeader
-        title="হোস্টেল"
-        subtitle="আবাসিক ভবন, রুম ও ছাত্র বরাদ্দ ব্যবস্থাপনা।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <><BanglaDigit value={hostelList.length} /> হোস্টেল · <BanglaDigit value={totalRooms} /> রুম</>, tone: "default" },
-          { label: <><BanglaDigit value={totalResidents} /> আবাসিক ছাত্র</>, tone: "accent" },
+          { label: t("tally_buildings", { hostels: hostelList.length, rooms: totalRooms }), tone: "default" },
+          { label: t("tally_residents", { count: totalResidents }), tone: "accent" },
         ]}
       />
 
@@ -71,8 +72,8 @@ export default async function HostelPage() {
           {hostelList.length === 0 ? (
             <EmptyState
               icon={<Home className="size-8" />}
-              title="কোন হোস্টেল নেই"
-              body="ডান পাশের ফর্ম থেকে প্রথম হোস্টেল যোগ করুন।"
+              title={t("empty_title")}
+              body={t("empty_body")}
             />
           ) : (
             <>
@@ -84,10 +85,10 @@ export default async function HostelPage() {
                         <h3 className="font-semibold">{h.name}</h3>
                         <Badge variant="outline">{typeLabel(h.type)}</Badge>
                       </div>
-                      {h.warden_name && <p className="text-xs text-muted-foreground mt-1">তত্ত্বাবধায়ক: {h.warden_name}</p>}
+                      {h.warden_name && <p className="text-xs text-muted-foreground mt-1">{t("warden_label")}: {h.warden_name}</p>}
                       <p className="text-xs text-muted-foreground">
-                        <BanglaDigit value={h.hostel_rooms.length} /> রুম
-                        {h.capacity ? <> · ধারণক্ষমতা <BanglaDigit value={h.capacity} /></> : null}
+                        <BanglaDigit value={h.hostel_rooms.length} /> {t("rooms_suffix")}
+                        {h.capacity ? <> · {t("capacity_suffix")} <BanglaDigit value={h.capacity} /></> : null}
                       </p>
                     </CardContent>
                   </Card>
@@ -96,23 +97,23 @@ export default async function HostelPage() {
 
               {(allocations ?? []).length > 0 && (
                 <>
-                  <h2 className="text-base font-semibold">বর্তমান আবাসিক ছাত্র</h2>
+                  <h2 className="text-base font-semibold">{t("residents_heading")}</h2>
                   <Card>
                     <CardContent className="p-0">
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>ছাত্র</TableHead>
-                            <TableHead>হোস্টেল / রুম</TableHead>
-                            <TableHead>বেড</TableHead>
-                            <TableHead>তারিখ</TableHead>
+                            <TableHead>{t("col_student")}</TableHead>
+                            <TableHead>{t("col_hostel_room")}</TableHead>
+                            <TableHead>{t("col_bed")}</TableHead>
+                            <TableHead>{t("col_date")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {(allocations as Array<{ id: string; bed_no: string | null; from_date: string; hostel_rooms: { room_no: string; hostels: { name: string } } | null; students: { name_bn: string | null; name_en: string | null } | null }>).map((a) => (
                             <TableRow key={a.id}>
                               <TableCell className="text-sm">{a.students?.name_bn ?? a.students?.name_en ?? "—"}</TableCell>
-                              <TableCell className="text-sm">{a.hostel_rooms?.hostels?.name} — রুম {a.hostel_rooms?.room_no}</TableCell>
+                              <TableCell className="text-sm">{a.hostel_rooms?.hostels?.name} — {t("room_prefix")} {a.hostel_rooms?.room_no}</TableCell>
                               <TableCell className="text-sm">{a.bed_no ?? "—"}</TableCell>
                               <TableCell className="text-xs">{a.from_date}</TableCell>
                             </TableRow>
@@ -130,19 +131,19 @@ export default async function HostelPage() {
         <aside className="space-y-4">
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-base font-semibold">নতুন হোস্টেল</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("new_hostel_heading")}</h2>
               <AddHostelForm  schoolSlug={schoolSlug}/>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-base font-semibold">রুম যোগ</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("add_room_heading")}</h2>
               <AddRoomForm hostels={hostelList} schoolSlug={schoolSlug} />
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-base font-semibold">ছাত্র বরাদ্দ</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("allocate_heading")}</h2>
               <AllocateForm
                 rooms={roomsFlat}
                 students={(students ?? []) as Array<{ id: string; name_bn: string | null; name_en: string | null }>}

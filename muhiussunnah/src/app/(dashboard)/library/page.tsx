@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { BookOpen } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -14,11 +14,11 @@ import { IssueBookForm, ReturnBookButton } from "./issue-form";
 
 export default async function LibraryPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES]);
+  const t = await getTranslations("library");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
 
-  // Books + students are independent (both keyed off school_id). Issues depends on books' ids.
   const [booksRes, studentsRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -55,23 +55,22 @@ export default async function LibraryPage() {
   return (
     <>
       <PageHeader
-        title="লাইব্রেরি"
-        subtitle="বইয়ের ক্যাটালগ, ইস্যু/রিটার্ন ব্যবস্থাপনা।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <><BanglaDigit value={bookList.length} /> শিরোনাম · <BanglaDigit value={totalBooks} /> কপি</>, tone: "default" },
-          { label: <><BanglaDigit value={issued} /> ইস্যু করা</>, tone: "accent" },
-          ...(overdue > 0 ? [{ label: <><BanglaDigit value={overdue} /> মেয়াদোত্তীর্ণ</>, tone: "warning" as const }] : []),
+          { label: t("tally_books", { titles: bookList.length, copies: totalBooks }), tone: "default" },
+          { label: t("tally_issued", { count: issued }), tone: "accent" },
+          ...(overdue > 0 ? [{ label: t("tally_overdue", { count: overdue }), tone: "warning" as const }] : []),
         ]}
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <section className="space-y-6">
-          {/* Books catalog */}
           {bookList.length === 0 ? (
             <EmptyState
               icon={<BookOpen className="size-8" />}
-              title="কোন বই নেই"
-              body="ডান পাশের ফর্ম থেকে প্রথম বই যোগ করুন।"
+              title={t("empty_title")}
+              body={t("empty_body")}
             />
           ) : (
             <Card>
@@ -79,11 +78,11 @@ export default async function LibraryPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>শিরোনাম / লেখক</TableHead>
-                      <TableHead>বিভাগ</TableHead>
-                      <TableHead>শেলফ</TableHead>
-                      <TableHead className="text-right">মোট</TableHead>
-                      <TableHead className="text-right">Available</TableHead>
+                      <TableHead>{t("col_title_author")}</TableHead>
+                      <TableHead>{t("col_category")}</TableHead>
+                      <TableHead>{t("col_shelf")}</TableHead>
+                      <TableHead className="text-right">{t("col_total")}</TableHead>
+                      <TableHead className="text-right">{t("col_available")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -109,34 +108,33 @@ export default async function LibraryPage() {
             </Card>
           )}
 
-          {/* Active issues */}
           {issueList.length > 0 && (
             <>
-              <h2 className="text-base font-semibold">ইস্যু করা বই (ফেরত আসেনি)</h2>
+              <h2 className="text-base font-semibold">{t("issues_heading")}</h2>
               <Card>
                 <CardContent className="p-0">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>বই</TableHead>
-                        <TableHead>ছাত্র</TableHead>
-                        <TableHead>ফেরতের তারিখ</TableHead>
-                        <TableHead>স্ট্যাটাস</TableHead>
+                        <TableHead>{t("col_book")}</TableHead>
+                        <TableHead>{t("col_student")}</TableHead>
+                        <TableHead>{t("col_due")}</TableHead>
+                        <TableHead>{t("col_status")}</TableHead>
                         <TableHead />
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {issueList.map((i) => {
-                        const overdue = new Date(i.due_on) < new Date();
+                        const isOverdue = new Date(i.due_on) < new Date();
                         return (
                           <TableRow key={i.id}>
                             <TableCell className="text-sm">{i.library_books?.title ?? "—"}</TableCell>
                             <TableCell className="text-sm">{i.students?.name_bn ?? i.students?.name_en ?? "—"}</TableCell>
                             <TableCell className="text-xs">{i.due_on}</TableCell>
                             <TableCell>
-                              {overdue
-                                ? <Badge variant="destructive">Overdue</Badge>
-                                : <Badge variant="secondary">ইস্যু করা</Badge>}
+                              {isOverdue
+                                ? <Badge variant="destructive">{t("status_overdue_badge")}</Badge>
+                                : <Badge variant="secondary">{t("status_issued_badge")}</Badge>}
                             </TableCell>
                             <TableCell>
                               <ReturnBookButton issue={i} schoolSlug={schoolSlug} />
@@ -155,14 +153,14 @@ export default async function LibraryPage() {
         <aside className="space-y-4">
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-base font-semibold">নতুন বই যোগ</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("new_book_heading")}</h2>
               <AddBookForm  schoolSlug={schoolSlug}/>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-base font-semibold">বই ইস্যু করুন</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("issue_heading")}</h2>
               <IssueBookForm
                 books={bookList}
                 students={(students ?? []) as Array<{ id: string; name_bn: string | null; name_en: string | null }>}

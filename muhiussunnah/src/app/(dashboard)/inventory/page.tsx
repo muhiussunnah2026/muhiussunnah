@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Package } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -12,6 +13,7 @@ import { AddItemForm, StockMovementForm } from "./inventory-forms";
 
 export default async function InventoryPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES]);
+  const t = await getTranslations("inventory");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
@@ -36,19 +38,19 @@ export default async function InventoryPage() {
   const lowStock = itemList.filter((i) => i.reorder_level !== null && i.stock <= i.reorder_level);
   const totalValue = itemList.reduce((s, i) => s + Number(i.stock) * Number(i.unit_price ?? 0), 0);
 
-  const mvTypeLabel = (t: string) => ({ in: "স্টক ইন", out: "স্টক আউট", adjustment: "সমন্বয়", waste: "নষ্ট", transfer: "ট্রান্সফার" }[t] ?? t);
-  const mvBadgeVariant = (t: string): "default" | "secondary" | "destructive" | "outline" =>
-    t === "in" ? "default" : t === "out" ? "secondary" : t === "waste" ? "destructive" : "outline";
+  const mvTypeLabel = (tp: string) => ({ in: t("mv_in"), out: t("mv_out"), adjustment: t("mv_adjustment"), waste: t("mv_waste"), transfer: t("mv_transfer") }[tp] ?? tp);
+  const mvBadgeVariant = (tp: string): "default" | "secondary" | "destructive" | "outline" =>
+    tp === "in" ? "default" : tp === "out" ? "secondary" : tp === "waste" ? "destructive" : "outline";
 
   return (
     <>
       <PageHeader
-        title="ইনভেন্টরি"
-        subtitle="স্টেশনারি, আসবাব ও অন্যান্য সম্পদের স্টক ব্যবস্থাপনা।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <><BanglaDigit value={itemList.length} /> আইটেম</>, tone: "default" },
-          { label: <>মূল্য · ৳ <BanglaDigit value={Math.round(totalValue).toLocaleString("en-IN")} /></>, tone: "accent" },
-          ...(lowStock.length > 0 ? [{ label: <><BanglaDigit value={lowStock.length} /> কম স্টক</>, tone: "warning" as const }] : []),
+          { label: t("tally_items", { count: itemList.length }), tone: "default" },
+          { label: t("tally_value", { amount: Math.round(totalValue).toLocaleString("en-IN") }), tone: "accent" },
+          ...(lowStock.length > 0 ? [{ label: t("tally_low", { count: lowStock.length }), tone: "warning" as const }] : []),
         ]}
       />
 
@@ -57,8 +59,8 @@ export default async function InventoryPage() {
           {itemList.length === 0 ? (
             <EmptyState
               icon={<Package className="size-8" />}
-              title="কোন আইটেম নেই"
-              body="ডান পাশের ফর্ম থেকে প্রথম আইটেম যোগ করুন।"
+              title={t("empty_title")}
+              body={t("empty_body")}
             />
           ) : (
             <Card>
@@ -66,11 +68,11 @@ export default async function InventoryPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>আইটেম</TableHead>
-                      <TableHead>বিভাগ</TableHead>
-                      <TableHead className="text-right">স্টক</TableHead>
-                      <TableHead className="text-right">একক মূল্য</TableHead>
-                      <TableHead>স্ট্যাটাস</TableHead>
+                      <TableHead>{t("col_item")}</TableHead>
+                      <TableHead>{t("col_category")}</TableHead>
+                      <TableHead className="text-right">{t("col_stock")}</TableHead>
+                      <TableHead className="text-right">{t("col_unit_price")}</TableHead>
+                      <TableHead>{t("col_status")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -91,8 +93,8 @@ export default async function InventoryPage() {
                           </TableCell>
                           <TableCell>
                             {isLow
-                              ? <Badge variant="destructive">কম স্টক</Badge>
-                              : <Badge variant="secondary">স্বাভাবিক</Badge>}
+                              ? <Badge variant="destructive">{t("status_low")}</Badge>
+                              : <Badge variant="secondary">{t("status_normal")}</Badge>}
                           </TableCell>
                         </TableRow>
                       );
@@ -105,17 +107,17 @@ export default async function InventoryPage() {
 
           {(recentMovements ?? []).length > 0 && (
             <>
-              <h2 className="text-base font-semibold">সাম্প্রতিক লেনদেন</h2>
+              <h2 className="text-base font-semibold">{t("movements_heading")}</h2>
               <Card>
                 <CardContent className="p-0">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>আইটেম</TableHead>
-                        <TableHead>ধরন</TableHead>
-                        <TableHead className="text-right">পরিমাণ</TableHead>
-                        <TableHead>তারিখ</TableHead>
-                        <TableHead>নোট</TableHead>
+                        <TableHead>{t("col_item")}</TableHead>
+                        <TableHead>{t("col_type")}</TableHead>
+                        <TableHead className="text-right">{t("col_qty")}</TableHead>
+                        <TableHead>{t("col_date")}</TableHead>
+                        <TableHead>{t("col_notes")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -139,13 +141,13 @@ export default async function InventoryPage() {
         <aside className="space-y-4">
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-base font-semibold">নতুন আইটেম</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("new_item_heading")}</h2>
               <AddItemForm  schoolSlug={schoolSlug}/>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-base font-semibold">স্টক আপডেট</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("stock_update_heading")}</h2>
               <StockMovementForm items={itemList} schoolSlug={schoolSlug} />
             </CardContent>
           </Card>
