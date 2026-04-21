@@ -223,19 +223,11 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
         impact={[
           { label: <RealtimeDashboardIndicator schoolId={schoolId} />, tone: "success" },
         ]}
-        actions={
-          <DateRangeFilter
-            currentRange={range.preset}
-            currentLabel={range.label}
-            currentFrom={range.from}
-            currentTo={range.to}
-            prevLabel={range.prevLabel}
-          />
-        }
       />
 
-      {/* Period context strip */}
-      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-border/60 bg-gradient-to-r from-primary/5 via-card to-accent/5 px-4 py-2.5 text-xs text-muted-foreground">
+      {/* Period context strip — filter lives INSIDE this strip on the right
+          so the header stays compact and there's no wasted vertical space. */}
+      <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-border/60 bg-gradient-to-r from-primary/5 via-card to-accent/5 px-4 py-2.5 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span className="size-1.5 rounded-full bg-primary" />
           <span className="font-semibold text-foreground">{range.label}</span>
@@ -246,9 +238,18 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
           <span className="size-1.5 rounded-full bg-muted-foreground/40" />
           তুলনা: <span className="font-medium">{range.prevLabel}</span>
         </span>
-        <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground/70">
+        <span className="hidden lg:inline text-[10px] uppercase tracking-wider text-muted-foreground/70">
           প্রতিটা কার্ডে ↗↘ চিহ্ন আগের পিরিয়ডের সাথে তুলনা
         </span>
+        <div className="ml-auto">
+          <DateRangeFilter
+            currentRange={range.preset}
+            currentLabel={range.label}
+            currentFrom={range.from}
+            currentTo={range.to}
+            prevLabel={range.prevLabel}
+          />
+        </div>
       </div>
 
       {/* Hero metric row */}

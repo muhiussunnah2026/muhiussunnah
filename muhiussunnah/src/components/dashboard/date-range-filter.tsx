@@ -119,7 +119,7 @@ export function DateRangeFilter({
                 <div className="border-b border-border/60 bg-muted/30 px-3 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
                   সময়সীমা বাছাই করুন
                 </div>
-                <ul className="max-h-80 overflow-y-auto p-1">
+                <ul className="max-h-80 space-y-0.5 overflow-y-auto p-1.5">
                   {PRESETS.map((p) => {
                     const active = currentRange === p.key;
                     return (
@@ -128,10 +128,10 @@ export function DateRangeFilter({
                           type="button"
                           onClick={() => setRange(p.key)}
                           className={cn(
-                            "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition",
+                            "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors",
                             active
                               ? "bg-primary/10 font-semibold text-primary"
-                              : "hover:bg-muted",
+                              : "text-foreground hover:bg-muted",
                           )}
                         >
                           <span>{p.label}</span>
