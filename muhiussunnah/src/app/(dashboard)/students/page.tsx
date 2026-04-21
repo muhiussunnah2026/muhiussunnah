@@ -30,6 +30,7 @@ export default async function StudentsListPage({ searchParams }: PageProps) {
     .from("students")
     .select(`
       id, student_code, name_bn, name_en, roll, gender, photo_url, status, guardian_phone,
+      admission_date,
       section_id, sections ( id, name, class_id, classes ( id, name_bn ) )
     `)
     .eq("school_id", membership.school_id)
@@ -68,7 +69,7 @@ export default async function StudentsListPage({ searchParams }: PageProps) {
   const students = (data ?? []) as Array<{
     id: string; student_code: string; name_bn: string; name_en: string | null;
     roll: number | null; gender: string | null; photo_url: string | null; status: string;
-    guardian_phone: string | null; section_id: string | null;
+    guardian_phone: string | null; admission_date: string | null; section_id: string | null;
     sections: { id: string; name: string; classes: { name_bn: string } } | null;
   }>;
 

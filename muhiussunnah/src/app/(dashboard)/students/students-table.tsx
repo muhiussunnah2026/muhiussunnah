@@ -20,6 +20,7 @@ type Student = {
   photo_url: string | null;
   status: string;
   guardian_phone: string | null;
+  admission_date: string | null;
   sections: { id: string; name: string; classes: { name_bn: string } } | null;
 };
 
@@ -195,10 +196,12 @@ export function StudentsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ছাত্র/ছাত্রী</TableHead>
-              <TableHead className="hidden md:table-cell">কোড</TableHead>
-              <TableHead className="hidden md:table-cell">ক্লাস</TableHead>
-              <TableHead className="hidden lg:table-cell">অভিভাবক</TableHead>
+              <TableHead className="w-16">ছবি</TableHead>
+              <TableHead className="hidden sm:table-cell">আইডি</TableHead>
+              <TableHead>শিক্ষার্থীর নাম</TableHead>
+              <TableHead className="hidden md:table-cell">শ্রেণি</TableHead>
+              <TableHead className="hidden sm:table-cell w-16">রোল</TableHead>
+              <TableHead className="hidden lg:table-cell">ভর্তি তারিখ</TableHead>
               <TableHead className="hidden md:table-cell">স্ট্যাটাস</TableHead>
               <TableHead className="text-end">কার্যক্রম</TableHead>
             </TableRow>
@@ -207,38 +210,46 @@ export function StudentsTable({
             {visible.map((s) => (
               <TableRow key={s.id}>
                 <TableCell>
-                  <Link
-                    href={`/students/${s.id}`}
-                    className="flex items-center gap-3 hover:underline-offset-4 hover:underline"
-                  >
-                    <Avatar className="size-8">
+                  <Link href={`/students/${s.id}`}>
+                    <Avatar className="size-10">
                       {s.photo_url ? <AvatarImage src={s.photo_url} alt={s.name_bn} /> : null}
-                      <AvatarFallback className="bg-primary/10 text-xs text-primary">
+                      <AvatarFallback className="bg-gradient-to-br from-primary/15 to-accent/15 text-sm text-primary">
                         {s.name_bn.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <div className="font-medium">{s.name_bn}</div>
-                      {s.roll ? (
-                        <div className="text-xs text-muted-foreground">
-                          রোল: <BanglaDigit value={s.roll} />
-                        </div>
-                      ) : null}
-                    </div>
                   </Link>
                 </TableCell>
-                <TableCell className="hidden md:table-cell font-mono text-xs">{s.student_code}</TableCell>
+                <TableCell className="hidden sm:table-cell font-mono text-xs text-muted-foreground">
+                  {s.student_code}
+                </TableCell>
+                <TableCell>
+                  <Link
+                    href={`/students/${s.id}`}
+                    className="font-medium hover:text-primary hover:underline underline-offset-4"
+                  >
+                    {s.name_bn}
+                  </Link>
+                  {s.name_en ? (
+                    <div className="text-[11px] text-muted-foreground">{s.name_en}</div>
+                  ) : null}
+                </TableCell>
                 <TableCell className="hidden md:table-cell text-sm">
                   {s.sections ? (
                     <span>
-                      {s.sections.classes.name_bn} — {s.sections.name}
+                      {s.sections.classes.name_bn}
+                      {s.sections.name && s.sections.name !== "ক" ? (
+                        <span className="text-muted-foreground"> — {s.sections.name}</span>
+                      ) : null}
                     </span>
                   ) : (
                     <span className="text-muted-foreground">—</span>
                   )}
                 </TableCell>
+                <TableCell className="hidden sm:table-cell text-sm tabular-nums">
+                  {s.roll != null ? <BanglaDigit value={s.roll} /> : <span className="text-muted-foreground">—</span>}
+                </TableCell>
                 <TableCell className="hidden lg:table-cell text-xs text-muted-foreground">
-                  {s.guardian_phone ?? "—"}
+                  {s.admission_date ? formatBanglaDate(s.admission_date) : "—"}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   <span
@@ -353,4 +364,13 @@ function escapeHtml(s: string) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+/** Render an ISO date as DD-MM-YYYY in Bangla numerals. */
+function formatBanglaDate(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!m) return iso;
+  const [, y, mo, d] = m;
+  const toBn = (s: string) => s.replace(/[0-9]/g, (c) => "০১২৩৪৫৬৭৮৯"[Number(c)]);
+  return `${toBn(d)}-${toBn(mo)}-${toBn(y)}`;
 }

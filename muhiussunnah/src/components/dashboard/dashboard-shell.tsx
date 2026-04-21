@@ -113,7 +113,7 @@ export async function DashboardShell({
           className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"
           aria-hidden
         />
-        <div className="relative grid grid-cols-3 items-center gap-4 px-4 py-3.5 md:px-6">
+        <div className="relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-3.5 md:px-6">
           {/* Left — hamburger toggle + institution logo */}
           <div className="flex items-center gap-3 justify-self-start">
             <SidebarToggle />
@@ -148,7 +148,7 @@ export async function DashboardShell({
             {visibleFields.length > 0 ? (
               <>
                 {primary ? (
-                  <h1 className="text-lg font-extrabold tracking-tight leading-[1.2] md:text-2xl lg:text-3xl bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent break-words">
+                  <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-extrabold tracking-tight leading-[1.15] bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent truncate">
                     {primary.value}
                   </h1>
                 ) : null}
@@ -157,7 +157,7 @@ export async function DashboardShell({
                 {nameLines.map((f) => (
                   <p
                     key={f.key}
-                    className="mt-0.5 text-xs md:text-sm font-semibold text-foreground/80 leading-snug break-words"
+                    className="mt-0.5 text-[11px] md:text-xs lg:text-sm font-semibold text-foreground/80 leading-snug truncate"
                     dir={f.key === "name_ar" ? "rtl" : undefined}
                   >
                     {f.value}
@@ -205,11 +205,11 @@ export async function DashboardShell({
               </>
             ) : (
               <>
-                <h1 className="text-lg font-extrabold tracking-tight leading-[1.2] md:text-2xl lg:text-3xl bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent break-words">
+                <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-extrabold tracking-tight leading-[1.15] bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent truncate">
                   {title}
                 </h1>
                 {subtitle ? (
-                  <p className="mt-1 text-xs md:text-sm text-muted-foreground leading-snug">
+                  <p className="mt-1 text-xs md:text-sm text-muted-foreground leading-snug truncate">
                     {subtitle}
                   </p>
                 ) : null}

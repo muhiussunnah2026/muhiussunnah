@@ -23,8 +23,9 @@ export default async function EditStudentPage({ params }: PageProps) {
       id, student_code, name_bn, name_en, name_ar, roll, gender, photo_url,
       blood_group, religion, date_of_birth, admission_date, guardian_phone,
       address_present, address_permanent, previous_school, status,
-      admission_fee, tuition_fee, transport_fee, rf_id_card,
-      sections ( id, name, classes ( id, name_bn ) )
+      admission_fee, tuition_fee, transport_fee, rf_id_card, nid_birth_cert,
+      sections ( id, name, classes ( id, name_bn ) ),
+      student_guardians ( id, name_bn, phone, relation, is_primary )
     `)
     .eq("id", id)
     .eq("school_id", membership.school_id)
@@ -40,9 +41,14 @@ export default async function EditStudentPage({ params }: PageProps) {
     address_present: string | null; address_permanent: string | null; previous_school: string | null;
     status: string;
     admission_fee: number | null; tuition_fee: number | null; transport_fee: number | null;
-    rf_id_card: string | null;
+    rf_id_card: string | null; nid_birth_cert: string | null;
     sections: { id: string; name: string; classes: { id: string; name_bn: string } } | null;
+    student_guardians: { id: string; name_bn: string; phone: string | null; relation: string; is_primary: boolean }[];
   };
+
+  const father = student.student_guardians?.find((g) => g.relation === "father") ?? null;
+  const mother = student.student_guardians?.find((g) => g.relation === "mother") ?? null;
+  const extra = student.student_guardians?.find((g) => g.relation !== "father" && g.relation !== "mother") ?? null;
 
   return (
     <>
@@ -63,7 +69,13 @@ export default async function EditStudentPage({ params }: PageProps) {
 
       <Card>
         <CardContent className="p-5 md:p-6">
-          <EditStudentForm schoolSlug={schoolSlug} student={student} />
+          <EditStudentForm
+            schoolSlug={schoolSlug}
+            student={student}
+            father={father}
+            mother={mother}
+            extra={extra}
+          />
         </CardContent>
       </Card>
     </>

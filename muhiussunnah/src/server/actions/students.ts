@@ -466,6 +466,8 @@ export async function shiftStudentAction(
 const updateStudentSchema = z.object({
   schoolSlug: z.string().min(1),
   student_id: z.string().uuid(),
+  // identity
+  student_code: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
   name_bn: z.string().trim().min(2).max(200),
   name_en: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
   name_ar: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
@@ -475,14 +477,25 @@ const updateStudentSchema = z.object({
   blood_group: z.string().trim().max(10).optional().or(z.literal("").transform(() => undefined)),
   date_of_birth: z.string().optional().or(z.literal("").transform(() => undefined)),
   admission_date: z.string().optional().or(z.literal("").transform(() => undefined)),
+  nid_birth_cert: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
+  rf_id_card: z.string().trim().max(100).optional().or(z.literal("").transform(() => undefined)),
+  photo_data_url: z.string().optional(),
+  // contact + guardians
   guardian_phone: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
+  guardian_name: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
+  guardian_relation: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
+  mother_name: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
+  mother_phone: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
+  extra_guardian_name: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
+  extra_guardian_phone: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
+  extra_guardian_relation: z.string().trim().max(100).optional().or(z.literal("").transform(() => undefined)),
   address_present: z.string().trim().max(500).optional().or(z.literal("").transform(() => undefined)),
   address_permanent: z.string().trim().max(500).optional().or(z.literal("").transform(() => undefined)),
   previous_school: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
+  // fees
   admission_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),
   tuition_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),
   transport_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),
-  rf_id_card: z.string().trim().max(100).optional().or(z.literal("").transform(() => undefined)),
   status: z.enum(["active", "transferred", "passed_out", "dropped", "suspended"]).optional(),
 });
 
@@ -512,12 +525,39 @@ export async function updateStudentAction(
     return fail("এই শিক্ষার্থী এই স্কুলে নেই।");
   }
 
-  const { schoolSlug: _ignoreSlug, student_id: _ignoreId, ...rawUpdate } = parsed;
+  const {
+    schoolSlug: _ignoreSlug,
+    student_id: _ignoreId,
+    // Guardians go into student_guardians via upsert; photo goes into
+    // students.photo_url. Extract them from the generic field-update set.
+    photo_data_url,
+    guardian_name,
+    guardian_phone,
+    guardian_relation,
+    mother_name,
+    mother_phone,
+    extra_guardian_name,
+    extra_guardian_phone,
+    extra_guardian_relation,
+    ...rawUpdate
+  } = parsed;
+
   // Drop undefined keys so we don't overwrite existing values with nulls.
   const update: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(rawUpdate)) {
     if (v !== undefined) update[k] = v;
   }
+
+  // Photo handling: data URL → store inline, "__REMOVE__" → clear, empty/undefined → leave alone.
+  if (photo_data_url === "__REMOVE__") {
+    update.photo_url = null;
+  } else if (photo_data_url && photo_data_url.startsWith("data:image/")) {
+    update.photo_url = photo_data_url;
+  }
+
+  // Also keep students.guardian_phone in sync with the primary guardian phone
+  // so the list view + SMS module don't need a join.
+  if (guardian_phone !== undefined) update.guardian_phone = guardian_phone;
 
   // Some installs are on older migrations that lack the Tier-2 columns.
   // If the update fails with "column ... does not exist" we retry without
@@ -544,6 +584,61 @@ export async function updateStudentAction(
   }
 
   if (error) return fail(error.message);
+
+  // Guardians: upsert father / mother / extra rows by relation type so
+  // editing doesn't pile up duplicate records. Any field that was left
+  // blank in the form (undefined) is preserved; empty strings are
+  // explicit clears.
+  const studentId = parsed.student_id;
+  async function upsertGuardian(
+    name: string | undefined,
+    phone: string | undefined,
+    relation: string,
+    isPrimary: boolean,
+  ) {
+    if (name === undefined && phone === undefined) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: existing } = await (supabase as any)
+      .from("student_guardians")
+      .select("id")
+      .eq("student_id", studentId)
+      .eq("relation", relation)
+      .maybeSingle();
+
+    if (existing?.id) {
+      const patch: Record<string, unknown> = {};
+      if (name !== undefined) patch.name_bn = name || "অভিভাবক";
+      if (phone !== undefined) patch.phone = phone || null;
+      patch.is_primary = isPrimary;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any)
+        .from("student_guardians")
+        .update(patch)
+        .eq("id", existing.id);
+    } else if (name || phone) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).from("student_guardians").insert({
+        student_id: studentId,
+        name_bn: name || "অভিভাবক",
+        phone: phone || null,
+        relation,
+        is_primary: isPrimary,
+      });
+    }
+  }
+
+  const primaryRelation = guardian_relation === "mother" ? "mother" : "father";
+  await upsertGuardian(
+    guardian_name,
+    guardian_phone,
+    primaryRelation,
+    primaryRelation === "father" || guardian_relation === "father",
+  );
+  await upsertGuardian(mother_name, mother_phone, "mother", guardian_relation === "mother");
+  if (extra_guardian_name || extra_guardian_phone) {
+    const rel = extra_guardian_relation?.trim() || "other";
+    await upsertGuardian(extra_guardian_name, extra_guardian_phone, rel, false);
+  }
 
   await writeAuditLog({
     schoolId: auth.active.school_id,
