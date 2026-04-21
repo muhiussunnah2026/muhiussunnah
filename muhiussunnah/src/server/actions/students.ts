@@ -659,10 +659,14 @@ export async function updateStudentAction(
 
   // If the form picked a class_id but no explicit section_id, resolve
   // to the first section of that class. If the class has no sections,
-  // create a default "ক" section on the fly.
+  // create a default "ক" section on the fly — via the ADMIN client
+  // because RLS on sections doesn't allow user-session inserts for
+  // some tenants, which was silently causing the class assignment to
+  // stick as nothing on the student row.
   if (class_id && !rawUpdate.section_id) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: firstSection } = await (supabase as any)
+    const adminSec = supabaseAdmin() as any;
+    const { data: firstSection } = await adminSec
       .from("sections")
       .select("id")
       .eq("class_id", class_id)
@@ -672,8 +676,7 @@ export async function updateStudentAction(
     if (firstSection?.id) {
       rawUpdate.section_id = firstSection.id as string;
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: created } = await (supabase as any)
+      const { data: created } = await adminSec
         .from("sections")
         .insert({ class_id, name: "ক", capacity: null })
         .select("id")

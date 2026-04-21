@@ -63,41 +63,44 @@ export default async function StudentPrintPage({ params, searchParams }: PagePro
   };
 
   const branding = brandingRow as {
-    name_bn: string; name_en: string | null; address: string | null; phone: string | null;
+    name_bn: string;
+    name_en: string | null;
+    name_ar: string | null;
+    address: string | null;
+    phone: string | null;
+    email: string | null;
+    website: string | null;
     logo_url: string | null;
+    header_display_fields: string | null;
   } | null;
+
+  // Match the admin header: render the same field subset the principal
+  // chose in Settings → "Display name in header". Order matters — first
+  // selected field is the big headline, the rest are smaller sub-lines
+  // grouped like a letterhead.
+  const headerFields = parseHeaderFields(branding);
 
   return (
     <div className="bg-white text-black print:bg-white min-h-screen">
       <div className="mx-auto max-w-4xl px-4 py-6 print:p-0 print:max-w-none">
         <PrintActions />
 
-        {/* Letterhead */}
-        <header className="flex items-start gap-5 border-b-2 border-black pb-4">
+        {/* Letterhead — vertically centered so logo, text, and photo
+            all share the same midline instead of all top-aligned. */}
+        <header className="flex items-center gap-5 border-b-2 border-black pb-4">
           {branding?.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={branding.logo_url}
               alt={branding.name_bn}
-              className="size-20 shrink-0 object-contain"
+              className="size-24 shrink-0 object-contain"
             />
           ) : (
-            <div className="flex size-20 shrink-0 items-center justify-center rounded-full border border-black/40 text-2xl font-bold">
+            <div className="flex size-24 shrink-0 items-center justify-center rounded-full border border-black/40 text-3xl font-bold">
               م
             </div>
           )}
-          <div className="flex-1 text-center">
-            <h1 className="text-3xl font-extrabold tracking-tight">{branding?.name_bn ?? membership.school_name_bn}</h1>
-            {branding?.name_en ? (
-              <p className="text-sm text-gray-700 mt-0.5">{branding.name_en}</p>
-            ) : null}
-            {branding?.address ? (
-              <p className="text-sm text-gray-700 mt-0.5">ঠিকানা: {branding.address}</p>
-            ) : null}
-            {branding?.phone ? (
-              <p className="text-xs text-gray-600 mt-0.5">ফোন: {branding.phone}</p>
-            ) : null}
-          </div>
+          <PrintHeaderText fields={headerFields} fallbackName={membership.school_name_bn} />
           {student.photo_url && student.photo_url.trim().length > 0 ? (
             <Image
               src={student.photo_url}
@@ -313,6 +316,122 @@ function Row({ label, value, full }: { label: string; value: React.ReactNode; fu
       <span className="w-40 shrink-0 text-gray-700">{label}</span>
       <span className="font-medium">:</span>
       <span className="flex-1">{value}</span>
+    </div>
+  );
+}
+
+/**
+ * Parse the admin's chosen header field list + resolve each key to its
+ * actual value from the branding row. Returns an ordered list of
+ * `{ key, value }` — first field is the "primary" (big), rest are
+ * secondary (grouped into address / phone / email / website lines).
+ */
+type HeaderField = { key: string; value: string };
+
+function parseHeaderFields(
+  branding: {
+    name_bn: string;
+    name_en: string | null;
+    name_ar: string | null;
+    address: string | null;
+    phone: string | null;
+    email: string | null;
+    website: string | null;
+    header_display_fields: string | null;
+  } | null,
+): HeaderField[] {
+  if (!branding) return [];
+  const raw = (branding.header_display_fields ?? "name_bn").trim();
+  const allowed = new Set(["name_bn", "name_en", "name_ar", "address", "phone", "email", "website"]);
+  const keys = raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => allowed.has(s));
+  const effective = keys.length > 0 ? keys : ["name_bn"];
+
+  const valueMap: Record<string, string | null> = {
+    name_bn: branding.name_bn,
+    name_en: branding.name_en,
+    name_ar: branding.name_ar,
+    address: branding.address,
+    phone: branding.phone,
+    email: branding.email,
+    website: branding.website,
+  };
+
+  return effective
+    .map((k) => ({ key: k, value: (valueMap[k] ?? "").trim() }))
+    .filter((f) => f.value.length > 0);
+}
+
+/**
+ * Renders the admin's chosen header fields in the same letterhead
+ * shape we use on the dashboard top bar — matches their branding exactly
+ * so every printed receipt carries the institution identity consistently.
+ */
+function PrintHeaderText({
+  fields,
+  fallbackName,
+}: {
+  fields: HeaderField[];
+  fallbackName: string;
+}) {
+  if (fields.length === 0) {
+    return (
+      <div className="flex-1 text-center min-w-0">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight break-words">
+          {fallbackName}
+        </h1>
+      </div>
+    );
+  }
+
+  const [primary, ...rest] = fields;
+  const nameLines = rest.filter((f) => f.key === "name_en" || f.key === "name_ar");
+  const addressField = rest.find((f) => f.key === "address");
+  const phoneField = rest.find((f) => f.key === "phone");
+  const emailField = rest.find((f) => f.key === "email");
+  const websiteField = rest.find((f) => f.key === "website");
+
+  return (
+    <div className="flex-1 text-center min-w-0">
+      <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight break-words">
+        {primary.value}
+      </h1>
+      {nameLines.map((f) => (
+        <p
+          key={f.key}
+          className="mt-0.5 text-sm font-semibold text-gray-800 break-words"
+          dir={f.key === "name_ar" ? "rtl" : undefined}
+        >
+          {f.value}
+        </p>
+      ))}
+      {addressField ? (
+        <p className="mt-1 text-xs text-gray-700 break-words">
+          <strong>Address:</strong> {addressField.value}
+        </p>
+      ) : null}
+      {phoneField || emailField ? (
+        <p className="mt-0.5 text-xs text-gray-700 break-words">
+          {phoneField ? (
+            <>
+              <strong>Phone:</strong> {phoneField.value}
+            </>
+          ) : null}
+          {phoneField && emailField ? <span className="mx-2 text-gray-400">·</span> : null}
+          {emailField ? (
+            <>
+              <strong>Email:</strong> {emailField.value}
+            </>
+          ) : null}
+        </p>
+      ) : null}
+      {websiteField ? (
+        <p className="mt-0.5 text-xs text-gray-700 break-words">
+          <strong>Website:</strong> {websiteField.value}
+        </p>
+      ) : null}
     </div>
   );
 }
