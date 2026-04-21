@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Camera, Save, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,7 @@ export function EditStudentForm({
   classes: ClassWithSections[];
 }) {
   const router = useRouter();
+  const t = useTranslations("editStudent");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(
     updateStudentAction,
     null,
@@ -96,22 +98,22 @@ export function EditStudentForm({
   useEffect(() => {
     if (!state) return;
     if (state.ok) {
-      toast.success(state.message ?? "আপডেট হয়েছে");
+      toast.success(state.message ?? t("toast_updated"));
       router.push(`/students/${student.id}`);
     } else {
       toast.error(state.error);
     }
-  }, [state, router, student.id]);
+  }, [state, router, student.id, t]);
 
   function onPickPhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      toast.error("শুধু ছবি নির্বাচন করুন।");
+      toast.error(t("image_only_error"));
       return;
     }
     if (file.size > 3 * 1024 * 1024) {
-      toast.error("ছবি ৩ MB এর বেশি হতে পারে না।");
+      toast.error(t("image_max_size"));
       return;
     }
     const r = new FileReader();
@@ -135,7 +137,7 @@ export function EditStudentForm({
       <input type="hidden" name="photo_data_url" value={photoDataUrl} />
 
       {/* Photo */}
-      <FieldGroup title="ছবি">
+      <FieldGroup title={t("group_photo")}>
         <div className="sm:col-span-2 lg:col-span-3 flex flex-wrap items-center gap-5">
           <div className="size-28 overflow-hidden rounded-2xl border-2 border-dashed border-border bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
             {photoPreview ? (
@@ -162,7 +164,7 @@ export function EditStudentForm({
             <div className="flex items-center gap-2">
               <Button type="button" size="sm" variant="outline" onClick={() => fileRef.current?.click()}>
                 <Upload className="me-1 size-3.5" />
-                আপলোড
+                {t("photo_upload")}
               </Button>
               {photoPreview ? (
                 <Button
@@ -173,20 +175,20 @@ export function EditStudentForm({
                   className="text-destructive hover:bg-destructive/10"
                 >
                   <X className="me-1 size-3.5" />
-                  সরান
+                  {t("photo_remove")}
                 </Button>
               ) : null}
             </div>
-            <p className="text-xs text-muted-foreground">PNG / JPG / WebP · সর্বোচ্চ ৩ MB</p>
+            <p className="text-xs text-muted-foreground">{t("photo_hint")}</p>
           </div>
         </div>
       </FieldGroup>
 
       {/* Class / Section */}
-      <FieldGroup title="একাডেমিক">
+      <FieldGroup title={t("group_academic")}>
         <input type="hidden" name="class_id" value={classId} />
         <input type="hidden" name="section_id" value={sectionId} />
-        <Field label="ক্লাস" required>
+        <Field label={t("label_class")} required>
           <select
             value={classId}
             onChange={(e) => {
@@ -195,7 +197,7 @@ export function EditStudentForm({
             }}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
-            <option value="">— ক্লাস বাছাই করুন —</option>
+            <option value="">{t("class_placeholder")}</option>
             {classes.map((c) => (
               <option key={c.id} value={c.id}>{c.name_bn}</option>
             ))}
@@ -206,12 +208,12 @@ export function EditStudentForm({
               onClick={() => setShowSection(true)}
               className="mt-1 text-left text-xs text-primary hover:underline"
             >
-              + সেকশন যোগ করুন (ঐচ্ছিক)
+              {t("add_section_link")}
             </button>
           ) : null}
         </Field>
         {showSection ? (
-          <Field label="শাখা / সেকশন">
+          <Field label={t("label_section")}>
             <div className="flex items-center gap-2">
               <select
                 value={sectionId}
@@ -221,8 +223,8 @@ export function EditStudentForm({
               >
                 <option value="">
                   {classId && availableSections.length === 0
-                    ? "— কোন সেকশন নেই —"
-                    : "— সেকশন বাছাই করুন —"}
+                    ? t("section_empty")
+                    : t("section_placeholder")}
                 </option>
                 {availableSections.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
@@ -235,154 +237,154 @@ export function EditStudentForm({
                   setShowSection(false);
                 }}
                 className="text-xs text-muted-foreground hover:text-destructive"
-                title="সেকশন সরান"
+                title={t("remove_section_title")}
               >
                 <X className="size-4" />
               </button>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              💡 খালি রাখলে auto-তৈরি হবে — সমস্যা নেই।
+              {t("section_auto_hint")}
             </p>
           </Field>
         ) : null}
       </FieldGroup>
 
       {/* Identity */}
-      <FieldGroup title="ব্যক্তিগত তথ্য">
-        <Field label="শিক্ষার্থী কোড">
-          <Input name="student_code" defaultValue={student.student_code} placeholder="স্বয়ংক্রিয়" />
+      <FieldGroup title={t("group_personal")}>
+        <Field label={t("label_student_code")}>
+          <Input name="student_code" defaultValue={student.student_code} placeholder={t("student_code_placeholder")} />
         </Field>
-        <Field label="নাম (বাংলা)" required>
+        <Field label={t("label_name_bn")} required>
           <Input name="name_bn" defaultValue={student.name_bn} required minLength={2} />
         </Field>
-        <Field label="Name (English)">
+        <Field label={t("label_name_en")}>
           <Input name="name_en" defaultValue={student.name_en ?? ""} />
         </Field>
-        <Field label="নাম (عربي)">
+        <Field label={t("label_name_ar")}>
           <Input name="name_ar" defaultValue={student.name_ar ?? ""} dir="rtl" />
         </Field>
-        <Field label="রোল">
+        <Field label={t("label_roll")}>
           <Input name="roll" type="number" min={0} defaultValue={student.roll ?? ""} />
         </Field>
-        <Field label="লিঙ্গ">
+        <Field label={t("label_gender")}>
           <select
             name="gender"
             defaultValue={student.gender ?? ""}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
-            <option value="">— নির্বাচন করুন —</option>
-            <option value="male">ছেলে</option>
-            <option value="female">মেয়ে</option>
+            <option value="">{t("gender_placeholder")}</option>
+            <option value="male">{t("gender_male")}</option>
+            <option value="female">{t("gender_female")}</option>
           </select>
         </Field>
-        <Field label="ধর্ম">
+        <Field label={t("label_religion")}>
           <Input name="religion" defaultValue={student.religion ?? ""} />
         </Field>
-        <Field label="রক্তের গ্রুপ">
+        <Field label={t("label_blood_group")}>
           <Input name="blood_group" defaultValue={student.blood_group ?? ""} />
         </Field>
-        <Field label="জন্ম তারিখ">
+        <Field label={t("label_dob")}>
           <Input name="date_of_birth" type="date" defaultValue={student.date_of_birth ?? ""} />
         </Field>
-        <Field label="ভর্তির তারিখ">
+        <Field label={t("label_admission_date")}>
           <Input name="admission_date" type="date" defaultValue={student.admission_date ?? ""} />
         </Field>
-        <Field label="জন্ম নিবন্ধন নম্বর / NID">
+        <Field label={t("label_nid")}>
           <Input name="nid_birth_cert" defaultValue={student.nid_birth_cert ?? ""} />
         </Field>
-        <Field label="RF আইডি কার্ড">
-          <Input name="rf_id_card" defaultValue={student.rf_id_card ?? ""} placeholder="Optional" />
+        <Field label={t("label_rf_id")}>
+          <Input name="rf_id_card" defaultValue={student.rf_id_card ?? ""} placeholder={t("rf_id_placeholder")} />
         </Field>
       </FieldGroup>
 
       {/* Guardians */}
-      <FieldGroup title="পিতা / অভিভাবক ১">
-        <Field label="পিতার নাম">
-          <Input name="guardian_name" defaultValue={father?.name_bn ?? ""} placeholder="পুরা নাম" />
+      <FieldGroup title={t("group_father")}>
+        <Field label={t("label_father_name")}>
+          <Input name="guardian_name" defaultValue={father?.name_bn ?? ""} placeholder={t("father_name_placeholder")} />
         </Field>
-        <Field label="পিতার ফোন">
+        <Field label={t("label_father_phone")}>
           <Input
             name="guardian_phone"
             defaultValue={father?.phone ?? student.guardian_phone ?? ""}
             inputMode="tel"
           />
         </Field>
-        <Field label="সম্পর্ক">
+        <Field label={t("label_relation")}>
           <select
             name="guardian_relation"
             defaultValue={father ? "father" : mother && mother.is_primary ? "mother" : "father"}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
-            <option value="father">পিতা (প্রাথমিক)</option>
-            <option value="mother">মাতা (প্রাথমিক)</option>
+            <option value="father">{t("relation_father")}</option>
+            <option value="mother">{t("relation_mother")}</option>
           </select>
         </Field>
       </FieldGroup>
 
-      <FieldGroup title="মাতা">
-        <Field label="মাতার নাম">
+      <FieldGroup title={t("group_mother")}>
+        <Field label={t("label_mother_name")}>
           <Input name="mother_name" defaultValue={mother?.name_bn ?? ""} />
         </Field>
-        <Field label="মাতার ফোন">
+        <Field label={t("label_mother_phone")}>
           <Input name="mother_phone" defaultValue={mother?.phone ?? ""} inputMode="tel" />
         </Field>
       </FieldGroup>
 
-      <FieldGroup title="অতিরিক্ত অভিভাবক (ঐচ্ছিক)">
-        <Field label="নাম">
+      <FieldGroup title={t("group_extra")}>
+        <Field label={t("label_extra_name")}>
           <Input name="extra_guardian_name" defaultValue={extra?.name_bn ?? ""} />
         </Field>
-        <Field label="ফোন">
+        <Field label={t("label_extra_phone")}>
           <Input name="extra_guardian_phone" defaultValue={extra?.phone ?? ""} inputMode="tel" />
         </Field>
-        <Field label="সম্পর্ক">
+        <Field label={t("label_extra_relation")}>
           <Input
             name="extra_guardian_relation"
             defaultValue={extra?.relation && extra.relation !== "father" && extra.relation !== "mother" ? extra.relation : ""}
-            placeholder="যেমন: চাচা, মামা, দাদা"
+            placeholder={t("extra_relation_placeholder")}
           />
         </Field>
       </FieldGroup>
 
       {/* Addresses */}
-      <FieldGroup title="যোগাযোগ / ঠিকানা">
-        <Field label="বর্তমান ঠিকানা" full>
+      <FieldGroup title={t("group_address")}>
+        <Field label={t("label_current_address")} full>
           <Textarea name="address_present" defaultValue={student.address_present ?? ""} rows={2} />
         </Field>
-        <Field label="স্থায়ী ঠিকানা" full>
+        <Field label={t("label_permanent_address")} full>
           <Textarea name="address_permanent" defaultValue={student.address_permanent ?? ""} rows={2} />
         </Field>
-        <Field label="পূর্ববর্তী বিদ্যালয়" full>
+        <Field label={t("label_prev_school")} full>
           <Input name="previous_school" defaultValue={student.previous_school ?? ""} />
         </Field>
       </FieldGroup>
 
       {/* Fees */}
-      <FieldGroup title="ফি তথ্য">
-        <Field label="ভর্তি ফি (৳)">
+      <FieldGroup title={t("group_fees")}>
+        <Field label={t("label_admission_fee")}>
           <Input name="admission_fee" type="number" min={0} step="any" defaultValue={student.admission_fee ?? ""} />
         </Field>
-        <Field label="মাসিক টিউশন ফি (৳)">
+        <Field label={t("label_tuition_fee")}>
           <Input name="tuition_fee" type="number" min={0} step="any" defaultValue={student.tuition_fee ?? ""} />
         </Field>
-        <Field label="পরিবহন ফি (৳)">
+        <Field label={t("label_transport_fee")}>
           <Input name="transport_fee" type="number" min={0} step="any" defaultValue={student.transport_fee ?? ""} />
         </Field>
       </FieldGroup>
 
       {/* Status */}
-      <FieldGroup title="স্ট্যাটাস">
-        <Field label="বর্তমান স্ট্যাটাস" full>
+      <FieldGroup title={t("group_status")}>
+        <Field label={t("label_current_status")} full>
           <select
             name="status"
             defaultValue={student.status}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
-            <option value="active">সক্রিয়</option>
-            <option value="transferred">বদলি হয়েছে</option>
-            <option value="passed_out">পাশ করেছে</option>
-            <option value="dropped">বাদ</option>
-            <option value="suspended">স্থগিত</option>
+            <option value="active">{t("status_active")}</option>
+            <option value="transferred">{t("status_transferred")}</option>
+            <option value="passed_out">{t("status_passed_out")}</option>
+            <option value="dropped">{t("status_dropped")}</option>
+            <option value="suspended">{t("status_suspended")}</option>
           </select>
         </Field>
       </FieldGroup>
@@ -394,7 +396,7 @@ export function EditStudentForm({
           className="bg-gradient-primary text-white shadow-lg shadow-primary/25"
         >
           <Save className="me-1 size-4" />
-          {pending ? "সংরক্ষণ হচ্ছে..." : "সংরক্ষণ করুন"}
+          {pending ? t("btn_saving") : t("btn_save")}
         </Button>
         <Button
           type="button"
@@ -402,10 +404,10 @@ export function EditStudentForm({
           onClick={() => router.push(`/students/${student.id}`)}
           disabled={pending}
         >
-          বাতিল
+          {t("btn_cancel")}
         </Button>
         <p className="text-xs text-muted-foreground ms-auto">
-          💡 সব ফিল্ড এখানেই সম্পাদনা করতে পারবেন — ছবি, ক্লাস, অভিভাবক, ফি সব।
+          {t("footer_hint")}
         </p>
       </div>
     </form>

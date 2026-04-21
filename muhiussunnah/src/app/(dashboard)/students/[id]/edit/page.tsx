@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -76,20 +77,39 @@ export default async function EditStudentPage({ params }: PageProps) {
   const mother = student.student_guardians?.find((g) => g.relation === "mother") ?? null;
   const extra = student.student_guardians?.find((g) => g.relation !== "father" && g.relation !== "mother") ?? null;
 
+  const t = await getTranslations("editStudent");
+  const tStatus = await getTranslations("studentsFilters");
+
   return (
     <>
       <Link
         href={`/students/${student.id}`}
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-3"
       >
-        <ArrowLeft className="size-3.5" /> ফিরে যান
+        <ArrowLeft className="size-3.5" /> {t("back_link")}
       </Link>
 
       <PageHeader
-        title={`${student.name_bn} এর তথ্য সম্পাদনা`}
-        subtitle={`ছাত্র/ছাত্রী আইডি: ${student.student_code}${student.sections ? ` · ${student.sections.classes.name_bn} — ${student.sections.name}` : ""}`}
+        title={t("page_title", { name: student.name_bn })}
+        subtitle={
+          student.sections
+            ? t("page_subtitle_with_class", {
+                code: student.student_code,
+                classname: student.sections.classes.name_bn,
+                section: student.sections.name,
+              })
+            : t("page_subtitle_no_class", { code: student.student_code })
+        }
         impact={[
-          { label: `স্ট্যাটাস: ${student.status}`, tone: student.status === "active" ? "success" : "default" },
+          {
+            label: t("impact_status", {
+              status: (() => {
+                try { return tStatus(`status_${student.status}`); }
+                catch { return student.status; }
+              })(),
+            }),
+            tone: student.status === "active" ? "success" : "default",
+          },
         ]}
       />
 

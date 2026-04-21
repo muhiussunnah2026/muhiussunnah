@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarCheck, CreditCard, FileSpreadsheet, ScrollText, User2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,6 +19,8 @@ type PageProps = { params: Promise<{ id: string }> };
 
 export default async function StudentDetailPage({ params }: PageProps) {
   const { id: idOrCode } = await params;
+  const t = await getTranslations("studentDetail");
+  const tStatus = await getTranslations("studentsFilters");
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
 
   const schoolSlug = membership.school_slug;
@@ -97,7 +100,7 @@ export default async function StudentDetailPage({ params }: PageProps) {
       <PageHeader
         breadcrumbs={
           <Link href={`/students`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> ছাত্র/ছাত্রী তালিকা
+            <ArrowLeft className="size-3.5" /> {t("back_to_list")}
           </Link>
         }
         title={
@@ -112,47 +115,53 @@ export default async function StudentDetailPage({ params }: PageProps) {
         subtitle={
           <>
             {student.sections ? <>{student.sections.classes.name_bn} — {student.sections.name} · </> : null}
-            {student.roll ? <>রোল: <BanglaDigit value={student.roll} /> · </> : null}
-            ID:{" "}
+            {student.roll ? <>{t("roll_label")} <BanglaDigit value={student.roll} /> · </> : null}
+            {t("id_prefix")}{" "}
             <span className="font-mono">
               {student.student_code && student.student_code.trim().length > 0
                 ? student.student_code
-                : <span className="text-destructive">— কোড নেই, সম্পাদনা করে সেভ করুন</span>}
+                : <span className="text-destructive">{t("no_code")}</span>}
             </span>
           </>
         }
         impact={[
-          { label: <>উপস্থিতি · <BanglaDigit value={attendancePct} />%</>, tone: "success" },
-          { label: <>ব্যালেন্স · ৳ <BanglaDigit value={Number(balance).toLocaleString("en-IN")} /></>, tone: balance > 0 ? "warning" : "accent" },
-          { label: student.status === "active" ? "সক্রিয়" : student.status, tone: "default" },
+          { label: <>{t("impact_attendance")} · <BanglaDigit value={attendancePct} />%</>, tone: "success" },
+          { label: <>{t("impact_balance")} · ৳ <BanglaDigit value={Number(balance).toLocaleString("en-IN")} /></>, tone: balance > 0 ? "warning" : "accent" },
+          {
+            label: (() => {
+              try { return tStatus(`status_${student.status}`); }
+              catch { return student.status; }
+            })(),
+            tone: "default",
+          },
         ]}
       />
 
       <Tabs defaultValue="profile" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="profile"><User2 className="me-1.5 size-3.5" />প্রোফাইল</TabsTrigger>
-          <TabsTrigger value="attendance"><CalendarCheck className="me-1.5 size-3.5" />উপস্থিতি</TabsTrigger>
-          <TabsTrigger value="marks"><ScrollText className="me-1.5 size-3.5" />মার্ক্স</TabsTrigger>
-          <TabsTrigger value="ledger"><CreditCard className="me-1.5 size-3.5" />লেজার</TabsTrigger>
+          <TabsTrigger value="profile"><User2 className="me-1.5 size-3.5" />{t("tab_profile")}</TabsTrigger>
+          <TabsTrigger value="attendance"><CalendarCheck className="me-1.5 size-3.5" />{t("tab_attendance")}</TabsTrigger>
+          <TabsTrigger value="marks"><ScrollText className="me-1.5 size-3.5" />{t("tab_marks")}</TabsTrigger>
+          <TabsTrigger value="ledger"><CreditCard className="me-1.5 size-3.5" />{t("tab_ledger")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
           <div className="grid gap-4 lg:grid-cols-2">
             <Card>
               <CardContent className="p-5">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">মৌলিক তথ্য</h3>
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("card_basic_info")}</h3>
                 <dl className="grid grid-cols-2 gap-3 text-sm">
-                  <dt className="text-muted-foreground">নাম (ইংরেজি)</dt>
+                  <dt className="text-muted-foreground">{t("label_name_en")}</dt>
                   <dd>{student.name_en ?? "—"}</dd>
-                  <dt className="text-muted-foreground">জন্মতারিখ</dt>
+                  <dt className="text-muted-foreground">{t("label_dob")}</dt>
                   <dd>{student.date_of_birth ? <BengaliDate value={student.date_of_birth} /> : "—"}</dd>
-                  <dt className="text-muted-foreground">লিঙ্গ</dt>
-                  <dd>{student.gender === "male" ? "ছেলে" : student.gender === "female" ? "মেয়ে" : "—"}</dd>
-                  <dt className="text-muted-foreground">রক্তের গ্রুপ</dt>
+                  <dt className="text-muted-foreground">{t("label_gender")}</dt>
+                  <dd>{student.gender === "male" ? t("gender_male") : student.gender === "female" ? t("gender_female") : "—"}</dd>
+                  <dt className="text-muted-foreground">{t("label_blood_group")}</dt>
                   <dd>{student.blood_group ?? "—"}</dd>
-                  <dt className="text-muted-foreground">ধর্ম</dt>
+                  <dt className="text-muted-foreground">{t("label_religion")}</dt>
                   <dd>{student.religion ?? "—"}</dd>
-                  <dt className="text-muted-foreground">ভর্তির তারিখ</dt>
+                  <dt className="text-muted-foreground">{t("label_admission_date")}</dt>
                   <dd>{student.admission_date ? <BengaliDate value={student.admission_date} /> : "—"}</dd>
                 </dl>
               </CardContent>
@@ -160,9 +169,9 @@ export default async function StudentDetailPage({ params }: PageProps) {
 
             <Card>
               <CardContent className="p-5">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">অভিভাবক</h3>
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("card_guardians")}</h3>
                 {student.student_guardians.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">কোন অভিভাবক রেকর্ড নেই।</p>
+                  <p className="text-sm text-muted-foreground">{t("no_guardians")}</p>
                 ) : (
                   <ul className="space-y-2 text-sm">
                     {student.student_guardians.map((g) => (
@@ -181,20 +190,20 @@ export default async function StudentDetailPage({ params }: PageProps) {
 
             <Card className="lg:col-span-2">
               <CardContent className="p-5">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">ঠিকানা</h3>
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("card_address")}</h3>
                 <dl className="grid gap-3 text-sm md:grid-cols-2">
                   <div>
-                    <dt className="text-muted-foreground">বর্তমান</dt>
+                    <dt className="text-muted-foreground">{t("label_current_address")}</dt>
                     <dd className="mt-1">{student.address_present ?? "—"}</dd>
                   </div>
                   <div>
-                    <dt className="text-muted-foreground">স্থায়ী</dt>
+                    <dt className="text-muted-foreground">{t("label_permanent_address")}</dt>
                     <dd className="mt-1">{student.address_permanent ?? "—"}</dd>
                   </div>
                 </dl>
                 {student.previous_school ? (
                   <p className="mt-3 text-xs text-muted-foreground">
-                    পূর্ববর্তী স্কুল: {student.previous_school}
+                    {t("prev_school_prefix")} {student.previous_school}
                   </p>
                 ) : null}
               </CardContent>
@@ -202,7 +211,7 @@ export default async function StudentDetailPage({ params }: PageProps) {
 
             <Card className="lg:col-span-2">
               <CardContent className="p-5">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">ক্লাস/সেকশন স্থানান্তর</h3>
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("card_shift_class")}</h3>
                 <ShiftForm studentId={student.id} currentSectionId={student.section_id} sections={sections ?? []} schoolSlug={schoolSlug} />
               </CardContent>
             </Card>
@@ -212,9 +221,9 @@ export default async function StudentDetailPage({ params }: PageProps) {
         <TabsContent value="attendance">
           <Card>
             <CardContent className="p-5">
-              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">সর্বশেষ ৩০ দিন</h3>
+              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("attendance_last_30")}</h3>
               {attendanceList.length === 0 ? (
-                <p className="text-sm text-muted-foreground">এখনও কোন attendance রেকর্ড নেই।</p>
+                <p className="text-sm text-muted-foreground">{t("no_attendance")}</p>
               ) : (
                 <div className="grid grid-cols-10 gap-1 md:grid-cols-15 lg:grid-cols-30">
                   {attendanceList.map((a) => {
@@ -241,7 +250,7 @@ export default async function StudentDetailPage({ params }: PageProps) {
         <TabsContent value="marks">
           <Card>
             <CardContent className="p-8 text-center text-sm text-muted-foreground">
-              🚧 মার্ক্স সেকশন Phase 2-এ আসছে।
+              {t("marks_coming_soon")}
             </CardContent>
           </Card>
         </TabsContent>
@@ -251,19 +260,19 @@ export default async function StudentDetailPage({ params }: PageProps) {
             <CardContent className="p-0">
               {ledgerList.length === 0 ? (
                 <div className="p-8 text-center text-sm text-muted-foreground">
-                  এখনও কোন লেজার এন্ট্রি নেই।
+                  {t("no_ledger")}
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-muted/50 text-xs">
                       <tr>
-                        <th className="p-3 text-left">তারিখ</th>
-                        <th className="p-3 text-left">ধরন</th>
-                        <th className="p-3 text-left">নোট</th>
-                        <th className="p-3 text-right">ডেবিট</th>
-                        <th className="p-3 text-right">ক্রেডিট</th>
-                        <th className="p-3 text-right">ব্যালেন্স</th>
+                        <th className="p-3 text-left">{t("ledger_col_date")}</th>
+                        <th className="p-3 text-left">{t("ledger_col_type")}</th>
+                        <th className="p-3 text-left">{t("ledger_col_note")}</th>
+                        <th className="p-3 text-right">{t("ledger_col_debit")}</th>
+                        <th className="p-3 text-right">{t("ledger_col_credit")}</th>
+                        <th className="p-3 text-right">{t("ledger_col_balance")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -285,7 +294,7 @@ export default async function StudentDetailPage({ params }: PageProps) {
           </Card>
           <Link href={`/students/${id}/ledger`} className={buttonVariants({ variant: "outline", size: "sm", className: "mt-3" })}>
             <FileSpreadsheet className="me-1.5 size-3.5" />
-            সম্পূর্ণ লেজার দেখুন
+            {t("view_full_ledger")}
           </Link>
         </TabsContent>
       </Tabs>
