@@ -47,15 +47,13 @@ export default async function StudentsListPage({ searchParams }: PageProps) {
   if (search.section_id) {
     query = query.eq("section_id", search.section_id);
   } else if (search.class_id) {
-    // Filter by class: find all sections under this class, then match any.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: classSections } = await (supabase as any)
-      .from("sections")
-      .select("id")
-      .eq("class_id", search.class_id);
-    const sectionIds = (classSections ?? []).map((s: { id: string }) => s.id);
-    if (sectionIds.length > 0) query = query.in("section_id", sectionIds);
-    else query = query.eq("id", "00000000-0000-0000-0000-000000000000"); // no match
+    // Filter by class directly on students.class_id (migration 0022).
+    // The old path went through sections → section_ids → students and
+    // dropped every student with a null section_id (common when a
+    // school runs without sections). Those students correctly showed up
+    // on the /classes card count but vanished on the students list —
+    // because the two reads used different keys.
+    query = query.eq("class_id", search.class_id);
   }
   if (search.q) query = query.ilike("name_bn", `%${search.q}%`);
 
