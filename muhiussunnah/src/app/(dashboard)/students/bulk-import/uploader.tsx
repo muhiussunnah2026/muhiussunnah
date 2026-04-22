@@ -201,6 +201,28 @@ const HEADER_ALIASES: Record<string, string> = {
   "status": "__ignore__",
 };
 
+/**
+ * Common Bangla enum values mapped to our canonical English ones.
+ * DB columns like `gender` are strict enums; without this map, a sheet
+ * that says "মেয়ে" would land in Postgres verbatim and fail the
+ * constraint. One entry per expected alias.
+ */
+const VALUE_ALIASES: Record<string, Record<string, string>> = {
+  gender: {
+    "মেয়ে": "female",
+    "মহিলা": "female",
+    "স্ত্রী": "female",
+    "f": "female",
+    "female": "female",
+    "ছেলে": "male",
+    "পুরুষ": "male",
+    "m": "male",
+    "male": "male",
+    "অন্যান্য": "other",
+    "other": "other",
+  },
+};
+
 function normalizeRow(raw: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const [rawKey, value] of Object.entries(raw)) {
@@ -208,7 +230,15 @@ function normalizeRow(raw: Record<string, unknown>): Record<string, unknown> {
     // Pass-through if the key is already one of our canonical columns.
     const canonical = HEADER_ALIASES[key] ?? HEADER_ALIASES[rawKey.trim()] ?? rawKey;
     if (canonical === "__ignore__") continue;
-    out[canonical] = value;
+
+    // Translate known Bangla enum values (e.g. "মেয়ে" → "female").
+    const aliases = VALUE_ALIASES[canonical];
+    if (aliases && typeof value === "string") {
+      const vKey = value.trim().toLowerCase();
+      out[canonical] = aliases[vKey] ?? value;
+    } else {
+      out[canonical] = value;
+    }
   }
   return out;
 }
