@@ -103,6 +103,13 @@ export async function updateTenantAdminEmailAction(
   });
   if (error) return fail(error.message);
 
+  // Keep the cached email in school_users in sync so the staff list
+  // doesn't show a stale address after the change.
+  await admin
+    .from("school_users")
+    .update({ email: parsed.newEmail })
+    .eq("user_id", parsed.userId);
+
   await writeAuditLog({
     schoolId: parsed.schoolId,
     userId: auth.userId,
