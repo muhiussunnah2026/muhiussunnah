@@ -458,12 +458,68 @@ export async function bulkImportStudentsAction(
     return ascii;
   };
 
+  // Server-side gender-value normalization. The uploader already does
+  // this client-side, but keep a safety net here so any stale client
+  // (cached JS bundle, direct RPC call, etc.) still succeeds. Maps
+  // common Bangla + shorthand values to the strict {male, female, other}
+  // enum our Postgres `gender` column accepts.
+  const toGender = (v: unknown): "male" | "female" | "other" | null => {
+    if (v === undefined || v === null) return null;
+    const key = String(v).trim().toLowerCase();
+    if (key === "") return null;
+    const map: Record<string, "male" | "female" | "other"> = {
+      "মেয়ে": "female", "মহিলা": "female", "স্ত্রী": "female",
+      "female": "female", "f": "female",
+      "ছেলে": "male", "পুরুষ": "male",
+      "male": "male", "m": "male",
+      "অন্যান্য": "other", "other": "other",
+    };
+    return map[key] ?? null;
+  };
+
+  // Normalize Bangla-header keys too, in case a caller hits this action
+  // directly (not via our uploader) with a Bornomala-style row.
+  const HEADER_ALIASES: Record<string, string> = {
+    "শিক্ষার্থীর নাম": "name_bn",
+    "ছাত্রের নাম": "name_bn",
+    "নাম": "name_bn",
+    "শ্রেণি": "class_name",
+    "শ্রেণী": "class_name",
+    "ক্লাস": "class_name",
+    "সেকশন": "section_name",
+    "শাখা": "section_name",
+    "রোল": "roll",
+    "রোল নম্বর": "roll",
+    "জন্ম তারিখ": "date_of_birth",
+    "জন্মতারিখ": "date_of_birth",
+    "ভর্তি তারিখ": "admission_date",
+    "ভর্তির তারিখ": "admission_date",
+    "লিঙ্গ": "gender",
+    "জেন্ডার": "gender",
+    "অভিভাবকের ফোন": "guardian_phone",
+    "অভিভাবকের মোবাইল": "guardian_phone",
+    "মোবাইল": "guardian_phone",
+    "অভিভাবকের নাম": "guardian_name",
+    "ঠিকানা": "address_present",
+    "বর্তমান ঠিকানা": "address_present",
+  };
+  const normalizeKeys = (r: BulkRow & Record<string, unknown>): BulkRow => {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(r)) {
+      const canonical = HEADER_ALIASES[k.trim()] ?? k;
+      // Drop status-like columns from legacy exports; we default to active.
+      if (["অবস্থা", "স্ট্যাটাস", "status"].includes(k.trim().toLowerCase())) continue;
+      out[canonical] = v;
+    }
+    return out as BulkRow;
+  };
+
   let inserted = 0;
   let skipped = 0;
   const errors: string[] = [];
 
   for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
+    const row = normalizeKeys(rows[i] as BulkRow & Record<string, unknown>);
     const nameBn = (row.name_bn ?? "").toString().trim();
     if (nameBn.length < 2) {
       skipped++;
@@ -491,7 +547,7 @@ export async function bulkImportStudentsAction(
       section_id: sectionId,
       date_of_birth: toIsoDate(row.date_of_birth?.toString()),
       admission_date: toIsoDate(row.admission_date?.toString()),
-      gender: row.gender ?? null,
+      gender: toGender(row.gender),
       guardian_phone: row.guardian_phone?.toString() ?? null,
       address_present: row.address_present?.toString() ?? null,
       status: "active",
