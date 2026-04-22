@@ -25,16 +25,23 @@ export function BulkImportUploader({ schoolSlug }: { schoolSlug: string }) {
     const buf = await f.arrayBuffer();
     const wb = XLSX.read(buf, { type: "array" });
     const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws) as Record<string, unknown>[];
+    const raw = XLSX.utils.sheet_to_json(ws) as Record<string, unknown>[];
 
-    if (rows.length === 0) {
+    if (raw.length === 0) {
       toast.error(t("uploader_no_rows"));
       return;
     }
-    if (rows.length > 2000) {
+    if (raw.length > 2000) {
       toast.error(t("uploader_max_rows"));
       return;
     }
+
+    // Normalize column headers so Bornomala / other-vendor exports work
+    // without hand-editing. Bangla headers map to our canonical English
+    // column names. Unknown keys pass through untouched so any extra
+    // metadata the user has is still visible in the preview.
+    const rows = raw.map(normalizeRow);
+
     setPreview(rows);
     toast.success(t("uploader_rows_found", { count: rows.length }));
   }
@@ -120,4 +127,88 @@ export function BulkImportUploader({ schoolSlug }: { schoolSlug: string }) {
       ) : null}
     </div>
   );
+}
+
+/**
+ * Column-header alias map.
+ *
+ * Real-world spreadsheets come with wildly inconsistent headers — Bangla,
+ * English, variants like "Name" vs "Full Name" vs "শিক্ষার্থীর নাম".
+ * Mapping to our canonical keys client-side means the server keeps its
+ * clean contract while teachers can upload whatever their previous
+ * system (Bornomala, Shikho, etc.) exported.
+ *
+ * Keys are compared lowercase + trimmed, whitespace collapsed. Add more
+ * aliases here when new vendor exports show up.
+ */
+const HEADER_ALIASES: Record<string, string> = {
+  // name_bn — Bangla name
+  "শিক্ষার্থীর নাম": "name_bn",
+  "ছাত্রের নাম": "name_bn",
+  "নাম": "name_bn",
+  "ছাত্র-ছাত্রীর নাম": "name_bn",
+  "student name": "name_bn",
+  "full name": "name_bn",
+  // name_en — English name
+  "english name": "name_bn",
+  "নাম (english)": "name_en",
+  "english নাম": "name_en",
+  // roll
+  "রোল": "roll",
+  "রোল নম্বর": "roll",
+  "roll no": "roll",
+  "roll number": "roll",
+  // class
+  "শ্রেণি": "class_name",
+  "ক্লাস": "class_name",
+  "শ্রেণী": "class_name",
+  "class": "class_name",
+  // section
+  "সেকশন": "section_name",
+  "শাখা": "section_name",
+  "section": "section_name",
+  // date_of_birth
+  "জন্ম তারিখ": "date_of_birth",
+  "জন্মতারিখ": "date_of_birth",
+  "date of birth": "date_of_birth",
+  "dob": "date_of_birth",
+  // admission_date
+  "ভর্তি তারিখ": "admission_date",
+  "ভর্তির তারিখ": "admission_date",
+  "admission date": "admission_date",
+  // gender
+  "লিঙ্গ": "gender",
+  "জেন্ডার": "gender",
+  // guardian_phone
+  "অভিভাবকের ফোন": "guardian_phone",
+  "অভিভাবকের মোবাইল": "guardian_phone",
+  "মোবাইল": "guardian_phone",
+  "ফোন": "guardian_phone",
+  "parent phone": "guardian_phone",
+  "guardian phone": "guardian_phone",
+  // guardian_name
+  "অভিভাবকের নাম": "guardian_name",
+  "পিতার নাম": "guardian_name",
+  "guardian name": "guardian_name",
+  "parent name": "guardian_name",
+  // address
+  "ঠিকানা": "address_present",
+  "বর্তমান ঠিকানা": "address_present",
+  "address": "address_present",
+  // ignored headers (status from Bornomala etc.)
+  "অবস্থা": "__ignore__",
+  "স্ট্যাটাস": "__ignore__",
+  "status": "__ignore__",
+};
+
+function normalizeRow(raw: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [rawKey, value] of Object.entries(raw)) {
+    const key = rawKey.toString().trim().toLowerCase().replace(/\s+/g, " ");
+    // Pass-through if the key is already one of our canonical columns.
+    const canonical = HEADER_ALIASES[key] ?? HEADER_ALIASES[rawKey.trim()] ?? rawKey;
+    if (canonical === "__ignore__") continue;
+    out[canonical] = value;
+  }
+  return out;
 }
