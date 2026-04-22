@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { ensureDefaultSections } from "@/lib/schools/self-heal";
 import {
   type ActionResult,
   ok,
@@ -419,19 +420,35 @@ export async function bulkImportStudentsAction(
   const supabase = await supabaseServer();
 
   // Pre-load sections map for name→id resolution
+  // Self-heal: every class needs at least one section, otherwise a bulk
+  // import with just `class_name` (no section_name) cannot assign a
+  // section_id — students end up orphaned and invisible to the per-class
+  // count on /classes. Calling this here creates "ক" for any class that
+  // has none, so the lookup below always resolves.
+  await ensureDefaultSections(auth.active.school_id);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: sections } = await (supabase as any)
     .from("sections")
-    .select("id, name, class_id, classes!inner(name_bn, name_en, school_id)")
-    .eq("classes.school_id", auth.active.school_id);
+    .select("id, name, class_id, classes!inner(id, name_bn, name_en, display_order, school_id)")
+    .eq("classes.school_id", auth.active.school_id)
+    .order("display_order", { referencedTable: "classes" });
 
   const sectionLookup = new Map<string, string>();
+  // Class-only lookup: `অষ্টম` → section id of the first section of that
+  // class. Used when the import row gives class_name but no section_name.
+  const classFirstSection = new Map<string, string>();
+
   (sections ?? []).forEach((s: { id: string; name: string; classes: { name_bn: string; name_en: string | null } }) => {
     const classKey = (s.classes.name_bn || s.classes.name_en || "").toLowerCase();
     const sectionKey = s.name.toLowerCase();
     sectionLookup.set(`${classKey}|${sectionKey}`, s.id);
     // also allow just section name when unambiguous
     if (!sectionLookup.has(sectionKey)) sectionLookup.set(sectionKey, s.id);
+    // First section per class (order preserved by display_order above).
+    if (classKey && !classFirstSection.has(classKey)) {
+      classFirstSection.set(classKey, s.id);
+    }
   });
 
   // Normalize bulk-import date strings to ISO YYYY-MM-DD. Handles:
@@ -542,6 +559,12 @@ export async function bulkImportStudentsAction(
         ? `${row.class_name.toLowerCase()}|${row.section_name.toLowerCase()}`
         : row.section_name.toLowerCase();
       sectionId = sectionLookup.get(key) ?? null;
+    } else if (row.class_name) {
+      // No section given — drop the student into the class's first
+      // section so it still shows up in the per-class count. (Default
+      // "ক" section is guaranteed to exist thanks to
+      // ensureDefaultSections above.)
+      sectionId = classFirstSection.get(row.class_name.toLowerCase()) ?? null;
     }
     return { row, sectionId, prefix: -1 }; // prefix filled in next pass
   });
