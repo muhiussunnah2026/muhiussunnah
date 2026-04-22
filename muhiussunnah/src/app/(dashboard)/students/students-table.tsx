@@ -551,12 +551,7 @@ export function StudentsTable({
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-sm">
                     {s.sections ? (
-                      <span>
-                        {s.sections.classes.name_bn}
-                        {s.sections.name && s.sections.name !== "ক" ? (
-                          <span className="text-muted-foreground"> — {s.sections.name}</span>
-                        ) : null}
-                      </span>
+                      <span>{s.sections.classes.name_bn}</span>
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}

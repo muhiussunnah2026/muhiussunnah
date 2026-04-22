@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type ClassWithSections = { id: string; name_bn: string; sections: { id: string; name: string }[] };
 
@@ -13,38 +13,25 @@ type Props = {
 };
 
 /**
- * Filter value encoding:
- *   "all"                → everyone
- *   "class:<classId>"    → one class (optionally all sections)
- *   "section:<sectionId>"→ one specific section
- *
- * We encode rather than using two selects because section is optional —
- * many schools only have 1 section per class, in which case the class row
- * is enough.
+ * Class + status filters. The section concept is hidden in the UI per
+ * the product decision to simplify — institutes that need multiple
+ * sections create separate classes ("Class Five (A)", "Class Five (B)")
+ * instead. Legacy URLs that still carry ?section_id= keep working on
+ * the server side; this picker only exposes class-level filtering.
  */
 
-export function StudentsFilters({ schoolSlug, classes, initial }: Props) {
+export function StudentsFilters({ classes, initial }: Props) {
   const router = useRouter();
   const params = useSearchParams();
   const t = useTranslations("studentsFilters");
 
-  // Derive current encoded value from the URL
-  const currentValue = initial.section_id
-    ? `section:${initial.section_id}`
-    : initial.class_id
-      ? `class:${initial.class_id}`
-      : "all";
+  const currentValue = initial.class_id ?? "all";
 
-  function updateFilter(encoded: string | null) {
-    const value = encoded ?? "all";
+  function updateFilter(value: string | null) {
     const next = new URLSearchParams(params);
     next.delete("class_id");
     next.delete("section_id");
-    if (value.startsWith("section:")) {
-      next.set("section_id", value.slice("section:".length));
-    } else if (value.startsWith("class:")) {
-      next.set("class_id", value.slice("class:".length));
-    }
+    if (value && value !== "all") next.set("class_id", value);
     router.push(`/students?${next.toString()}`);
   }
 
@@ -57,52 +44,24 @@ export function StudentsFilters({ schoolSlug, classes, initial }: Props) {
 
   return (
     <div className="mt-2 flex flex-wrap items-center gap-2">
-      {/* Name/ID search moved into the StudentsTable for real-time filtering.
-          Class + status filters stay here because they trigger a server query. */}
       <Select value={currentValue} onValueChange={updateFilter}>
         <SelectTrigger className="h-10 w-60">
           <SelectValue placeholder={t("all_classes")}>
             {(v: unknown) => {
               const value = typeof v === "string" ? v : "";
               if (!value || value === "all") return t("all_classes");
-              if (value.startsWith("class:")) {
-                const id = value.slice("class:".length);
-                const c = classes.find((x) => x.id === id);
-                return c ? `📚 ${c.name_bn}` : t("all_classes");
-              }
-              if (value.startsWith("section:")) {
-                const id = value.slice("section:".length);
-                for (const c of classes) {
-                  const s = c.sections.find((x) => x.id === id);
-                  if (s) return `${c.name_bn} — ${t("section_prefix")} ${s.name}`;
-                }
-              }
-              return t("all_classes");
+              const c = classes.find((x) => x.id === value);
+              return c ? `📚 ${c.name_bn}` : t("all_classes");
             }}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">{t("all_classes")}</SelectItem>
-          {classes.map((c) => {
-            const hasMultiple = c.sections.length > 1;
-            return (
-              <SelectGroup key={c.id}>
-                {/* Every class gets a row, even if it has one or zero sections.
-                    Selecting it filters to all students in that class. */}
-                <SelectItem value={`class:${c.id}`}>
-                  📚 {c.name_bn}
-                  {hasMultiple ? t("all_sections_suffix") : ""}
-                </SelectItem>
-                {hasMultiple
-                  ? c.sections.map((s) => (
-                      <SelectItem key={s.id} value={`section:${s.id}`}>
-                        &nbsp;&nbsp;&nbsp;↳ {c.name_bn} — {t("section_prefix")} {s.name}
-                      </SelectItem>
-                    ))
-                  : null}
-              </SelectGroup>
-            );
-          })}
+          {classes.map((c) => (
+            <SelectItem key={c.id} value={c.id}>
+              📚 {c.name_bn}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Trash2, Plus, X, Pencil, Check, Info, ChevronDown, ChevronUp, ArrowRight, Users } from "lucide-react";
+import { Trash2, Pencil, Check, Info, ArrowRight, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
-import { deleteClassAction, addSectionAction, updateClassAction } from "@/server/actions/academic";
+import { deleteClassAction, updateClassAction } from "@/server/actions/academic";
 import type { ActionResult } from "@/server/actions/_helpers";
 
 type ClassRow = {
@@ -21,15 +21,17 @@ type ClassRow = {
   name_en: string | null;
   stream: string;
   display_order: number;
+  /** Kept in the type because the parent page still fetches it, but we
+      don't render it — the section concept is hidden in the UI. */
   sections: { id: string; name: string; capacity: number | null; room: string | null }[];
 };
 
 type Props = {
   schoolSlug: string;
   classes: ClassRow[];
-  /** classId → total active students in that class */
   classStudentCounts?: Record<string, number>;
-  /** sectionId → active students in that section */
+  /** Still in the prop shape so /classes page doesn't need to change;
+      unused in this component after the section UI was removed. */
   sectionStudentCounts?: Record<string, number>;
 };
 
@@ -38,22 +40,37 @@ function streamKey(stream: string): string {
   return `stream_${stream}`;
 }
 
+/**
+ * Sections used to be editable inline on each class card — a section
+ * list, an add-section form, capacity/room inputs. That surface area
+ * produced a steady stream of subtle bugs (orphan students, duplicate
+ * codes, inconsistent counts across pages). Most schools never needed
+ * sections in the first place.
+ *
+ * Product decision: hide sections completely. Schools that DO want
+ * multiple sections of the same class just create separate classes
+ * named like "Class Five (A)" / "Class Five (B)". The banner at the
+ * top of the list tells them this. A default section still exists in
+ * the DB for each class (auto-created by ensureDefaultSections) so
+ * downstream features like attendance / marks / online classes that
+ * wire off section_id keep working — users simply never see them.
+ */
 export function ClassSectionList({
   schoolSlug,
   classes,
   classStudentCounts = {},
-  sectionStudentCounts = {},
 }: Props) {
   const t = useTranslations("classes");
   return (
     <div className="flex flex-col gap-4">
-      {/* Helpful hint — 90% of institutes don't need sections */}
+      {/* Hint — tell principals how to handle multi-section classes
+          without exposing the "section" concept at all. */}
       <div className="flex items-start gap-2 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5 p-3.5 text-sm">
         <Info className="mt-0.5 size-4 shrink-0 text-primary" />
         <div className="flex-1">
-          <p className="font-medium text-foreground">{t("banner_title")}</p>
+          <p className="font-medium text-foreground">{t("multi_section_hint_title")}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {t("banner_body")}
+            {t("multi_section_hint_body")}
           </p>
         </div>
       </div>
@@ -65,7 +82,6 @@ export function ClassSectionList({
             data={c}
             schoolSlug={schoolSlug}
             classStudentCount={classStudentCounts[c.id] ?? 0}
-            sectionStudentCounts={sectionStudentCounts}
           />
         ))}
       </div>
@@ -77,23 +93,14 @@ function ClassCard({
   schoolSlug,
   data,
   classStudentCount,
-  sectionStudentCounts,
 }: {
   schoolSlug: string;
   data: ClassRow;
   classStudentCount: number;
-  sectionStudentCounts: Record<string, number>;
 }) {
   const t = useTranslations("classes");
-  const [showAddSection, setShowAddSection] = useState(false);
   const [editing, setEditing] = useState(false);
-  // Default: show sections only if there are actually custom sections
-  // (more than 1, or 1 that isn't the auto-default "ক"). Otherwise keep
-  // the UI clean — principals never think about sections.
-  const hasMeaningfulSections =
-    data.sections.length > 1 ||
-    (data.sections.length === 1 && data.sections[0]?.name !== "ক");
-  const [showSections, setShowSections] = useState<boolean>(hasMeaningfulSections);
+
   return (
     <Card>
       <CardContent className="flex flex-col gap-3 p-4">
@@ -107,7 +114,7 @@ function ClassCard({
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 flex-wrap">
-                {/* Class name — click to see that class's student list */}
+                {/* Class name — click to see the class's student list */}
                 <Link
                   href={`/students?class_id=${data.id}`}
                   className="group/cls inline-flex items-center gap-1.5 text-base font-semibold transition-colors hover:text-primary"
@@ -124,7 +131,7 @@ function ClassCard({
                   <ArrowRight className="size-3.5 opacity-0 -translate-x-1 transition-all group-hover/cls:opacity-100 group-hover/cls:translate-x-0" />
                 </Link>
 
-                {/* Prominent student-count pill — hero stat of the card */}
+                {/* Student-count pill */}
                 <Link
                   href={`/students?class_id=${data.id}`}
                   className={
@@ -170,11 +177,6 @@ function ClassCard({
                     return data.stream;
                   }
                 })()}
-                {hasMeaningfulSections ? (
-                  <>
-                    {" "}· {t("section_label")} <BanglaDigit value={data.sections.length} />
-                  </>
-                ) : null}
               </p>
             </div>
             <div className="flex items-center gap-1">
@@ -192,67 +194,6 @@ function ClassCard({
             </div>
           </div>
         )}
-
-        {/* Section management — collapsed by default for institutes that
-            don't use sections. Principal sees a clean card. */}
-        <button
-          type="button"
-          onClick={() => setShowSections((v) => !v)}
-          className="flex items-center gap-1.5 self-start rounded-md px-2 py-1 text-xs text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
-        >
-          {showSections ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
-          {t("section_mgmt_toggle")}
-          {hasMeaningfulSections ? (
-            <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-[10px] font-semibold text-primary">
-              <BanglaDigit value={data.sections.length} />
-            </span>
-          ) : (
-            <span className="ml-1 text-[10px] text-muted-foreground/70">{t("section_optional_badge")}</span>
-          )}
-        </button>
-
-        {showSections ? (
-          <div className="flex flex-col gap-2 rounded-lg border border-dashed border-border/50 bg-muted/20 p-3">
-            {data.sections.length === 0 ? (
-              <p className="text-xs text-muted-foreground">
-                {t("no_sections_yet")}
-              </p>
-            ) : (
-              <div className="flex flex-wrap items-center gap-2">
-                {data.sections.map((s) => {
-                  const n = sectionStudentCounts[s.id] ?? 0;
-                  return (
-                    <Link
-                      key={s.id}
-                      href={`/students?section_id=${s.id}`}
-                      className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-3 py-1 text-xs transition hover:border-primary/40 hover:bg-primary/5"
-                      title={t("section_tooltip")}
-                    >
-                      <span className="font-medium">{s.name}</span>
-                      <span className="text-muted-foreground">
-                        · <BanglaDigit value={n} /> {t("section_students_suffix")}
-                      </span>
-                      {s.capacity !== null ? (
-                        <span className="text-muted-foreground">
-                          / <BanglaDigit value={s.capacity} />
-                        </span>
-                      ) : null}
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={() => setShowAddSection((v) => !v)}
-              className="inline-flex items-center gap-1 self-start rounded-full border border-dashed border-primary/40 px-3 py-1 text-xs text-primary transition hover:bg-primary/5"
-            >
-              {showAddSection ? <X className="size-3" /> : <Plus className="size-3" />}
-              {showAddSection ? t("cancel_add") : t("add_section_button")}
-            </button>
-            {showAddSection ? <AddSectionInline classId={data.id} onDone={() => setShowAddSection(false)} schoolSlug={schoolSlug} /> : null}
-          </div>
-        ) : null}
       </CardContent>
     </Card>
   );
@@ -343,39 +284,6 @@ function EditClassInline({
           {t("edit_cancel")}
         </Button>
       </div>
-    </form>
-  );
-}
-
-function AddSectionInline({ schoolSlug, classId, onDone }: { schoolSlug: string; classId: string; onDone: () => void }) {
-  const t = useTranslations("classes");
-  const [state, action, pending] = useActionState<ActionResult | null, FormData>(addSectionAction, null);
-
-  useEffect(() => {
-    if (!state) return;
-    if (state.ok) { toast.success(state.message ?? t("section_add_success")); onDone(); }
-    else toast.error(state.error);
-  }, [state, onDone, t]);
-
-  return (
-    <form action={action} className="flex flex-wrap items-end gap-2 rounded-md border border-dashed border-border/60 bg-muted/30 p-3">
-      <input type="hidden" name="schoolSlug" value={schoolSlug} />
-      <input type="hidden" name="class_id" value={classId} />
-      <div className="flex flex-col gap-1">
-        <Label htmlFor={`name-${classId}`} className="text-xs">{t("section_name_label")}</Label>
-        <Input id={`name-${classId}`} name="name" required placeholder={t("section_name_placeholder")} className="h-8 w-24" />
-      </div>
-      <div className="flex flex-col gap-1">
-        <Label htmlFor={`cap-${classId}`} className="text-xs">{t("section_capacity_label")}</Label>
-        <Input id={`cap-${classId}`} name="capacity" type="number" min={0} placeholder={t("section_capacity_placeholder")} className="h-8 w-24" />
-      </div>
-      <div className="flex flex-col gap-1">
-        <Label htmlFor={`room-${classId}`} className="text-xs">{t("section_room_label")}</Label>
-        <Input id={`room-${classId}`} name="room" placeholder={t("section_room_placeholder")} className="h-8 w-20" />
-      </div>
-      <Button type="submit" size="sm" disabled={pending} className="bg-gradient-primary text-white">
-        {pending ? t("section_add_submitting") : t("section_add_submit")}
-      </Button>
     </form>
   );
 }

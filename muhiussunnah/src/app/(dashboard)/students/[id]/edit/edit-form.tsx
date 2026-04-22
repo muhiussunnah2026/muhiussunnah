@@ -86,14 +86,6 @@ export function EditStudentForm({
   // is already in a non-default section or the class actually has multiple.
   const [classId, setClassId] = useState<string>(student.sections?.classes?.id ?? "");
   const [sectionId, setSectionId] = useState<string>(student.section_id ?? "");
-  const availableSections =
-    classes.find((c) => c.id === classId)?.sections ?? [];
-  // Show section only if >1 section exists OR the current name isn't the
-  // auto-default "ক". Otherwise keep it collapsed — principal never sees it.
-  const hasMeaningfulSection =
-    availableSections.length > 1 ||
-    (student.sections && student.sections.name !== "ক");
-  const [showSection, setShowSection] = useState<boolean>(!!hasMeaningfulSection);
 
   useEffect(() => {
     if (!state) return;
@@ -184,7 +176,12 @@ export function EditStudentForm({
         </div>
       </FieldGroup>
 
-      {/* Class / Section */}
+      {/* Class picker. Section management is hidden per product decision —
+          schools that need multiple sections create separate classes
+          named like "Class Five (A)". The section_id hidden input is
+          still here so the existing server action keeps receiving it;
+          it gets auto-resolved to the class's default section when the
+          class is changed. */}
       <FieldGroup title={t("group_academic")}>
         <input type="hidden" name="class_id" value={classId} />
         <input type="hidden" name="section_id" value={sectionId} />
@@ -192,8 +189,13 @@ export function EditStudentForm({
           <select
             value={classId}
             onChange={(e) => {
-              setClassId(e.target.value);
-              setSectionId(""); // reset section when class changes
+              const nextClassId = e.target.value;
+              setClassId(nextClassId);
+              // Auto-pick the first section of the new class so the
+              // student still has a valid section_id server-side. The
+              // user never sees this choice.
+              const next = classes.find((c) => c.id === nextClassId);
+              setSectionId(next?.sections[0]?.id ?? "");
             }}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
@@ -202,51 +204,7 @@ export function EditStudentForm({
               <option key={c.id} value={c.id}>{c.name_bn}</option>
             ))}
           </select>
-          {!showSection ? (
-            <button
-              type="button"
-              onClick={() => setShowSection(true)}
-              className="mt-1 text-left text-xs text-primary hover:underline"
-            >
-              {t("add_section_link")}
-            </button>
-          ) : null}
         </Field>
-        {showSection ? (
-          <Field label={t("label_section")}>
-            <div className="flex items-center gap-2">
-              <select
-                value={sectionId}
-                onChange={(e) => setSectionId(e.target.value)}
-                disabled={!classId || availableSections.length === 0}
-                className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
-              >
-                <option value="">
-                  {classId && availableSections.length === 0
-                    ? t("section_empty")
-                    : t("section_placeholder")}
-                </option>
-                {availableSections.map((s) => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
-              <button
-                type="button"
-                onClick={() => {
-                  setSectionId("");
-                  setShowSection(false);
-                }}
-                className="text-xs text-muted-foreground hover:text-destructive"
-                title={t("remove_section_title")}
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("section_auto_hint")}
-            </p>
-          </Field>
-        ) : null}
       </FieldGroup>
 
       {/* Identity */}

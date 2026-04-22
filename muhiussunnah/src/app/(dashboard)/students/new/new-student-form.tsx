@@ -171,7 +171,6 @@ export function NewStudentForm({
     [classes, classId],
   );
   const resolvedSectionId = sectionId || selectedClass?.sections[0]?.id || "";
-  const multipleSections = (selectedClass?.sections.length ?? 0) > 1;
 
   useEffect(() => {
     if (!state) return;
@@ -490,29 +489,12 @@ export function NewStudentForm({
             />
           </div>
 
-          {multipleSections ? (
-            <div className="flex flex-col gap-1.5 md:col-span-2">
-              <FieldLabel htmlFor="section_picker">{t("label_section")}</FieldLabel>
-              <Select value={sectionId} onValueChange={(v) => setSectionId(v ?? "")}>
-                <SelectTrigger id="section_picker">
-                  <SelectValue placeholder={t("section_picker_placeholder")}>
-                    {(v: unknown) => {
-                      const id = typeof v === "string" ? v : "";
-                      const s = selectedClass?.sections.find((x) => x.id === id);
-                      return s?.name ?? t("section_picker_placeholder");
-                    }}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {selectedClass?.sections.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ) : null}
+          {/* Section picker intentionally hidden. When a class has
+              multiple sections, the school is expected to split it
+              into separate classes (e.g. "Class Five (A)") so users
+              never think about section pickers. The hidden input
+              above (`section_id`) resolves to the class's default
+              section automatically. */}
 
           <div className="flex flex-col gap-1.5">
             <FieldLabel htmlFor="gender">{t("label_gender")}</FieldLabel>
