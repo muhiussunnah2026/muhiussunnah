@@ -217,7 +217,7 @@ export default async function LandingPage() {
               { value: 50000, suffix: "+", label: t.stats.students, icon: Users },
               { value: 120, suffix: "+", label: t.stats.schools, icon: Award },
               { value: 200, suffix: "M+", label: t.stats.transactions, icon: Wallet },
-              { value: 4, suffix: "", label: t.stats.languages, icon: Globe },
+              { value: 2, suffix: "", label: t.stats.languages, icon: Globe },
             ].map((s, i) => (
               <Reveal key={s.label} variant="fade-up" delay={i * 100}>
                 <TiltCard>
@@ -226,7 +226,7 @@ export default async function LandingPage() {
                       <s.icon className="size-5" />
                     </div>
                     <div className="text-4xl md:text-5xl font-bold text-gradient-primary tabular-nums">
-                      <AnimatedCounter value={s.value} suffix={s.suffix} bangla />
+                      <AnimatedCounter value={s.value} suffix={s.suffix} bangla={locale === "bn"} />
                     </div>
                     <div className="text-sm text-muted-foreground mt-2">{s.label}</div>
                   </div>

@@ -20,7 +20,7 @@ import { getFeaturesPageCopy } from "@/lib/i18n/pages";
 export const metadata = {
   title: "Features",
   description:
-    "32+ features for schools & madrasas — student management, attendance, exams, fees, AI insights, hifz & kitab tracking. Everything you need, in 4 languages.",
+    "32+ features for schools & madrasas — student management, attendance, exams, fees, AI insights, hifz & kitab tracking. Everything you need, bilingual Bangla + English.",
   alternates: { canonical: "/features" },
   openGraph: {
     title: "Features — Muhius Sunnah",

@@ -124,7 +124,7 @@ export default async function OpengraphImage() {
         >
           <div style={{ display: "flex", gap: 16 }}>
             <span style={{ padding: "6px 14px", borderRadius: 999, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.25)" }}>
-              🕌 4 languages
+              🕌 Bangla + English
             </span>
             <span style={{ padding: "6px 14px", borderRadius: 999, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.25)" }}>
               🇧🇩 Made for Bangladesh

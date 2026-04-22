@@ -74,7 +74,7 @@ export const metadata: Metadata = {
     template: "%s · Muhius Sunnah",
   },
   description:
-    "Muhius Sunnah — modern school & madrasa management software for Bangladesh. Admissions, attendance, exams, fees, parent portal, hifz/kitab/sabaq modules, online payments. Available in 4 languages.",
+    "Muhius Sunnah — modern school & madrasa management software for Bangladesh. Admissions, attendance, exams, fees, parent portal, hifz/kitab/sabaq modules, online payments. Bilingual Bangla + English.",
   applicationName: "Muhius Sunnah",
   keywords: [
     "school management software",

@@ -11,7 +11,7 @@ export function AnimatedCounter({
   suffix = "",
   prefix = "",
   duration = 2200,
-  bangla = true,
+  bangla = false,
 }: {
   value: number;
   suffix?: string;

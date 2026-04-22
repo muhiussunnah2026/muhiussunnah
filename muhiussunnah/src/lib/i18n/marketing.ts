@@ -351,7 +351,7 @@ const bn: Copy = {
       { q: "প্ল্যান পরিবর্তন করা যাবে?", a: "যে কোন সময় upgrade বা downgrade করা যাবে। ডেটা কখনো হারাবে না।" },
       { q: "পেমেন্ট কিভাবে করব?", a: "bKash, Nagad, Rocket, ব্যাংক ট্রান্সফার — সব পদ্ধতি চলবে।" },
       { q: "আমার ডেটা কি নিরাপদ?", a: "Row-Level Security (প্রতিটি স্কুলের ডেটা আলাদা), 2FA, encrypted backup — ব্যাংক-level সুরক্ষা।" },
-      { q: "বাংলাদেশের বাইরে ব্যবহার করা যাবে?", a: "হ্যাঁ। বাংলা, ইংরেজি, উর্দু, আরবি — ৪ ভাষায় সম্পূর্ণ সাপোর্ট।" },
+      { q: "বাংলাদেশের বাইরে ব্যবহার করা যাবে?", a: "হ্যাঁ। এখন বাংলা ও ইংরেজি — দুই ভাষায় সম্পূর্ণ সাপোর্ট। উর্দু ও আরবি শীঘ্রই যোগ হবে।" },
     ],
   },
 
@@ -615,7 +615,7 @@ const en: Copy = {
       { q: "Can I change plans later?", a: "Upgrade or downgrade anytime. Your data is never lost." },
       { q: "How can I pay?", a: "bKash, Nagad, Rocket, bank transfer — all methods supported." },
       { q: "Is my data safe?", a: "Row-Level Security (each school's data isolated), 2FA, encrypted backups — bank-level security." },
-      { q: "Can I use this outside Bangladesh?", a: "Yes. Bangla, English, Urdu, Arabic — full support in 4 languages." },
+      { q: "Can I use this outside Bangladesh?", a: "Yes. Full bilingual Bangla + English support today; Urdu and Arabic are on the roadmap." },
     ],
   },
 
