@@ -118,19 +118,32 @@ export default async function StudentsListPage({ searchParams }: PageProps) {
           { label: <>{t("impact_active")} · <BanglaDigit value={stats.active} /></>, tone: "success" },
         ]}
         actions={
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2.5">
+            {/* Excel Import — secondary. Outlined, gentle primary tint on
+                hover so it reads as "available but not the primary CTA". */}
             <Link
               href={`/students/bulk-import`}
-              className={buttonVariants({ variant: "outline", size: "sm" })}
+              className={buttonVariants({
+                variant: "outline",
+                size: "default",
+                className:
+                  "h-10 gap-2 rounded-xl border-primary/30 bg-card/60 px-4 font-semibold shadow-sm shadow-primary/5 transition-all duration-200 hover:-translate-y-[1px] hover:border-primary/60 hover:bg-primary/5 hover:shadow-md hover:shadow-primary/15",
+              })}
             >
-              <FileSpreadsheet className="me-1 size-3.5" />
+              <FileSpreadsheet className="size-4 text-primary" />
               {t("btn_excel_import")}
             </Link>
+            {/* New admission — primary CTA. Gradient + lift + glow shadow
+                to match the hero buttons elsewhere on the site. */}
             <Link
               href={`/students/new`}
-              className={buttonVariants({ size: "sm", className: "bg-gradient-primary text-white" })}
+              className={buttonVariants({
+                size: "default",
+                className:
+                  "h-10 gap-2 rounded-xl bg-gradient-primary animate-gradient px-5 font-semibold text-white shadow-lg shadow-primary/30 transition-all duration-200 hover:-translate-y-[1px] hover:shadow-xl hover:shadow-primary/40",
+              })}
             >
-              <UserPlus className="me-1 size-3.5" />
+              <UserPlus className="size-4" />
               {t("btn_new_admission")}
             </Link>
           </div>
