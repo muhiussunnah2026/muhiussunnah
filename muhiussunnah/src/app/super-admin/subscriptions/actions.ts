@@ -76,9 +76,10 @@ export async function updateSchoolSubscriptionAction(
   revalidatePath("/super-admin/schools");
   // Bust tenant-facing routes so the principal sees the new plan
   // immediately, not after a stale-while-revalidate window.
+  // NOTE: do NOT invalidate the root layout — that nukes the cache
+  // for every dashboard page and makes the whole app feel slow.
   revalidatePath("/settings");
   revalidatePath("/admin");
-  revalidatePath("/", "layout");
   return ok(undefined, "সাবস্ক্রিপশন আপডেট হয়েছে।");
 }
 

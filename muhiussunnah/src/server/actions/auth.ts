@@ -99,7 +99,12 @@ export async function signInAction(
     }
   }
 
-  revalidatePath("/", "layout");
+  // NOTE: We deliberately do NOT revalidate the root layout here.
+  // Layouts already read cookies via `cookies()` which makes them
+  // per-request dynamic, so the new user's data surfaces naturally
+  // on the next render. Dropping the revalidate saves a full
+  // cache-cold dashboard rebuild on every login (the admin page
+  // runs ~19 aggregate queries on a cold render).
   redirect(destination || "/");
 }
 
