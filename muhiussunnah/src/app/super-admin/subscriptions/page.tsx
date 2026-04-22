@@ -94,15 +94,23 @@ export default async function SubscriptionsPage() {
     if (!adminBySchool.has(r.school_id)) adminBySchool.set(r.school_id, r);
   }
 
-  // 3. Auth user emails (one paginated fetch; covers low tenant count for now).
+  // 3. Auth user emails for just the admin users we're displaying —
+  //    not the whole platform's auth dump. The page was listing 1000
+  //    users per render even when there are 5 tenants.
   const emailByUserId = new Map<string, string>();
-  try {
-    const { data: usersData } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-    for (const u of (usersData?.users ?? []) as Array<{ id: string; email: string | null }>) {
-      if (u.email) emailByUserId.set(u.id, u.email);
-    }
-  } catch {
-    // Non-fatal — fall back to schools.email
+  const adminUserIds = Array.from(new Set(adminRows.map((r) => r.user_id)));
+  if (adminUserIds.length > 0) {
+    await Promise.all(
+      adminUserIds.map(async (uid) => {
+        try {
+          const { data } = await admin.auth.admin.getUserById(uid);
+          const email = data?.user?.email;
+          if (email) emailByUserId.set(uid, email);
+        } catch {
+          // Non-fatal — schools.email serves as fallback.
+        }
+      }),
+    );
   }
 
   // Aggregates

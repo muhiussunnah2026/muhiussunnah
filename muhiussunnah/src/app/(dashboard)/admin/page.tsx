@@ -114,12 +114,14 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
     sb.from("classes").select("id, name_bn, display_order, sections(id, class_id)").eq("school_id", schoolId).order("display_order"),
     sb.from("subjects").select("id", { count: "exact", head: true }).eq("school_id", schoolId),
     sb.from("fee_invoices").select("total_amount, paid_amount, status").eq("school_id", schoolId),
-    // Payments in current period
-    sb.from("fee_payments").select("amount").eq("school_id", schoolId)
-      .gte("payment_date", range.from).lte("payment_date", range.to),
+    // Payments in current period. Table is `payments`, timestamp column
+    // is `paid_at` — dashboard was quietly reading a non-existent table
+    // and returning zero revenue before.
+    sb.from("payments").select("amount").eq("school_id", schoolId)
+      .gte("paid_at", range.from).lte("paid_at", range.to + "T23:59:59"),
     // Payments in previous period
-    sb.from("fee_payments").select("amount").eq("school_id", schoolId)
-      .gte("payment_date", range.prevFrom).lte("payment_date", range.prevTo),
+    sb.from("payments").select("amount").eq("school_id", schoolId)
+      .gte("paid_at", range.prevFrom).lte("paid_at", range.prevTo + "T23:59:59"),
     // Expenses in current period
     sb.from("expenses").select("amount").eq("school_id", schoolId)
       .gte("date", range.from).lte("date", range.to),
