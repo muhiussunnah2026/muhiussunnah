@@ -24,8 +24,11 @@ export const USER_ROLES = [
 
 export type UserRole = (typeof USER_ROLES)[number];
 
-/** Roles with principal-level authority inside a tenant. */
+/** Roles with principal-level authority inside a tenant.
+ *  SUPER_ADMIN is included so platform owners can open any school's
+ *  admin dashboard alongside their /super-admin area. */
 export const ADMIN_ROLES: UserRole[] = [
+  "SUPER_ADMIN",
   "SCHOOL_ADMIN",
   "VICE_PRINCIPAL",
   "BRANCH_ADMIN",
@@ -40,6 +43,7 @@ export const TEACHER_ROLES: UserRole[] = [
 
 /** Roles that can touch finance. */
 export const FINANCE_ROLES: UserRole[] = [
+  "SUPER_ADMIN",
   "SCHOOL_ADMIN",
   "VICE_PRINCIPAL",
   "ACCOUNTANT",
