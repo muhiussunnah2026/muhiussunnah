@@ -28,6 +28,7 @@ type SchoolRow = {
   subscription_plan_id: string | null;
   trial_ends_at: string | null;
   subscription_expires_at: string | null;
+  is_platform_owned: boolean;
   created_at: string;
   plan: { code: string; name_bn: string; name_en: string; price_bdt: number } | null;
 };
@@ -36,6 +37,7 @@ type AdminRow = {
   school_id: string;
   user_id: string;
   full_name_bn: string | null;
+  role: string;
 };
 
 /** Map status → colored badge tone for the impact row and table cells. */
@@ -60,7 +62,7 @@ export default async function SubscriptionsPage() {
     .select(
       `id, slug, name_bn, name_en, email,
        subscription_status, subscription_plan_id,
-       trial_ends_at, subscription_expires_at, created_at,
+       trial_ends_at, subscription_expires_at, is_platform_owned, created_at,
        plan:subscription_plans ( code, name_bn, name_en, price_bdt )`,
     )
     .order("created_at", { ascending: false });
@@ -75,14 +77,18 @@ export default async function SubscriptionsPage() {
     .order("display_order", { ascending: true });
   const plans: PlanOption[] = (plansData ?? []) as PlanOption[];
 
-  // 2. SCHOOL_ADMIN contact per school (for email fallback)
+  // 2. Admin contact per school. Prefer a SCHOOL_ADMIN; fall back to
+  //    SUPER_ADMIN so the platform owner's own schools show a name
+  //    instead of "—".
   const { data: adminsData } = await admin
     .from("school_users")
-    .select("school_id, user_id, full_name_bn")
-    .eq("role", "SCHOOL_ADMIN")
+    .select("school_id, user_id, full_name_bn, role")
+    .in("role", ["SCHOOL_ADMIN", "SUPER_ADMIN"])
     .eq("status", "active");
 
   const adminRows: AdminRow[] = (adminsData ?? []) as AdminRow[];
+  // Prefer SCHOOL_ADMIN over SUPER_ADMIN when both exist.
+  adminRows.sort((a, b) => (a.role === "SCHOOL_ADMIN" ? -1 : b.role === "SCHOOL_ADMIN" ? 1 : 0));
   const adminBySchool = new Map<string, AdminRow>();
   for (const r of adminRows) {
     if (!adminBySchool.has(r.school_id)) adminBySchool.set(r.school_id, r);
@@ -103,8 +109,9 @@ export default async function SubscriptionsPage() {
   const total = schools.length;
   const activeCount = schools.filter((s) => s.subscription_status === "active").length;
   const trialCount = schools.filter((s) => s.subscription_status === "trial").length;
+  // Revenue skips platform-owned tenants — those are yours, not paying.
   const monthlyRevenue = schools
-    .filter((s) => s.subscription_status === "active" && s.plan)
+    .filter((s) => s.subscription_status === "active" && s.plan && !s.is_platform_owned)
     .reduce((sum, s) => sum + Number(s.plan?.price_bdt ?? 0), 0);
 
   return (
@@ -240,6 +247,7 @@ export default async function SubscriptionsPage() {
                             currentStatus={s.subscription_status}
                             currentTrialEndsAt={s.trial_ends_at}
                             currentExpiresAt={s.subscription_expires_at}
+                            currentIsPlatformOwned={s.is_platform_owned ?? false}
                             plans={plans}
                           />
                           <DeleteSchoolButton

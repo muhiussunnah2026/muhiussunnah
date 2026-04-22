@@ -2803,7 +2803,9 @@
     "delete_school_confirm_label": "Type the school slug to confirm: {slug}",
     "delete_school_confirm_cta": "Delete permanently",
     "delete_school_deleting": "Deleting…",
-    "delete_school_done": "School deleted."
+    "delete_school_done": "School deleted.",
+    "manage_platform_owned_label": "Platform-owned school",
+    "manage_platform_owned_hint": "When on, this school does not count towards revenue and its plan never expires. Use only for your own tenants."
   },
   "pay": {
     "success_title_meta": "Payment successful",

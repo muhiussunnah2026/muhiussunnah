@@ -30,7 +30,11 @@ type PlanRow = {
   display_order: number;
 };
 
-type SchoolPlanRow = { subscription_plan_id: string | null; subscription_status: string };
+type SchoolPlanRow = {
+  subscription_plan_id: string | null;
+  subscription_status: string;
+  is_platform_owned: boolean;
+};
 
 function fmt(val: number | null): string {
   return val == null ? "∞" : val.toLocaleString("en-IN");
@@ -54,13 +58,15 @@ export default async function PlansPage() {
   // Count schools per plan (only active subscriptions count towards revenue)
   const { data: schoolsData } = await admin
     .from("schools")
-    .select("subscription_plan_id, subscription_status");
+    .select("subscription_plan_id, subscription_status, is_platform_owned");
   const countByPlan = new Map<string, number>();
   const activeCountByPlan = new Map<string, number>();
   for (const s of (schoolsData ?? []) as SchoolPlanRow[]) {
     if (!s.subscription_plan_id) continue;
     countByPlan.set(s.subscription_plan_id, (countByPlan.get(s.subscription_plan_id) ?? 0) + 1);
-    if (s.subscription_status === "active") {
+    // Only paying, non-platform schools contribute to active counts
+    // (and by extension, MRR).
+    if (s.subscription_status === "active" && !s.is_platform_owned) {
       activeCountByPlan.set(
         s.subscription_plan_id,
         (activeCountByPlan.get(s.subscription_plan_id) ?? 0) + 1,

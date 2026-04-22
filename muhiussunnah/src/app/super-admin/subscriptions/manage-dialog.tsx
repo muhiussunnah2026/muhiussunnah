@@ -42,6 +42,7 @@ type Props = {
   currentStatus: string;
   currentTrialEndsAt: string | null;
   currentExpiresAt: string | null;
+  currentIsPlatformOwned: boolean;
   plans: PlanOption[];
 };
 
@@ -138,6 +139,7 @@ function PlanForm({
   currentStatus,
   currentTrialEndsAt,
   currentExpiresAt,
+  currentIsPlatformOwned,
   plans,
   onDone,
 }: Props & { onDone: () => void }) {
@@ -145,6 +147,7 @@ function PlanForm({
   const [state, action, pending] = useActionState(updateSchoolSubscriptionAction, null);
   const [planId, setPlanId] = useState(currentPlanId ?? "");
   const [status, setStatus] = useState(currentStatus);
+  const [platformOwned, setPlatformOwned] = useState(currentIsPlatformOwned);
 
   useEffect(() => {
     if (state?.ok) {
@@ -160,6 +163,11 @@ function PlanForm({
       <input type="hidden" name="schoolId" value={schoolId} />
       <input type="hidden" name="planId" value={planId} />
       <input type="hidden" name="status" value={status} />
+      <input
+        type="hidden"
+        name="isPlatformOwned"
+        value={platformOwned ? "true" : "false"}
+      />
 
       <div className="flex flex-col gap-1.5">
         <Label>{t("manage_plan_label")}</Label>
@@ -222,6 +230,21 @@ function PlanForm({
           />
         </div>
       </div>
+
+      <label className="mt-1 flex cursor-pointer items-start gap-3 rounded-lg border border-primary/25 bg-gradient-to-br from-primary/5 to-transparent p-3 hover:border-primary/40">
+        <input
+          type="checkbox"
+          checked={platformOwned}
+          onChange={(e) => setPlatformOwned(e.target.checked)}
+          className="mt-0.5 size-4 accent-primary"
+        />
+        <div className="flex-1">
+          <div className="text-sm font-medium">{t("manage_platform_owned_label")}</div>
+          <div className="text-xs text-muted-foreground">
+            {t("manage_platform_owned_hint")}
+          </div>
+        </div>
+      </label>
 
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onDone}>

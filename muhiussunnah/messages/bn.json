@@ -2803,7 +2803,9 @@
     "delete_school_confirm_label": "নিশ্চিতকরণের জন্য স্কুলের slug টাইপ করুন: {slug}",
     "delete_school_confirm_cta": "স্থায়ীভাবে মুছে দিন",
     "delete_school_deleting": "মুছে ফেলা হচ্ছে…",
-    "delete_school_done": "স্কুল মুছে ফেলা হয়েছে।"
+    "delete_school_done": "স্কুল মুছে ফেলা হয়েছে।",
+    "manage_platform_owned_label": "প্ল্যাটফর্মের নিজস্ব স্কুল",
+    "manage_platform_owned_hint": "চালু থাকলে এই স্কুল রাজস্ব হিসাবে গণ্য হবে না ও প্ল্যানের মেয়াদ অনির্দিষ্টকাল থাকবে। শুধু প্ল্যাটফর্ম মালিকের নিজের স্কুলের জন্য।"
   },
   "pay": {
     "success_title_meta": "পেমেন্ট সফল",

@@ -31,7 +31,7 @@ export default async function AnalyticsPage() {
   const [schoolsRes, studentsRes, staffRes, subsRes] = await Promise.all([
     admin
       .from("schools")
-      .select("id, subscription_status, subscription_plan_id, created_at, type"),
+      .select("id, subscription_status, subscription_plan_id, created_at, type, is_platform_owned"),
     admin.from("students").select("id", { count: "exact", head: true }).eq("status", "active"),
     admin
       .from("school_users")
@@ -46,6 +46,7 @@ export default async function AnalyticsPage() {
     subscription_plan_id: string | null;
     created_at: string;
     type: "school" | "madrasa" | "both";
+    is_platform_owned: boolean;
   };
   const schools = (schoolsRes.data ?? []) as SchoolLite[];
   const planPrice = new Map<string, number>();
@@ -61,8 +62,14 @@ export default async function AnalyticsPage() {
   const trialCount = schools.filter((s) => s.subscription_status === "trial").length;
   const pastDueCount = schools.filter((s) => s.subscription_status === "past_due").length;
 
+  // MRR ignores platform-owned tenants (not paying customers).
   const mrr = schools
-    .filter((s) => s.subscription_status === "active" && s.subscription_plan_id)
+    .filter(
+      (s) =>
+        s.subscription_status === "active" &&
+        s.subscription_plan_id &&
+        !s.is_platform_owned,
+    )
     .reduce((sum, s) => sum + (planPrice.get(s.subscription_plan_id!) ?? 0), 0);
 
   // New-school trend over last 6 months

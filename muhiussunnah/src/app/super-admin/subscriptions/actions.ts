@@ -30,6 +30,10 @@ const subscriptionSchema = z.object({
   status: z.enum(["trial", "active", "past_due", "canceled", "suspended"]),
   trialEndsAt: z.string().optional().or(z.literal("")),
   subscriptionExpiresAt: z.string().optional().or(z.literal("")),
+  isPlatformOwned: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((v) => v === "true"),
 });
 
 export async function updateSchoolSubscriptionAction(
@@ -50,6 +54,7 @@ export async function updateSchoolSubscriptionAction(
     subscription_plan_id: parsed.planId || null,
     trial_ends_at: parsed.trialEndsAt || null,
     subscription_expires_at: parsed.subscriptionExpiresAt || null,
+    is_platform_owned: parsed.isPlatformOwned ?? false,
   };
 
   const { error } = await admin
