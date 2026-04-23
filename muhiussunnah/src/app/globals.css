@@ -16,7 +16,7 @@
   --font-sans: var(--font-inter), var(--font-noto-sans-bengali), system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-arabic: var(--font-noto-naskh-arabic), serif;
-  --font-urdu: var(--font-noto-nastaliq-urdu), var(--font-noto-naskh-arabic), serif;
+  --font-urdu: var(--font-noto-naskh-arabic), serif;
   --font-bangla-print: var(--font-noto-sans-bengali), sans-serif;
   --font-heading: var(--font-inter), var(--font-noto-sans-bengali), system-ui, sans-serif;
 

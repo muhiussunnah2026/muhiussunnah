@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import {
   Inter,
   Noto_Naskh_Arabic,
-  Noto_Nastaliq_Urdu,
   Noto_Sans_Bengali,
 } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
@@ -58,13 +57,6 @@ const notoNaskhArabic = Noto_Naskh_Arabic({
   weight: ["400", "700"],
 });
 
-const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
-  variable: "--font-noto-nastaliq-urdu",
-  subsets: ["arabic"],
-  display: "swap",
-  preload: false,
-  weight: ["400", "700"],
-});
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://muhiussunnah.app";
 
@@ -225,7 +217,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={dir}
-      className={`${inter.variable} ${notoSansBengali.variable} ${notoNaskhArabic.variable} ${notoNastaliqUrdu.variable} h-full`}
+      className={`${inter.variable} ${notoSansBengali.variable} ${notoNaskhArabic.variable} h-full`}
       suppressHydrationWarning
     >
       <head>
