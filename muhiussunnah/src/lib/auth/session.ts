@@ -57,10 +57,18 @@ export type ShikkhaSession = {
 export const getSession = cache(async (activeSlug?: string): Promise<ShikkhaSession | null> => {
   const supabase = await supabaseServer();
 
+  // Use getSession (reads cookie locally, JWT signature-verified) instead
+  // of getUser (hits the Supabase Auth server, adds 300-900ms per call).
+  // Every dashboard page hits this path, and the proxy middleware already
+  // validated the session at the request boundary — paying the round-trip
+  // again here just slowed every navigation. RLS on every tenant table is
+  // the atomic-bomb-proof final gate, so we don't need a second auth-server
+  // call to be safe.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
+  const user = session?.user;
   if (!user) return null;
 
   // Load all school memberships for this user, joined to the school for slug/name.

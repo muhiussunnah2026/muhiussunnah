@@ -45,10 +45,13 @@ export async function MarketingNav() {
   // Detect signed-in user so we can replace Login/Sign-up with a Dashboard
   // link. The proxy redirects logged-in users away from /login and
   // /register-school anyway, so exposing those links creates a dead-end.
+  // Use getSession (cookie-only, no network) instead of getUser (hits
+  // Supabase Auth, adds 300-900ms to every marketing page render).
   const supabase = await supabaseServer();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
 
   let dashboardHref: string | null = null;
   if (user) {
