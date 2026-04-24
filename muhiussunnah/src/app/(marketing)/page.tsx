@@ -194,7 +194,7 @@ export default async function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════
           LOGO MARQUEE — "Trusted by"
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="border-y border-border/40 bg-muted/10 py-10">
+      <section className="cv-auto border-y border-border/40 bg-muted/10 py-10">
         <Reveal variant="fade-in" className="mx-auto w-full max-w-7xl px-4 md:px-8">
           <p className="text-center text-xs uppercase tracking-[0.3em] text-muted-foreground mb-6">
             {t.extras.trustedBy}
@@ -212,7 +212,7 @@ export default async function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════
           STATS — animated counters
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden py-24 mesh-bg-2">
+      <section className="cv-auto relative overflow-hidden py-24 mesh-bg-2">
         <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
           <Reveal variant="fade-up" className="text-center mb-14">
             <Badge variant="outline" className="px-3 mb-4">{t.extras.statsBadge}</Badge>
@@ -249,7 +249,7 @@ export default async function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════
           FEATURES — bento grid with gradient borders
       ═══════════════════════════════════════════════════════════════ */}
-      <section id="features" className="relative overflow-hidden py-28">
+      <section id="features" className="cv-auto relative overflow-hidden py-28">
         <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
           <Reveal variant="fade-up" className="mb-16 flex flex-col items-center gap-3 text-center">
             <Badge variant="outline" className="px-3">{t.features.eyebrow}</Badge>
@@ -290,7 +290,7 @@ export default async function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════
           PRICING PREVIEW
       ═══════════════════════════════════════════════════════════════ */}
-      <section id="pricing" className="relative overflow-hidden py-28 mesh-bg-3 border-y border-border/40">
+      <section id="pricing" className="cv-auto relative overflow-hidden py-28 mesh-bg-3 border-y border-border/40">
         <div className="aurora-beam opacity-30" aria-hidden />
         <div className="relative mx-auto w-full max-w-7xl px-4 md:px-8">
           <Reveal variant="fade-up" className="mb-14 flex flex-col items-center gap-3 text-center">
@@ -378,7 +378,7 @@ export default async function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════
           TESTIMONIALS — two-row infinite marquee with BD-style avatars
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative py-28 overflow-hidden">
+      <section className="cv-auto relative py-28 overflow-hidden">
         <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
           <Reveal variant="fade-up" className="mb-14 flex flex-col items-center gap-3 text-center">
             <Badge variant="outline" className="px-3">{t.testimonials.eyebrow}</Badge>
@@ -419,7 +419,7 @@ export default async function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════
           FAQ
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative py-28 border-y border-border/40 mesh-bg-2">
+      <section className="cv-auto relative py-28 border-y border-border/40 mesh-bg-2">
         <div className="mx-auto w-full max-w-4xl px-4 md:px-8">
           <Reveal variant="fade-up" className="mb-12 flex flex-col items-center gap-3 text-center">
             <Badge variant="outline" className="px-3">{t.faq.eyebrow}</Badge>
@@ -445,7 +445,7 @@ export default async function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════
           FINAL CTA — dramatic gradient card
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative py-28">
+      <section className="cv-auto relative py-28">
         <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
           <Reveal variant="scale-in">
             <div className="relative overflow-hidden rounded-[2rem] bg-gradient-primary animate-gradient p-10 md:p-20 text-center text-white shadow-2xl shadow-primary/30 noise">
