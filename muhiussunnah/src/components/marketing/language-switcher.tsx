@@ -53,14 +53,24 @@ export function LanguageSwitcher({ current, compact = false }: { current: Locale
         type="button"
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background/70 px-2.5 py-1.5 text-xs font-medium transition hover:border-primary/40 hover:bg-background",
+          // Structure
+          "group inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur-md",
+          // Interactive cues — cursor, smooth bg animation, hover lift
+          "cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          "border-border/60 bg-background/70",
+          "hover:-translate-y-[1px] hover:border-primary/50",
+          "hover:bg-gradient-to-br hover:from-primary/15 hover:via-background hover:to-accent/10",
+          "hover:shadow-md hover:shadow-primary/20",
+          // Open state — filled tint so it reads as the active menu trigger
+          open && "border-primary/60 bg-gradient-to-br from-primary/20 via-background to-accent/15 shadow-md shadow-primary/20 -translate-y-[1px]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
           isPending && "pointer-events-none opacity-60",
         )}
         aria-label="Change language"
         aria-expanded={open}
         aria-haspopup="listbox"
       >
-        <Globe className="size-3.5 opacity-70" />
+        <Globe className="size-3.5 opacity-70 transition-transform duration-300 group-hover:rotate-12" />
         <span className="text-base leading-none">{localeFlag[current]}</span>
         {!compact && <span>{localeDisplayName[current]}</span>}
       </button>
@@ -84,8 +94,9 @@ export function LanguageSwitcher({ current, compact = false }: { current: Locale
               aria-selected={current === l}
               onClick={() => onPick(l)}
               className={cn(
-                "flex w-full items-center gap-2.5 px-3 py-2.5 text-sm transition hover:bg-muted",
-                current === l && "bg-muted/50",
+                "flex w-full items-center gap-2.5 px-3 py-2.5 text-sm cursor-pointer transition-all duration-200",
+                "hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent hover:translate-x-0.5",
+                current === l && "bg-gradient-to-r from-primary/15 to-transparent font-medium text-primary",
               )}
             >
               <span className="text-lg leading-none">{localeFlag[l]}</span>

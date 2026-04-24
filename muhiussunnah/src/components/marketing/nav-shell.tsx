@@ -180,7 +180,17 @@ export function NavShell({
           <button
             type="button"
             onClick={() => setMobileOpen((o) => !o)}
-            className="md:hidden inline-flex size-10 items-center justify-center rounded-full border border-border/60 bg-background/70 backdrop-blur-md text-foreground transition hover:border-primary/50 hover:bg-primary/10"
+            className={cn(
+              "md:hidden group inline-flex size-10 items-center justify-center rounded-full border backdrop-blur-md text-foreground",
+              "cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "border-border/60 bg-background/70",
+              "active:scale-95 hover:-translate-y-[1px] hover:border-primary/50",
+              "hover:bg-gradient-to-br hover:from-primary/15 hover:via-background hover:to-accent/10",
+              "hover:shadow-md hover:shadow-primary/20",
+              mobileOpen && "border-primary/60 bg-gradient-to-br from-primary/20 via-background to-accent/15 shadow-md shadow-primary/20",
+              "[&>svg]:transition-transform [&>svg]:duration-300",
+              mobileOpen ? "[&>svg]:rotate-90" : "group-hover:[&>svg]:scale-110",
+            )}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
           >
@@ -226,10 +236,12 @@ export function NavShell({
                   href={l.href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex items-center justify-between rounded-xl px-4 py-3 text-base font-medium transition",
+                    "flex items-center justify-between rounded-xl px-4 py-3 text-base font-medium",
+                    "cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                    "active:scale-[0.98]",
                     active
-                      ? "bg-primary/15 text-primary border border-primary/30 shadow-sm"
-                      : "text-foreground hover:bg-muted border border-transparent",
+                      ? "bg-gradient-to-r from-primary/20 via-primary/10 to-transparent text-primary border border-primary/30 shadow-sm"
+                      : "text-foreground border border-transparent hover:border-primary/30 hover:bg-gradient-to-r hover:from-primary/10 hover:via-muted/50 hover:to-transparent hover:translate-x-1 hover:shadow-sm",
                   )}
                 >
                   <span>{l.label}</span>
