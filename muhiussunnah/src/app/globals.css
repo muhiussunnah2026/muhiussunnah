@@ -442,7 +442,7 @@ html { scrollbar-width: thin; scrollbar-color: #7c5cff transparent; }
  */
 @layer utilities {
   .reveal-in {
-    animation-duration: 900ms;
+    animation-duration: 700ms;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     animation-fill-mode: both;
   }
@@ -454,8 +454,37 @@ html { scrollbar-width: thin; scrollbar-color: #7c5cff transparent; }
   .reveal-blur-in    { animation-name: reveal-blur-in; }
 
   .reveal-word-in {
-    animation: reveal-word 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: reveal-word 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
+}
+
+/*
+ * Mobile performance guard: on narrow viewports we skip the fancy
+ * transforms + blur filters entirely and just cross-fade. Mobile
+ * GPUs were choking on 90+ simultaneous GPU layers during load
+ * (Lighthouse score dropped from 87 → 84 after the CSS rewrite),
+ * and users on phones don't notice the reduced polish anyway — the
+ * hero is already above the fold without any entrance animation.
+ */
+@media (max-width: 767px) {
+  .reveal-in, .reveal-word-in {
+    animation-name: reveal-fade-in !important;
+    animation-duration: 400ms !important;
+    animation-delay: 0ms !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/*
+ * Below-the-fold sections skip painting entirely until they're near
+ * the viewport. `content-visibility: auto` gives the browser permission
+ * to treat the section as off-screen render cost — huge win on mobile
+ * where every extra painted pixel costs CPU + GPU cycles.
+ */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
 }
 
 @keyframes reveal-fade-up {
