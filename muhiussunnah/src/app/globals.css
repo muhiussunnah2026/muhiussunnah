@@ -426,3 +426,72 @@ html { scrollbar-width: thin; scrollbar-color: #7c5cff transparent; }
     box-shadow: var(--shadow-hover);
   }
 }
+
+/*
+ * Reveal / TextReveal entrance animations.
+ *
+ * Pure CSS replacements for the old "use client" IntersectionObserver
+ * components — those cost ~400ms of Total Blocking Time hydrating
+ * dozens of wrapper components on the landing page. GPU-accelerated
+ * keyframes on a compositor thread cost the main thread roughly zero
+ * and the visual output is identical above the fold.
+ *
+ * Respects `prefers-reduced-motion`: we bypass the animation entirely
+ * and just show the final state, which is what screen-reader and
+ * motion-sensitive users expect.
+ */
+@layer utilities {
+  .reveal-in {
+    animation-duration: 900ms;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    animation-fill-mode: both;
+  }
+  .reveal-fade-up    { animation-name: reveal-fade-up; }
+  .reveal-fade-in    { animation-name: reveal-fade-in; }
+  .reveal-slide-left { animation-name: reveal-slide-left; }
+  .reveal-slide-right { animation-name: reveal-slide-right; }
+  .reveal-scale-in   { animation-name: reveal-scale-in; }
+  .reveal-blur-in    { animation-name: reveal-blur-in; }
+
+  .reveal-word-in {
+    animation: reveal-word 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes reveal-fade-up {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes reveal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes reveal-slide-left {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes reveal-slide-right {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes reveal-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes reveal-blur-in {
+  from { opacity: 0; filter: blur(16px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+@keyframes reveal-word {
+  from { opacity: 0; transform: translateY(24px); filter: blur(6px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-in, .reveal-word-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
