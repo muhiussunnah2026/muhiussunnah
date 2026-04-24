@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { Mail, Phone, MapPin, MessageCircle, Clock, Send } from "lucide-react";
+import { Mail, Phone, MapPin, MessageCircle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { ContactForm } from "./contact-form";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { ScrollProgress } from "@/components/marketing/scroll-progress";
@@ -37,7 +35,7 @@ export default async function ContactPage() {
 
   const infoCards = [
     { icon: Phone,          accent: "from-primary to-accent",   title: c.infoCards.phone,    href: "tel:+8801767682381",              line1: c.phoneDisplay,     line2: c.infoLines.phoneHours },
-    { icon: Mail,           accent: "from-accent to-secondary", title: c.infoCards.email,    href: "mailto:itsinjamul@gmail.com",     line1: "itsinjamul@gmail.com", line2: c.infoLines.emailReply },
+    { icon: Mail,           accent: "from-accent to-secondary", title: c.infoCards.email,    href: "mailto:muhiussunnah2026@gmail.com", line1: "muhiussunnah2026@gmail.com", line2: c.infoLines.emailReply },
     { icon: MessageCircle,  accent: "from-success to-accent",   title: c.infoCards.whatsapp, href: "https://wa.me/8801767682381",     line1: c.phoneDisplay,     line2: c.infoLines.whatsappResponse },
     { icon: MapPin,         accent: "from-secondary to-primary",title: c.infoCards.office,   href: "#",                               line1: c.officeLocation,   line2: c.infoLines.officeVisit },
   ];
@@ -74,45 +72,14 @@ export default async function ContactPage() {
                 <div className="p-6 md:p-8">
                   <h2 className="text-2xl font-bold mb-1">{c.formHeading}</h2>
                   <p className="text-sm text-muted-foreground mb-6">{c.formSubheading}</p>
-                  <form className="space-y-4">
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div>
-                        <Label htmlFor="name">{c.labels.name}</Label>
-                        <Input id="name" name="name" placeholder={c.placeholders.name} required />
-                      </div>
-                      <div>
-                        <Label htmlFor="school">{c.labels.school}</Label>
-                        <Input id="school" name="school" placeholder={c.placeholders.school} />
-                      </div>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div>
-                        <Label htmlFor="email">{c.labels.email}</Label>
-                        <Input id="email" name="email" type="email" placeholder={c.placeholders.email} required />
-                      </div>
-                      <div>
-                        <Label htmlFor="phone">{c.labels.phone}</Label>
-                        <Input id="phone" name="phone" type="tel" placeholder={c.placeholders.phone} />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="subject">{c.labels.subject}</Label>
-                      <select id="subject" name="subject" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                        {c.subjectOptions.map((o) => <option key={o}>{o}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <Label htmlFor="message">{c.labels.message}</Label>
-                      <Textarea id="message" name="message" rows={5} placeholder={c.placeholders.message} required />
-                    </div>
-                    <Magnetic strength={0.15}>
-                      <Button type="submit" size="lg" className="w-full bg-gradient-primary animate-gradient text-white hover:opacity-90 shadow-lg shadow-primary/20">
-                        <Send className="me-2 size-4" />
-                        {c.submitCta}
-                      </Button>
-                    </Magnetic>
-                    <p className="text-xs text-muted-foreground text-center">{c.submitNote}</p>
-                  </form>
+                  <ContactForm
+                    labels={c.labels}
+                    placeholders={c.placeholders}
+                    subjectOptions={c.subjectOptions}
+                    submitCta={c.submitCta}
+                    submittingCta={locale === "en" ? "Sending…" : "পাঠানো হচ্ছে…"}
+                  />
+                  <p className="mt-3 text-xs text-muted-foreground text-center">{c.submitNote}</p>
                 </div>
               </div>
             </Reveal>

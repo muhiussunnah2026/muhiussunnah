@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
-import { Building2, CreditCard, LayoutDashboard, MessageSquare, Settings2, ShieldCheck, BarChart3 } from "lucide-react";
+import { Building2, CreditCard, LayoutDashboard, Mail, MessageSquare, Settings2, ShieldCheck, BarChart3 } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { requireSuperAdmin } from "@/lib/auth/session";
 
@@ -17,6 +17,7 @@ export default async function SuperAdminLayout({ children }: { children: ReactNo
     { href: "/super-admin/subscriptions", label: t("nav_subscriptions"), icon: <CreditCard className="size-4" /> },
     { href: "/super-admin/plans",         label: t("nav_plans"),        icon: <ShieldCheck className="size-4" /> },
     { href: "/super-admin/sms-credits",   label: t("nav_sms"),          icon: <MessageSquare className="size-4" /> },
+    { href: "/super-admin/messages",      label: t("nav_inbox"),        icon: <Mail className="size-4" /> },
     { href: "/super-admin/analytics",     label: t("nav_analytics"),    icon: <BarChart3 className="size-4" /> },
     { href: "/super-admin/settings",      label: t("nav_settings"),     icon: <Settings2 className="size-4" /> },
   ];

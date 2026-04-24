@@ -2805,7 +2805,19 @@
     "delete_school_deleting": "মুছে ফেলা হচ্ছে…",
     "delete_school_done": "স্কুল মুছে ফেলা হয়েছে।",
     "manage_platform_owned_label": "প্ল্যাটফর্মের নিজস্ব স্কুল",
-    "manage_platform_owned_hint": "চালু থাকলে এই স্কুল রাজস্ব হিসাবে গণ্য হবে না ও প্ল্যানের মেয়াদ অনির্দিষ্টকাল থাকবে। শুধু প্ল্যাটফর্ম মালিকের নিজের স্কুলের জন্য।"
+    "manage_platform_owned_hint": "চালু থাকলে এই স্কুল রাজস্ব হিসাবে গণ্য হবে না ও প্ল্যানের মেয়াদ অনির্দিষ্টকাল থাকবে। শুধু প্ল্যাটফর্ম মালিকের নিজের স্কুলের জন্য।",
+    "nav_inbox": "ইনবক্স",
+    "inbox_page_title": "যোগাযোগ বার্তা",
+    "inbox_page_subtitle": "কন্ট্যাক্ট ফর্ম থেকে আসা সকল বার্তা",
+    "inbox_tally_total": "মোট",
+    "inbox_tally_new": "নতুন",
+    "inbox_metric_total": "মোট বার্তা",
+    "inbox_metric_new": "নতুন (অপঠিত)",
+    "inbox_metric_read": "পঠিত",
+    "inbox_empty_title": "এখনো কোনো বার্তা আসেনি",
+    "inbox_empty_body": "কন্ট্যাক্ট পেজ থেকে কেউ বার্তা পাঠালে এখানে দেখা যাবে।",
+    "inbox_badge_new": "নতুন",
+    "inbox_reply_cta": "উত্তর দিন"
   },
   "pay": {
     "success_title_meta": "পেমেন্ট সফল",

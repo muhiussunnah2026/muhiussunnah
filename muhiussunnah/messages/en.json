@@ -2805,7 +2805,19 @@
     "delete_school_deleting": "Deleting…",
     "delete_school_done": "School deleted.",
     "manage_platform_owned_label": "Platform-owned school",
-    "manage_platform_owned_hint": "When on, this school does not count towards revenue and its plan never expires. Use only for your own tenants."
+    "manage_platform_owned_hint": "When on, this school does not count towards revenue and its plan never expires. Use only for your own tenants.",
+    "nav_inbox": "Inbox",
+    "inbox_page_title": "Contact messages",
+    "inbox_page_subtitle": "All inquiries submitted through the contact form",
+    "inbox_tally_total": "Total",
+    "inbox_tally_new": "New",
+    "inbox_metric_total": "Total messages",
+    "inbox_metric_new": "New (unread)",
+    "inbox_metric_read": "Read",
+    "inbox_empty_title": "No messages yet",
+    "inbox_empty_body": "Submissions from the contact page will appear here.",
+    "inbox_badge_new": "New",
+    "inbox_reply_cta": "Reply"
   },
   "pay": {
     "success_title_meta": "Payment successful",
