@@ -17,6 +17,11 @@ import {
   Building2,
   PhoneCall,
   Mail,
+  School,
+  GraduationCap,
+  BookOpenText,
+  Library,
+  MapPin,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -87,7 +92,7 @@ const COPY: Record<Locale, Strings> = {
       title: "মেহনত করুন,",
       titleAccent: "আজীবন আয় করুন",
       subtitle:
-        "জিন্দেগি কোথায় নষ্ট করছেন? বাংলাদেশের প্রতিটি অলি-গলিতে যেখানে ৫০০+ মাদ্রাসা, স্কুল ও কোচিং সেন্টার অপেক্ষা করছে — সেখানে শুধু মেহনত করলেই Muhius Sunnah আপনাকে দেবে আজীবন ৫০% রাজস্বের ভাগ।",
+        "বাংলাদেশে ২ লাখেরও বেশি শিক্ষাপ্রতিষ্ঠান — প্রাইমারি স্কুল, মাদ্রাসা, কলেজ, কোচিং সেন্টার। আজ থেকে কাজ শুরু হোক যেন এই ২ লাখের মধ্যে অন্তত ৫০০ প্রতিষ্ঠানের কাছে Muhius Sunnah পৌঁছে দিতে পারি — কেল্লা ফতে, প্রতি মাসে ১.২৫ লাখ টাকা রিকারিং। আরো manage করতে পারলে আরো বেশি earn।",
       primaryCta: "এখনই পার্টনার হোন",
       secondaryCta: "হিসাব করে দেখুন",
       trust1: "৫০/৫০ লাইফটাইম শেয়ার",
@@ -173,7 +178,7 @@ const COPY: Record<Locale, Strings> = {
       title: "Work hard once,",
       titleAccent: "earn for life",
       subtitle:
-        "There are 500+ madrasas, schools, and coaching centers waiting in every neighborhood of Bangladesh. Refer them to Muhius Sunnah and earn 50% of every recurring rupee — for life, not just the first sale.",
+        "Bangladesh has 2 lakh+ educational institutions — primary schools, madrasas, colleges, coaching centers. Start today and reach just 500 of them with Muhius Sunnah — that's ৳1.25 lakh/month recurring. Onboard more, earn more. The ceiling is yours.",
       primaryCta: "Become a partner",
       secondaryCta: "See the math",
       trust1: "50/50 lifetime split",
@@ -418,6 +423,119 @@ export default async function BeAPartnerPage() {
                   ? "It's a true partnership — we win when you win."
                   : "এটাই সত্যিকারের পার্টনারশিপ — আপনি জিতলে আমরাও জিতি।"}
               </p>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════════
+            MARKET SIZE — "2 lakh+ institutions, target only 500"
+        ═══════════════════════════════════════════════════════════════ */}
+        <section className="relative py-20 md:py-28 overflow-hidden">
+          <div className="pointer-events-none absolute inset-0" aria-hidden>
+            <div className="absolute top-10 start-[5%] size-80 rounded-full bg-primary/10 blur-[120px]" />
+            <div className="absolute bottom-10 end-[5%] size-80 rounded-full bg-accent/10 blur-[120px]" />
+          </div>
+
+          <div className="relative mx-auto w-full max-w-6xl px-4 md:px-8">
+            <Reveal variant="fade-up" className="mx-auto max-w-3xl text-center">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-success/40 bg-success/10 px-4 py-1.5 text-xs font-semibold text-success">
+                <MapPin className="size-3.5" />
+                {locale === "en" ? "MARKET OPPORTUNITY" : "বাজারের সুযোগ"}
+              </span>
+              <h2 className="mt-4 text-3xl font-bold tracking-tight md:text-5xl leading-tight">
+                {locale === "en" ? (
+                  <>
+                    ২ <span className="text-gradient-primary">lakh+</span> institutions waiting.
+                    <br />
+                    Target just <span className="text-gradient-primary">500</span> to start.
+                  </>
+                ) : (
+                  <>
+                    ২ <span className="text-gradient-primary">লাখেরও বেশি</span> প্রতিষ্ঠান অপেক্ষায়।
+                    <br />
+                    শুধু <span className="text-gradient-primary">৫০০</span> দিয়েই শুরু।
+                  </>
+                )}
+              </h2>
+              <p className="mt-5 text-base text-muted-foreground md:text-lg leading-relaxed">
+                {locale === "en"
+                  ? "Bangladesh has more than 2 lakh educational institutions. Onboarding just 500 of them — 0.25% of the total — gives you ৳15+ lakh/year. Ceiling is yours: more onboarded → more earned."
+                  : "বাংলাদেশে ২ লাখের বেশি শিক্ষাপ্রতিষ্ঠান আছে। মাত্র ০.২৫% বা ৫০০ প্রতিষ্ঠান আনলেই আপনার বার্ষিক আয় ১৫+ লাখ। সীমা আপনার হাতে — যত বেশি manage করবেন, তত বেশি earn।"}
+              </p>
+            </Reveal>
+
+            {/* Institution breakdown grid */}
+            <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                {
+                  icon: School,
+                  count: locale === "bn" ? "১,১৮,৬০৭" : "1,18,607",
+                  label: locale === "en" ? "Primary Schools" : "প্রাইমারি স্কুল",
+                  color: "from-sky-500 to-blue-500",
+                },
+                {
+                  icon: GraduationCap,
+                  count: locale === "bn" ? "২১,০৮৬" : "21,086",
+                  label: locale === "en" ? "Secondary Schools" : "মাধ্যমিক স্কুল",
+                  color: "from-emerald-500 to-green-500",
+                },
+                {
+                  icon: BookOpenText,
+                  count: locale === "bn" ? "৪,৫০০-৫,০০০" : "4,500–5,000",
+                  label: locale === "en" ? "Colleges (HSC+)" : "কলেজ (HSC+)",
+                  color: "from-amber-500 to-orange-500",
+                },
+                {
+                  icon: Library,
+                  count: locale === "bn" ? "১৯৪" : "194",
+                  label: locale === "en" ? "Universities" : "বিশ্ববিদ্যালয়",
+                  color: "from-rose-500 to-pink-500",
+                },
+                {
+                  icon: BookOpenText,
+                  count: locale === "bn" ? "২৪,০০০+" : "24,000+",
+                  label: locale === "en" ? "Madrasas (Alia + Qawmi)" : "মাদ্রাসা (আলিয়া + কওমী)",
+                  color: "from-violet-500 to-purple-500",
+                },
+                {
+                  icon: Users,
+                  count: locale === "bn" ? "৩০,০০০-৫০,০০০" : "30,000–50,000",
+                  label: locale === "en" ? "Coaching Centers" : "কোচিং সেন্টার",
+                  color: "from-cyan-500 to-teal-500",
+                },
+              ].map((stat, i) => (
+                <Reveal key={i} variant="fade-up" delay={i * 80}>
+                  <div className="group relative h-full overflow-hidden rounded-2xl border border-border/60 bg-card/60 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10">
+                    <span className="absolute -top-4 -end-4 size-24 rounded-full bg-gradient-to-br opacity-10 transition-opacity duration-300 group-hover:opacity-20" />
+                    <div className="relative">
+                      <span
+                        className={`inline-flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg transition-transform duration-300 group-hover:scale-110`}
+                      >
+                        <stat.icon className="size-6" />
+                      </span>
+                      <div className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">{stat.count}</div>
+                      <div className="mt-1 text-sm text-muted-foreground">{stat.label}</div>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+
+            {/* Grand total banner */}
+            <Reveal variant="scale-in" delay={300}>
+              <div className="mt-8 relative overflow-hidden rounded-3xl border-2 border-primary/40 bg-gradient-to-r from-primary/15 via-card to-accent/15 p-8 text-center shadow-2xl shadow-primary/15">
+                <div className="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+                  {locale === "en" ? "Approximate grand total" : "আনুমানিক মোট"}
+                </div>
+                <div className="mt-2 text-5xl font-bold text-gradient-primary md:text-7xl">
+                  {locale === "en" ? "2,00,000+" : "২,০০,০০০+"}
+                </div>
+                <div className="mt-3 text-sm text-muted-foreground md:text-base max-w-2xl mx-auto">
+                  {locale === "en"
+                    ? "Educational institutions across Bangladesh. Your share of just 500 of them = ৳1.25 lakh/month recurring."
+                    : "বাংলাদেশজুড়ে শিক্ষাপ্রতিষ্ঠান। মাত্র ৫০০ এর মধ্যে আপনার ভাগ = প্রতি মাসে ১.২৫ লাখ টাকা রিকারিং।"}
+                </div>
+              </div>
             </Reveal>
           </div>
         </section>
