@@ -123,7 +123,13 @@
     "hifz": "Hifz",
     "kitab": "Kitab",
     "daily_sabaq": "Daily Sabaq",
-    "settings": "Settings"
+    "settings": "Settings",
+    "group_academic": "Academic",
+    "group_finance": "Finance",
+    "group_messaging": "Messaging",
+    "group_operations": "Operations",
+    "group_madrasa": "Madrasa",
+    "group_insights": "Insights"
   },
   "userMenu": {
     "welcome": "Welcome,",
@@ -141,7 +147,8 @@
     "close": "Close sidebar",
     "open": "Open sidebar",
     "nav_menu": "Navigation menu",
-    "powered_by": "Powered by"
+    "powered_by": "Powered by",
+    "pinned": "Pinned"
   },
   "header": {
     "label_address": "Address:",

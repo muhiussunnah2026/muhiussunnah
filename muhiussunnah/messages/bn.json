@@ -123,7 +123,13 @@
     "hifz": "হিফজ",
     "kitab": "কিতাব",
     "daily_sabaq": "দৈনিক সবক",
-    "settings": "সেটিংস"
+    "settings": "সেটিংস",
+    "group_academic": "একাডেমিক",
+    "group_finance": "অর্থ",
+    "group_messaging": "মেসেজিং",
+    "group_operations": "অপারেশন",
+    "group_madrasa": "মাদ্রাসা",
+    "group_insights": "ইনসাইট"
   },
   "userMenu": {
     "welcome": "স্বাগতম,",
@@ -141,7 +147,8 @@
     "close": "সাইডবার বন্ধ করুন",
     "open": "সাইডবার খুলুন",
     "nav_menu": "নেভিগেশন মেনু",
-    "powered_by": "Powered by"
+    "powered_by": "Powered by",
+    "pinned": "পিন করা"
   },
   "header": {
     "label_address": "Address:",

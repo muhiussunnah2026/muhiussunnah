@@ -1,18 +1,10 @@
 "use client";
 
-import type { ReactNode } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { useSidebar } from "./sidebar-state";
 import { cn } from "@/lib/utils";
-
-type NavItem = {
-  href: string;
-  label: string;
-  icon?: ReactNode;
-};
+import { SidebarNavTree, type NavTree } from "./sidebar-nav-tree";
 
 /**
  * Two-mode sidebar container:
@@ -23,7 +15,7 @@ type NavItem = {
  * "expanded" modes — desktop respects the collapsed toggle, mobile drawer
  * always shows full labels.
  */
-export function SidebarShell({ items }: { items: NavItem[] }) {
+export function SidebarShell({ tree }: { tree: NavTree }) {
   const { collapsed, mobileOpen, closeMobile } = useSidebar();
   const t = useTranslations("sidebar");
 
@@ -45,7 +37,7 @@ export function SidebarShell({ items }: { items: NavItem[] }) {
           className="pointer-events-none absolute -top-8 -start-8 size-40 rounded-full bg-primary/10 blur-3xl"
           aria-hidden
         />
-        <SidebarNavBody items={items} expanded={!collapsed} />
+        <SidebarNavTree tree={tree} expanded={!collapsed} />
         <SidebarFooter expanded={!collapsed} />
       </aside>
 
@@ -91,83 +83,11 @@ export function SidebarShell({ items }: { items: NavItem[] }) {
             className="pointer-events-none absolute end-0 inset-y-0 w-px bg-gradient-to-b from-primary/20 via-primary/40 to-accent/20"
             aria-hidden
           />
-          <SidebarNavBody items={items} expanded={true} />
+          <SidebarNavTree tree={tree} expanded={true} />
           <SidebarFooter expanded={true} />
         </aside>
       </div>
     </>
-  );
-}
-
-/**
- * The nav items themselves. Extracted so the shell can render it twice
- * (once for desktop, once for mobile drawer) with different `expanded`
- * states — desktop respects the collapse toggle; mobile is always full.
- */
-function SidebarNavBody({ items, expanded }: { items: NavItem[]; expanded: boolean }) {
-  const pathname = usePathname();
-
-  const rootHomes = new Set(["/admin", "/teacher", "/portal"]);
-  let activeHref: string | null = null;
-  if (pathname) {
-    let bestLen = -1;
-    for (const item of items) {
-      const href = item.href;
-      const matches = rootHomes.has(href)
-        ? pathname === href
-        : pathname === href || pathname.startsWith(href + "/");
-      if (matches && href.length > bestLen) {
-        bestLen = href.length;
-        activeHref = href;
-      }
-    }
-  }
-
-  return (
-    <nav className="flex flex-col gap-1">
-      {items.map((item) => {
-        const active = item.href === activeHref;
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            prefetch={true}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "group/nav relative flex items-center rounded-xl border text-sm font-medium transition-all duration-200",
-              expanded ? "gap-3 px-3.5 py-2.5" : "justify-center size-12 mx-auto",
-              active
-                ? "border-primary/40 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent text-primary shadow-md shadow-primary/15 font-semibold"
-                : "border-transparent text-sidebar-foreground/80 hover:border-primary/30 hover:bg-primary/5 hover:text-primary hover:shadow-sm hover:shadow-primary/10",
-              expanded && !active && "hover:translate-x-0.5",
-            )}
-            title={!expanded ? item.label : undefined}
-          >
-            {active && expanded ? (
-              <>
-                <span
-                  className="pointer-events-none absolute start-0 top-1/2 h-7 w-[3px] -translate-y-1/2 rounded-e-full bg-gradient-primary animate-gradient shadow-[0_0_8px_rgba(124,92,255,0.6)]"
-                  aria-hidden
-                />
-                <span
-                  className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-r from-primary/5 to-transparent"
-                  aria-hidden
-                />
-              </>
-            ) : null}
-            <span
-              className={cn(
-                "flex items-center justify-center transition-colors shrink-0 size-6 [&_svg]:size-5",
-                active ? "text-primary" : "text-muted-foreground group-hover/nav:text-primary",
-              )}
-            >
-              {item.icon}
-            </span>
-            {expanded ? <span className="truncate">{item.label}</span> : null}
-          </Link>
-        );
-      })}
-    </nav>
   );
 }
 

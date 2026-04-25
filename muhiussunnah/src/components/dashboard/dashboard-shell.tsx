@@ -12,12 +12,7 @@ import { SidebarProvider } from "./sidebar-state";
 import { SidebarToggle } from "./sidebar-toggle";
 import { SidebarShell } from "./sidebar-shell";
 import { UserMenu } from "./user-menu";
-
-type NavItem = {
-  href: string;
-  label: string;
-  icon?: ReactNode;
-};
+import { flatToTree, type NavItem, type NavTree } from "./sidebar-nav-tree";
 
 /**
  * One composable line of header text. Admins choose which fields appear
@@ -36,7 +31,9 @@ type Props = {
   subtitle?: ReactNode;
   /** Multi-part header composition. If omitted falls back to title/subtitle. */
   headerFields?: HeaderField[];
-  nav: NavItem[];
+  /** Either a flat list (super-admin / portal use this) or a structured
+   *  tree with collapsible groups + pinned section (school admin). */
+  nav: NavItem[] | NavTree;
   userLabel?: ReactNode;
   /** Optional institution logo URL (from settings). Falls back to the م mark. */
   logoUrl?: string | null;
@@ -236,7 +233,7 @@ export async function DashboardShell({
       </header>
 
       <div className="relative flex flex-1">
-        <SidebarShell items={nav} />
+        <SidebarShell tree={Array.isArray(nav) ? flatToTree(nav) : nav} />
 
         {/* Content */}
         <main className="relative min-w-0 flex-1 p-4 md:p-8">
