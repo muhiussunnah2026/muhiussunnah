@@ -69,7 +69,7 @@ export async function MarketingFooter() {
         <div className="absolute bottom-0 end-1/4 size-96 rounded-full bg-accent/5 blur-[120px]" />
       </div>
 
-      <div className="relative mx-auto w-full max-w-7xl px-4 py-16 md:px-8 md:py-20">
+      <div className="relative mx-auto w-full max-w-7xl px-4 pt-16 pb-8 md:px-8 md:pt-20 md:pb-10">
         {/* Top grid — 4 cols */}
         <div className="grid gap-10 lg:grid-cols-[1.3fr_1fr_1fr_1.4fr]">
           {/* Brand col */}
@@ -224,7 +224,7 @@ export async function MarketingFooter() {
         </div>
 
         {/* Powered by — centered, plain-text credit */}
-        <div className="mt-4 pt-4 border-t border-border/30 text-center text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+        <div className="mt-3 pt-3 border-t border-border/30 text-center text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
           Powered by Growthency &amp; Anastechsolutions. All Rights Reserved by only Tazkiyah LTD.
         </div>
       </div>
