@@ -225,7 +225,7 @@ export async function MarketingFooter() {
 
         {/* Powered by — centered, plain-text credit */}
         <div className="mt-4 pt-4 border-t border-border/30 text-center text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
-          Powered by Growthency &amp; Anastechsolutions
+          Powered by Growthency &amp; Anastechsolutions. All Rights Reserved by only Tazkiyah LTD.
         </div>
       </div>
     </footer>
