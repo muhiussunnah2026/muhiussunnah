@@ -19,10 +19,19 @@ export const metadata = {
     "Our mission: modernize Bangladesh's schools & madrasas with local-first technology. Built by educators, for educators. 120+ institutions trust us.",
   alternates: { canonical: "/about" },
   openGraph: {
+    type: "website",
+    siteName: "Muhius Sunnah",
     title: "About Muhius Sunnah",
     description:
       "Local-first school & madrasa management built for Bangladesh. Trusted by 120+ institutions.",
     url: "/about",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "About Muhius Sunnah" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Muhius Sunnah",
+    description: "Local-first school & madrasa management built for Bangladesh.",
+    images: ["/opengraph-image"],
   },
 };
 

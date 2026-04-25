@@ -39,9 +39,27 @@ export const metadata: Metadata = {
     "Join Muhius Sunnah's affiliate partner program. 50/50 revenue share for life on every school you onboard. Bangladesh's #1 madrasa & school management software.",
   alternates: { canonical: "/be-a-partner" },
   openGraph: {
-    title: "Be a Partner · Muhius Sunnah",
-    description: "50/50 lifetime revenue share. Onboard 500 schools, earn ৳15+ lakh/year.",
+    type: "website",
+    siteName: "Muhius Sunnah",
+    title: "Be a Partner · Earn 50% Lifetime · Muhius Sunnah",
+    description:
+      "50/50 lifetime revenue share. Onboard 500 schools, earn ৳15+ lakh/year recurring. Bangladesh's #1 madrasa & school management software.",
     url: "/be-a-partner",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Be a Partner · Muhius Sunnah",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Be a Partner · Earn 50% Lifetime · Muhius Sunnah",
+    description:
+      "50/50 lifetime revenue share. Onboard 500 schools, earn ৳15+ lakh/year recurring.",
+    images: ["/opengraph-image"],
   },
 };
 

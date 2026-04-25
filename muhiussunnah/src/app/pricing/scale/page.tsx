@@ -21,6 +21,13 @@ export async function generateMetadata() {
         ? "৳4,000/মাস — মাল্টি-ব্রাঞ্চ, কাস্টম ডোমেইন, ২৪/৭ সাপোর্ট।"
         : "৳4,000/month — multi-branch, custom domain, 24/7 support.",
       url: "/pricing/scale",
+      images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Scale Package · Muhius Sunnah" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: bn ? "Scale প্যাকেজ — Muhius Sunnah" : "Scale Package — Muhius Sunnah",
+      description: bn ? "৳4,000/মাস — মাল্টি-ব্রাঞ্চ, কাস্টম ডোমেইন।" : "৳4,000/month — multi-branch, custom domain.",
+      images: ["/opengraph-image"],
     },
   };
 }

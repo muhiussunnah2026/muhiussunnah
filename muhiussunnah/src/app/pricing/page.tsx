@@ -19,10 +19,19 @@ export const metadata = {
     "Transparent pricing for schools & madrasas in Bangladesh. Lifetime deal ৳20,000 one-time, or monthly plans from ৳1,000. No hidden costs, 15-day free trial.",
   alternates: { canonical: "/pricing" },
   openGraph: {
+    type: "website",
+    siteName: "Muhius Sunnah",
     title: "Pricing — Muhius Sunnah",
     description:
       "Lifetime deal ৳20,000 one-time, or monthly from ৳1,000. 15-day free trial, no credit card required.",
     url: "/pricing",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Muhius Sunnah Pricing" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Pricing — Muhius Sunnah",
+    description: "Lifetime deal ৳20,000 or monthly from ৳1,000. 15-day free trial.",
+    images: ["/opengraph-image"],
   },
 };
 

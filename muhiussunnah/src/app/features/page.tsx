@@ -23,10 +23,19 @@ export const metadata = {
     "32+ features for schools & madrasas — student management, attendance, exams, fees, AI insights, hifz & kitab tracking. Everything you need, bilingual Bangla + English.",
   alternates: { canonical: "/features" },
   openGraph: {
+    type: "website",
+    siteName: "Muhius Sunnah",
     title: "Features — Muhius Sunnah",
     description:
       "32+ features for schools & madrasas — admissions, attendance, fees, hifz/kitab tracking, AI insights.",
     url: "/features",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Muhius Sunnah Features" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Features — Muhius Sunnah",
+    description: "32+ features for schools & madrasas. AI insights, hifz tracking, parent portal.",
+    images: ["/opengraph-image"],
   },
 };
 

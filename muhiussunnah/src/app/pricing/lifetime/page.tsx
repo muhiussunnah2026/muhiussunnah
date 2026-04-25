@@ -21,6 +21,13 @@ export async function generateMetadata() {
         ? "৳20,000 একবার পরিশোধে সারাজীবন ব্যবহার।"
         : "৳20,000 once for lifetime access. Up to 200 students.",
       url: "/pricing/lifetime",
+      images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Lifetime Basic · Muhius Sunnah" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: bn ? "Lifetime Basic প্যাকেজ — Muhius Sunnah" : "Lifetime Basic Package — Muhius Sunnah",
+      description: bn ? "৳20,000 একবার পরিশোধে সারাজীবন।" : "৳20,000 once for lifetime access.",
+      images: ["/opengraph-image"],
     },
   };
 }

@@ -21,6 +21,13 @@ export async function generateMetadata() {
         ? "৳2,000/মাস — সীমাহীন ছাত্র, অনলাইন পেমেন্ট, AI, WhatsApp।"
         : "৳2,000/month — unlimited students, online payments, AI, WhatsApp.",
       url: "/pricing/growth",
+      images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Growth Package · Muhius Sunnah" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: bn ? "Growth প্যাকেজ — Muhius Sunnah" : "Growth Package — Muhius Sunnah",
+      description: bn ? "৳2,000/মাস — সীমাহীন ছাত্র, AI, WhatsApp।" : "৳2,000/month — unlimited students, AI, WhatsApp.",
+      images: ["/opengraph-image"],
     },
   };
 }

@@ -19,9 +19,18 @@ export const metadata = {
     "24/7 multi-channel support from Muhius Sunnah — video tutorials, live calls, WhatsApp, email. Get help in Bangla, English, Arabic, or Urdu.",
   alternates: { canonical: "/support" },
   openGraph: {
+    type: "website",
+    siteName: "Muhius Sunnah",
     title: "Support — Muhius Sunnah",
     description: "24/7 support — video tutorials, WhatsApp, live calls, email.",
     url: "/support",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Muhius Sunnah Support" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Support — Muhius Sunnah",
+    description: "24/7 support — video tutorials, WhatsApp, live calls, email.",
+    images: ["/opengraph-image"],
   },
 };
 

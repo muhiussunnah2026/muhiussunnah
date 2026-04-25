@@ -21,6 +21,13 @@ export async function generateMetadata() {
         ? "৳1,000/মাস — ৫০০ ছাত্র পর্যন্ত, SMS নোটিফিকেশন, offline mode।"
         : "৳1,000/month — up to 500 students, SMS notifications, offline mode.",
       url: "/pricing/starter",
+      images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Starter Package · Muhius Sunnah" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: bn ? "Starter প্যাকেজ — Muhius Sunnah" : "Starter Package — Muhius Sunnah",
+      description: bn ? "৳1,000/মাস — ৫০০ ছাত্র পর্যন্ত।" : "৳1,000/month — up to 500 students.",
+      images: ["/opengraph-image"],
     },
   };
 }

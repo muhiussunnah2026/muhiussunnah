@@ -20,9 +20,18 @@ export const metadata = {
     "Talk to Muhius Sunnah — demos, partnerships, support. Call +880 1767-682381 or email us. Bangla, English, Arabic, Urdu support available.",
   alternates: { canonical: "/contact" },
   openGraph: {
+    type: "website",
+    siteName: "Muhius Sunnah",
     title: "Contact Muhius Sunnah",
     description: "Talk to us — demos, partnerships, support. Multi-language support team.",
     url: "/contact",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Contact Muhius Sunnah" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contact Muhius Sunnah",
+    description: "Talk to us — demos, partnerships, support.",
+    images: ["/opengraph-image"],
   },
 };
 
