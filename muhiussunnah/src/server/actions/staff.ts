@@ -14,6 +14,8 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { env } from "@/lib/config/env";
 import { USER_ROLES } from "@/lib/auth/roles";
+import { sendEmail, isEmailConfigured } from "@/lib/messaging/email";
+import { staffInvitationEmail } from "@/lib/messaging/email-templates";
 import {
   type ActionResult,
   ok,
@@ -121,11 +123,79 @@ export async function inviteStaffAction(
   });
   if (membershipError) return fail(membershipError.message);
 
-  // 4. Send password-reset link so they set their own password
-  const supabase = await supabaseServer();
-  await supabase.auth.resetPasswordForEmail(parsed.email, {
-    redirectTo: `${env.NEXT_PUBLIC_APP_URL}/reset-password`,
-  });
+  // 4. Send a branded password-setup email through Resend instead of
+  //    Supabase's default "noreply@mail.app.supabase.io" template — that
+  //    one says "powered by Supabase" and looks unprofessional. We
+  //    generate the recovery link via the admin API (which does NOT
+  //    auto-send an email) and ship our own bilingual HTML through the
+  //    existing Resend wrapper.
+  let setupUrl: string | null = null;
+  try {
+    const { data: linkData } = await admin.auth.admin.generateLink({
+      type: "recovery",
+      email: parsed.email,
+      options: {
+        redirectTo: `${env.NEXT_PUBLIC_APP_URL}/reset-password`,
+      },
+    });
+    setupUrl = (linkData?.properties?.action_link as string | undefined) ?? null;
+  } catch {
+    // Fall back below.
+  }
+
+  // Resolve school name for the email greeting.
+  const { data: schoolRow } = await admin
+    .from("schools")
+    .select("name_bn, name_en")
+    .eq("id", auth.active.school_id)
+    .single();
+  const schoolName =
+    (schoolRow?.name_bn as string | undefined) ??
+    (schoolRow?.name_en as string | undefined) ??
+    "আপনার প্রতিষ্ঠান";
+
+  const roleLabels: Record<string, string> = {
+    SCHOOL_ADMIN: "প্রিন্সিপাল",
+    VICE_PRINCIPAL: "ভাইস প্রিন্সিপাল",
+    ACCOUNTANT: "হিসাবরক্ষক",
+    BRANCH_ADMIN: "শাখা প্রধান",
+    CLASS_TEACHER: "শ্রেণি শিক্ষক",
+    SUBJECT_TEACHER: "বিষয় শিক্ষক",
+    MADRASA_USTADH: "উস্তাদ",
+    LIBRARIAN: "গ্রন্থাগারিক",
+    TRANSPORT_MANAGER: "পরিবহন ব্যবস্থাপক",
+    HOSTEL_WARDEN: "হোস্টেল ওয়ার্ডেন",
+    CANTEEN_MANAGER: "ক্যান্টিন ব্যবস্থাপক",
+    COUNSELOR: "কাউন্সেলর",
+  };
+
+  if (setupUrl && isEmailConfigured()) {
+    const tpl = staffInvitationEmail({
+      fullName: parsed.full_name_bn,
+      schoolName,
+      roleLabel: roleLabels[parsed.role] ?? parsed.role,
+      inviterName:
+        (auth.active.full_name_bn as string | null) ??
+        (auth.active.full_name_en as string | null) ??
+        null,
+      setupUrl,
+    });
+    await sendEmail({
+      to: parsed.email,
+      subject: tpl.subject,
+      html: tpl.html,
+      text: tpl.text,
+      replyTo: "muhiussunnah2026@gmail.com",
+    });
+  } else if (!setupUrl) {
+    // Belt-and-suspenders fallback: if generateLink failed for any
+    // reason, fall back to Supabase's default reset email so the user
+    // is never left without a way in.
+    const supabase = await supabaseServer();
+    await supabase.auth.resetPasswordForEmail(parsed.email, {
+      redirectTo: `${env.NEXT_PUBLIC_APP_URL}/reset-password`,
+    });
+  }
 
   await writeAuditLog({
     schoolId: auth.active.school_id,
