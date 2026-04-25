@@ -11,6 +11,7 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getMarketingCopy } from "@/lib/i18n/marketing";
 import { Reveal } from "@/components/marketing/reveal";
 import { TextReveal } from "@/components/marketing/text-reveal";
+import { PartnersStrip } from "@/components/marketing/partners-strip";
 
 /**
  * Below-the-fold components — code-split out of the initial bundle.
@@ -286,6 +287,23 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          PARTNERS — affiliate / promotion network
+      ═══════════════════════════════════════════════════════════════ */}
+      <PartnersStrip
+        eyebrow={locale === "en" ? "OUR PARTNERS" : "আমাদের সাথী"}
+        title={
+          locale === "en"
+            ? "Companions on the journey forward"
+            : "সামনে এগিয়ে চলার সাথী"
+        }
+        subtitle={
+          locale === "en"
+            ? "These partners help us reach more institutions through affiliate marketing and product promotion. Inshaa Allah more companies will join the journey soon."
+            : "এই সাথীরা অ্যাফিলিয়েট মার্কেটিং ও প্রচারের মাধ্যমে আরও প্রতিষ্ঠানের কাছে আমাদের পৌঁছাতে সাহায্য করেন। ইনশাআল্লাহ আরও অনেক প্রতিষ্ঠান শীঘ্রই যুক্ত হবেন।"
+        }
+      />
 
       {/* ═══════════════════════════════════════════════════════════════
           PRICING PREVIEW
