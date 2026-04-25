@@ -91,9 +91,6 @@ function shell(bodyHtml: string, preview: string): string {
                 বাংলাদেশের সেরা স্কুল ও মাদ্রাসা ম্যানেজমেন্ট প্ল্যাটফর্ম<br/>
                 <a href="https://muhiussunnah.app" style="color:${BRAND.primary};text-decoration:none;font-weight:600;">muhiussunnah.app</a>
               </div>
-              <div style="margin-top:16px;font-size:10px;color:${BRAND.textMuted};text-transform:uppercase;letter-spacing:0.18em;">
-                Powered by Growthency &amp; Anastechsolutions · All Rights Reserved by only Tazkiyah LTD.
-              </div>
             </td>
           </tr>
         </table>
