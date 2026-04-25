@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,59 +15,100 @@ type State =
   | { status: "submitting" }
   | { status: "success" };
 
+/**
+ * Password-reset / first-time password setup form.
+ *
+ * Lands here from a Supabase recovery email. The URL has either:
+ *   #access_token=…&refresh_token=…&type=recovery
+ * or, for some clients, the same params on the query string.
+ *
+ * Order of events:
+ *   1. createBrowserClient (with detectSessionInUrl=true by default)
+ *      consumes the hash and sets the session cookie.
+ *   2. We listen for the PASSWORD_RECOVERY auth-state event AND poll
+ *      getSession() up to 6 seconds — whichever fires first flips
+ *      the form into the "ready" state.
+ *   3. User types a new password; we call supabase.auth.updateUser.
+ *   4. On success we send them through a server-side route handler
+ *      (/post-auth) which knows their role and redirects to /admin,
+ *      /teacher, /portal, or /super-admin accordingly.
+ */
 export function ResetPasswordForm() {
-  const router = useRouter();
   const [state, setState] = useState<State>({ status: "loading" });
   const [pwd, setPwd] = useState("");
   const [pwd2, setPwd2] = useState("");
   const [show, setShow] = useState(false);
 
-  // Supabase puts the recovery token in the URL hash on landing.
-  // The supabase-js client picks it up automatically when it sees
-  // `?type=recovery` or `#type=recovery`, but only if we explicitly
-  // give it a kick by reading getSession() (or auth state change).
-  // We listen for the PASSWORD_RECOVERY event so we know the token
-  // landed before we let the user submit.
   useEffect(() => {
     const supabase = supabaseBrowser();
-
-    // 1. Some clients deliver the token via query string instead of hash;
-    //    detectSessionInUrl on createBrowserClient handles both.
     let cancelled = false;
+    let pollTimer: number | null = null;
 
-    (async () => {
+    // Helper — we're "ready" the moment we have a session OR we
+    // can see a recovery token in the URL.
+    const checkReady = async () => {
+      if (cancelled) return false;
+      const hash = typeof window !== "undefined" ? window.location.hash : "";
+      const search = typeof window !== "undefined" ? window.location.search : "";
+      const params = new URLSearchParams(
+        hash.startsWith("#") ? hash.slice(1) : search.startsWith("?") ? search.slice(1) : "",
+      );
+      const hasToken = params.has("access_token") || params.has("refresh_token");
+      if (hasToken) return true;
+
       const { data } = await supabase.auth.getSession();
-      if (cancelled) return;
-      if (data.session) {
-        setState({ status: "ready" });
+      return Boolean(data.session);
+    };
+
+    // First pass — synchronous check + getSession.
+    (async () => {
+      if (await checkReady()) {
+        if (!cancelled) setState({ status: "ready" });
       }
     })();
 
+    // Listen for auth-state changes — this fires once Supabase has
+    // finished consuming the URL hash on its own internal clock.
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
-        setState({ status: "ready" });
+      if (cancelled) return;
+      if (
+        event === "PASSWORD_RECOVERY" ||
+        event === "SIGNED_IN" ||
+        event === "INITIAL_SESSION"
+      ) {
+        setState((prev) => (prev.status === "loading" ? { status: "ready" } : prev));
       }
     });
 
-    // Fallback timeout — if no event fires within 4s, the link is
-    // probably stale or someone landed here directly.
-    const timer = window.setTimeout(() => {
-      setState((prev) => {
-        if (prev.status === "loading") {
-          return {
-            status: "error",
-            message:
-              "লিংকটি মেয়াদোত্তীর্ণ বা বৈধ নয়। আবার পাসওয়ার্ড রিসেট লিংক চান?",
-          };
-        }
-        return prev;
-      });
-    }, 4000);
+    // Belt-and-suspenders poll. detectSessionInUrl is async and
+    // sometimes lands AFTER our first checkReady. Re-check every
+    // 250ms for up to 6 seconds before declaring the link bad.
+    let attempts = 0;
+    pollTimer = window.setInterval(async () => {
+      attempts++;
+      if (cancelled) return;
+      if (await checkReady()) {
+        setState((prev) => (prev.status === "loading" ? { status: "ready" } : prev));
+        if (pollTimer) window.clearInterval(pollTimer);
+      } else if (attempts >= 24) {
+        // 24 × 250ms = 6 seconds
+        if (pollTimer) window.clearInterval(pollTimer);
+        setState((prev) =>
+          prev.status === "loading"
+            ? {
+                status: "error",
+                message:
+                  "লিংকটি মেয়াদোত্তীর্ণ বা বৈধ নয়। নতুন রিসেট লিংক চান নিচের বাটন থেকে।",
+              }
+            : prev,
+        );
+      }
+    }, 250);
 
     return () => {
       cancelled = true;
       sub.subscription.unsubscribe();
-      window.clearTimeout(timer);
+      if (pollTimer) window.clearInterval(pollTimer);
     };
   }, []);
 
@@ -95,13 +135,13 @@ export function ResetPasswordForm() {
     setState({ status: "success" });
     toast.success("পাসওয়ার্ড সেট হয়েছে। ড্যাশবোর্ডে নিয়ে যাচ্ছি…");
 
-    // Brief delay so the toast is visible, then route to dashboard.
-    // The session cookie is already set, so the dashboard layout will
-    // resolve the user and redirect to /admin / /teacher / /portal.
+    // Hard navigate (full page load) to /post-auth so the server-side
+    // route handler reads the just-set cookie and redirects to the
+    // role-specific dashboard. router.replace would do a soft client
+    // nav and the cookie may not flush before the next request.
     window.setTimeout(() => {
-      router.replace("/admin");
-      router.refresh();
-    }, 800);
+      window.location.href = "/post-auth";
+    }, 600);
   }
 
   if (state.status === "loading") {
