@@ -84,11 +84,18 @@ export async function MarketingFooter() {
             {/* Contact — clickable */}
             <div className="mt-6 space-y-2.5 text-sm">
               <a
-                href="mailto:itsinjamul@gmail.com"
+                href="mailto:muhiussunnah2026@gmail.com"
                 className="flex items-center gap-2 text-muted-foreground hover:text-primary transition group"
               >
-                <Mail className="size-4 text-primary group-hover:scale-110 transition-transform" />
-                <span className="group-hover:underline underline-offset-4">itsinjamul@gmail.com</span>
+                <Mail className="size-4 text-primary group-hover:scale-110 transition-transform shrink-0" />
+                <span className="group-hover:underline underline-offset-4 break-all">muhiussunnah2026@gmail.com</span>
+              </a>
+              <a
+                href="mailto:infoabubakar786@gmail.com"
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition group"
+              >
+                <Mail className="size-4 text-primary group-hover:scale-110 transition-transform shrink-0" />
+                <span className="group-hover:underline underline-offset-4 break-all">infoabubakar786@gmail.com</span>
               </a>
               <a
                 href="tel:+8801767682381"
@@ -98,8 +105,16 @@ export async function MarketingFooter() {
                 <Phone className="size-4 text-primary group-hover:scale-110 transition-transform shrink-0" />
                 <span className="group-hover:underline underline-offset-4 whitespace-nowrap">+880 1767-682381</span>
               </a>
+              <a
+                href="tel:+8801743656066"
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition group"
+                dir="ltr"
+              >
+                <Phone className="size-4 text-primary group-hover:scale-110 transition-transform shrink-0" />
+                <span className="group-hover:underline underline-offset-4 whitespace-nowrap">+880 1743-656066</span>
+              </a>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="size-4 text-primary" />
+                <MapPin className="size-4 text-primary shrink-0" />
                 <span>{tf("location")}</span>
               </div>
             </div>
@@ -181,6 +196,27 @@ export async function MarketingFooter() {
                 className="font-semibold text-primary hover:underline underline-offset-4"
               >
                 Mustaqeem Billah
+              </a>
+            </span>
+            <span className="text-muted-foreground/50">·</span>
+            <span>
+              Powered by{" "}
+              <a
+                href="https://growthency.com"
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold text-primary hover:underline underline-offset-4"
+              >
+                Growthency
+              </a>
+              {" "}&{" "}
+              <a
+                href="https://anastechsolutions.com"
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold text-primary hover:underline underline-offset-4"
+              >
+                Anastechsolutions
               </a>
             </span>
           </div>
