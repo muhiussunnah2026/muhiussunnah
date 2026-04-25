@@ -243,6 +243,15 @@ export async function DashboardShell({
           {children}
           <div className="mt-10">
             <TrustBadge variant="footer" />
+            {/*
+              Same plain-text "Powered by" credit that ships in the
+              public marketing footer — appears under every authed
+              dashboard page so the attribution stays consistent
+              across the whole product.
+            */}
+            <div className="mt-3 pt-3 border-t border-border/30 text-center text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+              Powered by Growthency &amp; Anastechsolutions. All Rights Reserved by only Tazkiyah LTD.
+            </div>
           </div>
         </main>
       </div>
